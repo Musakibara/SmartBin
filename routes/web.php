@@ -18,3 +18,7 @@ Route::get('/signup', function () {
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard/Index');
 });
+
+Route::get('/bins', function () {
+    return Inertia::render('Bins/Index');
+});
