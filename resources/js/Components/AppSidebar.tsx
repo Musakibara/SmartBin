@@ -64,9 +64,11 @@ export default function AppSidebar() {
     const tilt = useTilt()
 
     // Détermine si un lien est actif selon l'URL courante
+    // On retire la query string et le hash pour une comparaison fiable
     function isActive(href: string) {
-        if (href === '/dashboard') return url === '/dashboard'
-        return url.startsWith(href)
+        const path = url.split(/[?#]/)[0]
+        if (href === '/dashboard') return path === '/dashboard'
+        return path.startsWith(href)
     }
 
     return (
