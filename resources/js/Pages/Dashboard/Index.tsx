@@ -13,7 +13,6 @@ import {
     Brain,
     Bell,
     Gauge,
-    Clock,
     BatteryCharging,
     Thermometer,
 } from 'lucide-react'
@@ -31,9 +30,13 @@ import {
     fillLevelHistory,
     bins,
     alerts,
-    predictions,
 } from '../../data/mock-dashboard'
 
+// ============================================================
+// Icônes de marqueurs Leaflet pour la carte
+// ============================================================
+
+/** Marqueur vert — statut normal */
 const markerIcon = L.divIcon({
     className: '',
     html: '<div style="width:12px;height:12px;border-radius:50%;background:#10B981;border:2px solid #fff;box-shadow:0 0 0 4px rgba(16,185,129,0.2)"></div>',
@@ -41,6 +44,7 @@ const markerIcon = L.divIcon({
     iconAnchor: [6, 6],
 })
 
+/** Marqueur orange — seuil d'attention */
 const markerIconWarning = L.divIcon({
     className: '',
     html: '<div style="width:12px;height:12px;border-radius:50%;background:#f59e0b;border:2px solid #fff;box-shadow:0 0 0 4px rgba(245,158,11,0.2)"></div>',
@@ -48,6 +52,7 @@ const markerIconWarning = L.divIcon({
     iconAnchor: [6, 6],
 })
 
+/** Marqueur rouge animé — benne pleine / critique */
 const markerIconFull = L.divIcon({
     className: '',
     html: '<div class="animate-pulse" style="width:14px;height:14px;border-radius:50%;background:#ef4444;border:2px solid #fff;box-shadow:0 0 0 6px rgba(239,68,68,0.3)"></div>',
@@ -55,19 +60,26 @@ const markerIconFull = L.divIcon({
     iconAnchor: [7, 7],
 })
 
+/**
+ * Page principale du tableau de bord SmartBin
+ * Affiche les KPI, graphiques, cartes bennes et carte interactive
+ */
 function DashboardPage() {
     const [mapReady, setMapReady] = useState(false)
 
+    // La carte Leaflet ne se monte qu'après le rendu initial (SSR safe)
     useEffect(() => {
         setMapReady(true)
     }, [])
 
+    // Sélectionne l'icône selon le statut de la benne
     function getMarkerIcon(status: string) {
         if (status === 'full') return markerIconFull
         if (status === 'warning') return markerIconWarning
         return markerIcon
     }
 
+    // Effet 3D tilt au survol des cartes bennes
     const handleTiltMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
         const el = e.currentTarget
         const rect = el.getBoundingClientRect()
@@ -84,11 +96,13 @@ function DashboardPage() {
 
     return (
         <div className="space-y-6">
+            {/* En-tête du dashboard */}
             <div>
                 <h1 className="text-2xl font-bold text-white">Dashboard</h1>
                 <p className="text-sm text-gray-400 mt-1">Vue d'ensemble du réseau SmartBin</p>
             </div>
 
+            {/* Rangée 1 — KPI principaux */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 <KPICard title="Total Benne" value={kpiData.totalBins} icon={Trash2} />
                 <KPICard title="Capteurs Actifs" value={kpiData.activeSensors} icon={Activity} trend="+2 cette semaine" trendUp />
@@ -96,13 +110,16 @@ function DashboardPage() {
                 <KPICard title="Efficacité Collecte" value={`${kpiData.collectionEfficiency}%`} icon={Gauge} trend="+3% cette semaine" trendUp />
             </div>
 
+            {/* Rangée 2 — KPI alertes et prédictions */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
                 <KPICard title="Alertes Critiques" value={kpiData.criticalAlerts} icon={AlertTriangle} trend="+1 aujourd'hui" />
                 <KPICard title="Débordements" value={kpiData.predictedOverflows} icon={Brain} />
                 <KPICard title="Notifications" value={kpiData.notificationsSent} icon={Bell} trend="+12 aujourd'hui" trendUp />
             </div>
 
+            {/* Graphique + Alertes récentes */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Graphique d'évolution du remplissage */}
                 <div className="lg:col-span-2 glass rounded-xl p-6">
                     <h2 className="text-lg font-semibold text-white mb-4">Évolution du remplissage</h2>
                     <ResponsiveContainer width="100%" height={300}>
@@ -130,6 +147,7 @@ function DashboardPage() {
                     </ResponsiveContainer>
                 </div>
 
+                {/* Liste des alertes récentes */}
                 <div className="glass rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg font-semibold text-white">Alertes récentes</h2>
@@ -138,6 +156,7 @@ function DashboardPage() {
                     <div className="space-y-3">
                         {alerts.slice(0, 4).map((alert) => (
                             <div key={alert.id} className="flex items-start gap-3 p-3 rounded-lg bg-white/5">
+                                {/* Icône de sévérité */}
                                 <div className={`p-1.5 rounded-full ${
                                     alert.severity === 'critical' ? 'bg-red-500/20 text-red-400' :
                                     alert.severity === 'high' ? 'bg-orange-500/20 text-orange-400' :
@@ -145,6 +164,7 @@ function DashboardPage() {
                                 }`}>
                                     <AlertTriangle className="w-3 h-3" />
                                 </div>
+                                {/* Contenu de l'alerte */}
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm text-white truncate">{alert.message}</p>
                                     <div className="flex items-center gap-2 mt-1">
@@ -160,7 +180,9 @@ function DashboardPage() {
                 </div>
             </div>
 
+            {/* Cartes bennes + Carte interactive */}
             <div className="grid grid-cols-12 gap-[24px]">
+                {/* Liste horizontale des bennes en direct */}
                 <div className="col-span-12 space-y-4 animate-fade-in" style={{ animationDelay: '650ms' }}>
                     <div className="flex items-center justify-between">
                         <h4 className="text-[24px] leading-[32px] font-semibold text-[#f8fafc]">Live Bin Status</h4>
@@ -173,8 +195,10 @@ function DashboardPage() {
                             </button>
                         </div>
                     </div>
+                    {/* Scroll horizontal avec snap */}
                     <div className="flex gap-[24px] overflow-x-auto no-scrollbar py-2 snap-x">
                         {bins.map((bin) => {
+                            // Couleurs dynamiques selon le statut
                             const borderColor = bin.status === 'full' ? 'border-red-500' : bin.status === 'warning' ? 'border-orange-400' : 'border-[#10B981]'
                             const fillColor = bin.fillLevel > 80 ? 'text-red-500' : bin.fillLevel > 50 ? 'text-orange-400' : 'text-[#10B981]'
                             const fillBg = bin.fillLevel > 80 ? 'bg-red-500' : bin.fillLevel > 50 ? 'bg-orange-400' : 'bg-[#10B981]'
@@ -187,6 +211,7 @@ function DashboardPage() {
                                     onMouseLeave={handleTiltLeave}
                                     className={`glass min-w-[280px] p-4 rounded-xl flex flex-col gap-4 snap-start border-l-4 ${borderColor}`}
                                 >
+                                    {/* En-tête: ID et icône de statut */}
                                     <div className="flex justify-between items-start">
                                         <div>
                                             <p className="text-[10px] text-[#94a3b8] font-bold uppercase">{bin.id}</p>
@@ -196,6 +221,7 @@ function DashboardPage() {
                                             {statusIcon}
                                         </span>
                                     </div>
+                                    {/* Barre de remplissage + batterie + température */}
                                     <div className="space-y-2">
                                         <div className="flex justify-between text-[12px] leading-[16px] font-semibold">
                                             <span className="text-[#94a3b8]">Fill Level</span>
@@ -221,19 +247,22 @@ function DashboardPage() {
                     </div>
                 </div>
 
-                {/* Carte interactive du réseau — conteneur principal avec overlay d'information */}
+                {/* Carte interactive du réseau — overlay d'information + marqueurs Leaflet */}
                 <div className="col-span-12 lg:col-span-12 glass p-0 rounded-xl overflow-hidden h-[400px] relative">
+                    {/* Overlay d'information en haut à gauche */}
                     <div className="absolute top-4 left-4 z-[9999] flex flex-col gap-2">
                         <div className="bg-[#1E293B] p-3 rounded-lg flex flex-col gap-1 shadow-lg border border-white/10 hover:scale-105 transition-transform duration-200 cursor-default">
                             <h5 className="text-sm font-bold text-white">City-Wide Deployment</h5>
                             <p className="text-[10px] text-gray-400">Central Hub: Yaoundé, CM</p>
                         </div>
+                        {/* Légende des couleurs */}
                         <div className="bg-[#1E293B] p-2 rounded-lg flex gap-4 shadow-lg border border-white/10">
                             <div className="flex items-center gap-1.5 hover:scale-110 transition-transform duration-200 cursor-pointer"><div className="w-2 h-2 rounded-full bg-emerald-500"></div><span className="text-[10px] text-gray-200">Optimal</span></div>
                             <div className="flex items-center gap-1.5 hover:scale-110 transition-transform duration-200 cursor-pointer"><div className="w-2 h-2 rounded-full bg-orange-400"></div><span className="text-[10px] text-gray-200">Warning</span></div>
                             <div className="flex items-center gap-1.5 hover:scale-110 transition-transform duration-200 cursor-pointer"><div className="w-2 h-2 rounded-full bg-red-500"></div><span className="text-[10px] text-gray-200">Critical</span></div>
                         </div>
                     </div>
+                {/* Carte Leaflet rendue côté client uniquement */}
                 {mapReady && (
                     <div className="h-full w-full">
                         <MapContainer
@@ -273,6 +302,7 @@ function DashboardPage() {
     )
 }
 
+// Applique le layout principal avec sidebar et navbar
 DashboardPage.layout = (page: React.ReactNode) => <AppLayout>{page}</AppLayout>
 
 export default DashboardPage

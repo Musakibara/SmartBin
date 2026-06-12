@@ -3,11 +3,16 @@ import { router, Link } from '@inertiajs/react'
 import { Mail, Lock, Eye, EyeOff, User, Loader2, Leaf, UserPlus } from 'lucide-react'
 import GuestLayout from '../../Layouts/GuestLayout'
 
+/**
+ * Page d'inscription — création de compte utilisateur
+ * Même structure que Login avec un champ nom supplémentaire
+ */
 function SignUpPage() {
     const [showPassword, setShowPassword] = useState(false)
     const [loading, setLoading] = useState(false)
     const [focusedField, setFocusedField] = useState<'name' | 'email' | 'password' | null>(null)
 
+    // Simulation d'inscription — remplacée par l'API Laravel
     function handleSubmit(e: FormEvent) {
         e.preventDefault()
         setLoading(true)
@@ -18,6 +23,7 @@ function SignUpPage() {
         }, 1500)
     }
 
+    // Classe dynamique pour les champs selon le focus
     const inputClass = (field: 'name' | 'email' | 'password') =>
         `w-full rounded-xl border bg-white py-3.5 pl-11 pr-4 text-[15px] text-[#191c1e] placeholder:text-[#bbcabf]/70 outline-none transition-all duration-200 ${
             focusedField === field
@@ -28,7 +34,7 @@ function SignUpPage() {
     return (
         <main className="flex h-dvh min-h-dvh flex-col overflow-hidden bg-white">
             <div className="flex h-full flex-col md:flex-row font-sans">
-                {/* Left */}
+                {/* Panneau gauche — branding et visuel */}
                 <section className="relative hidden h-full overflow-hidden md:flex md:w-[40%]">
                     <img src="/images/login-bg.png" alt="" className="absolute inset-0 h-full w-full object-cover" aria-hidden />
                     <div className="absolute inset-0 bg-[#0F172A]/30" />
@@ -57,7 +63,7 @@ function SignUpPage() {
                     </div>
                 </section>
 
-                {/* Right */}
+                {/* Panneau droit — formulaire */}
                 <section className="flex h-full w-full flex-col items-center justify-center bg-[#f0f4f2] px-6 md:w-[60%]">
                     <div className="w-full max-w-sm">
                         <div className="mb-2 text-center">
@@ -68,6 +74,7 @@ function SignUpPage() {
 
                         <div className="rounded-2xl border border-[#dce8e0]/50 bg-white p-7 shadow-lg shadow-black/[0.02]">
                             <form onSubmit={handleSubmit} className="space-y-3.5">
+                                {/* Champ nom complet */}
                                 <div>
                                     <label htmlFor="name" className="mb-1.5 block text-[13px] font-medium tracking-[0.01em] text-[#3c4a42]">Full Name</label>
                                     <div className="relative">
@@ -90,6 +97,7 @@ function SignUpPage() {
                                     </div>
                                 </div>
 
+                                {/* Champ email */}
                                 <div>
                                     <label htmlFor="email" className="mb-1.5 block text-[13px] font-medium tracking-[0.01em] text-[#3c4a42]">Email</label>
                                     <div className="relative">
@@ -112,6 +120,7 @@ function SignUpPage() {
                                     </div>
                                 </div>
 
+                                {/* Champ mot de passe */}
                                 <div>
                                     <label htmlFor="password" className="mb-1.5 block text-[13px] font-medium tracking-[0.01em] text-[#3c4a42]">Password</label>
                                     <div className="relative">
@@ -132,6 +141,7 @@ function SignUpPage() {
                                             className={inputClass('password')}
                                             autoComplete="new-password"
                                         />
+                                        {/* Bouton afficher/masquer le mot de passe */}
                                         <button
                                             type="button"
                                             onClick={() => setShowPassword(!showPassword)}
@@ -144,6 +154,7 @@ function SignUpPage() {
                                     </div>
                                 </div>
 
+                                {/* Bouton inscription */}
                                 <button
                                     type="submit"
                                     disabled={loading}
@@ -162,12 +173,14 @@ function SignUpPage() {
                                     )}
                                 </button>
 
+                                {/* Séparateur avec "or" */}
                                 <div className="relative flex items-center py-1">
                                     <div className="flex-grow border-t border-[#dce8e0]" />
                                     <span className="mx-4 text-[11px] font-medium uppercase tracking-[0.1em] text-[#6c7a71]">or</span>
                                     <div className="flex-grow border-t border-[#dce8e0]" />
                                 </div>
 
+                                {/* Boutons SSO */}
                                 <div className="grid grid-cols-2 gap-3">
                                     <button
                                         type="button"
@@ -194,6 +207,7 @@ function SignUpPage() {
                             </form>
                         </div>
 
+                        {/* Lien vers connexion */}
                         <div className="mt-5 text-center">
                             <span className="text-[13px] text-[#6c7a71]">
                                 Already have an account?{' '}
@@ -202,7 +216,6 @@ function SignUpPage() {
                                 </Link>
                             </span>
                         </div>
-
                     </div>
                 </section>
             </div>
@@ -210,6 +223,7 @@ function SignUpPage() {
     )
 }
 
+// Applique le layout invité (sans sidebar ni navbar)
 SignUpPage.layout = (page: React.ReactNode) => <GuestLayout>{page}</GuestLayout>
 
 export default SignUpPage

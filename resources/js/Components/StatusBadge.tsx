@@ -1,9 +1,11 @@
 import { clsx } from 'clsx'
 
+// Statuts possibles d'une benne ou d'une alerte
 interface StatusBadgeProps {
     status: 'normal' | 'warning' | 'full' | 'pending' | 'resolved'
 }
 
+/** Configuration visuelle pour chaque statut */
 const statusConfig = {
     normal: { label: 'Normal', class: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
     warning: { label: 'Attention', class: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
@@ -12,6 +14,9 @@ const statusConfig = {
     resolved: { label: 'Résolue', class: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
 }
 
+/**
+ * Badge coloré indiquant l'état d'une benne ou d'une alerte
+ */
 export default function StatusBadge({ status }: StatusBadgeProps) {
     const config = statusConfig[status]
     return (

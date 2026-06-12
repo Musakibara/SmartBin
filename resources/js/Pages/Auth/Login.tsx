@@ -3,11 +3,16 @@ import { router, Link } from '@inertiajs/react'
 import { Mail, Lock, Eye, EyeOff, LogIn, Loader2, Leaf } from 'lucide-react'
 import GuestLayout from '../../Layouts/GuestLayout'
 
+/**
+ * Page d'authentification — connexion utilisateur
+ * Composée d'une section visuelle (gauche) et du formulaire (droite)
+ */
 function LoginPage() {
     const [showPassword, setShowPassword] = useState(false)
     const [loading, setLoading] = useState(false)
     const [focusedField, setFocusedField] = useState<'email' | 'password' | null>(null)
 
+    // Simulation de connexion — remplacée par l'API Laravel
     function handleSubmit(e: FormEvent) {
         e.preventDefault()
         setLoading(true)
@@ -18,6 +23,7 @@ function LoginPage() {
         }, 1500)
     }
 
+    // Classe dynamique pour les champs selon le focus
     const inputClass = (field: 'email' | 'password') =>
         `w-full rounded-xl border bg-white py-3.5 pl-11 pr-4 text-[15px] text-[#191c1e] placeholder:text-[#bbcabf]/70 outline-none transition-all duration-200 ${
             focusedField === field
@@ -28,7 +34,7 @@ function LoginPage() {
     return (
         <main className="flex h-dvh min-h-dvh flex-col overflow-hidden bg-white">
             <div className="flex h-full flex-col md:flex-row font-sans">
-                {/* Left */}
+                {/* Panneau gauche — branding et visuel */}
                 <section className="relative hidden h-full overflow-hidden md:flex md:w-[40%]">
                     <img src="/images/login-bg.png" alt="" className="absolute inset-0 h-full w-full object-cover" aria-hidden />
                     <div className="absolute inset-0 bg-[#0F172A]/30" />
@@ -57,7 +63,7 @@ function LoginPage() {
                     </div>
                 </section>
 
-                {/* Right */}
+                {/* Panneau droit — formulaire */}
                 <section className="flex h-full w-full flex-col items-center justify-center bg-[#f0f4f2] px-6 md:w-[60%]">
                     <div className="w-full max-w-sm">
                         <div className="mb-2 text-center">
@@ -68,6 +74,7 @@ function LoginPage() {
 
                         <div className="rounded-2xl border border-[#dce8e0]/50 bg-white p-7 shadow-lg shadow-black/[0.02]">
                             <form onSubmit={handleSubmit} className="space-y-4">
+                                {/* Champ email */}
                                 <div>
                                     <label htmlFor="email" className="mb-1.5 block text-[13px] font-medium tracking-[0.01em] text-[#3c4a42]">Email</label>
                                     <div className="relative">
@@ -90,6 +97,7 @@ function LoginPage() {
                                     </div>
                                 </div>
 
+                                {/* Champ mot de passe */}
                                 <div>
                                     <div className="mb-1.5 flex items-center justify-between">
                                         <label htmlFor="password" className="block text-[13px] font-medium tracking-[0.01em] text-[#3c4a42]">Password</label>
@@ -114,6 +122,7 @@ function LoginPage() {
                                             className={inputClass('password')}
                                             autoComplete="current-password"
                                         />
+                                        {/* Bouton afficher/masquer le mot de passe */}
                                         <button
                                             type="button"
                                             onClick={() => setShowPassword(!showPassword)}
@@ -126,6 +135,7 @@ function LoginPage() {
                                     </div>
                                 </div>
 
+                                {/* Se souvenir de moi */}
                                 <div className="flex items-center">
                                     <input
                                         id="remember"
@@ -137,6 +147,7 @@ function LoginPage() {
                                     </label>
                                 </div>
 
+                                {/* Bouton de connexion */}
                                 <button
                                     type="submit"
                                     disabled={loading}
@@ -155,12 +166,14 @@ function LoginPage() {
                                     )}
                                 </button>
 
+                                {/* Séparateur avec "or" */}
                                 <div className="relative flex items-center py-1">
                                     <div className="flex-grow border-t border-[#dce8e0]" />
                                     <span className="mx-4 text-[11px] font-medium uppercase tracking-[0.1em] text-[#6c7a71]">or</span>
                                     <div className="flex-grow border-t border-[#dce8e0]" />
                                 </div>
 
+                                {/* Boutons SSO */}
                                 <div className="grid grid-cols-2 gap-3">
                                     <button
                                         type="button"
@@ -187,6 +200,7 @@ function LoginPage() {
                             </form>
                         </div>
 
+                        {/* Lien vers inscription */}
                         <div className="mt-5 text-center">
                             <span className="text-[13px] text-[#6c7a71]">
                                 Don't have an account?{' '}
@@ -195,7 +209,6 @@ function LoginPage() {
                                 </Link>
                             </span>
                         </div>
-
                     </div>
                 </section>
             </div>
@@ -203,6 +216,7 @@ function LoginPage() {
     )
 }
 
+// Applique le layout invité (sans sidebar ni navbar)
 LoginPage.layout = (page: React.ReactNode) => <GuestLayout>{page}</GuestLayout>
 
 export default LoginPage

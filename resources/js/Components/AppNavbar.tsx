@@ -1,8 +1,13 @@
 import { Search, Bell, HelpCircle, Moon, User } from 'lucide-react'
 
+/**
+ * Barre de navigation supérieure
+ * Contient la recherche, les actions rapides et le profil utilisateur
+ */
 export default function AppNavbar() {
     return (
         <header className="sticky top-0 z-40 flex items-center justify-between h-16 w-full bg-[#0F172A]/80 backdrop-blur-xl border-b border-[#334155] px-6">
+            {/* Barre de recherche */}
             <div className="flex items-center gap-6">
                 <div className="relative group">
                     <span className="absolute inset-y-0 left-3 flex items-center text-[#94a3b8]">
@@ -16,6 +21,7 @@ export default function AppNavbar() {
                 </div>
             </div>
 
+            {/* Actions et profil */}
             <div className="flex items-center gap-4">
                 <button className="p-2 text-[#94a3b8] hover:text-[#10B981] hover:bg-white/5 rounded-xl transition-all active:scale-95">
                     <Bell className="w-5 h-5" />
@@ -29,6 +35,7 @@ export default function AppNavbar() {
 
                 <div className="h-8 w-px bg-[#334155] mx-2"></div>
 
+                {/* Infos utilisateur */}
                 <div className="flex items-center gap-3">
                     <div className="text-right hidden sm:block">
                         <p className="text-[14px] leading-[20px] font-bold text-[#f8fafc]">Admin User</p>

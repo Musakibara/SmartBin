@@ -1,5 +1,6 @@
 import { type LucideIcon } from 'lucide-react'
 
+// Props du composant carte KPI
 interface KPICardProps {
     title: string
     value: string | number
@@ -8,6 +9,10 @@ interface KPICardProps {
     trendUp?: boolean
 }
 
+/**
+ * Carte d'indicateur clé de performance
+ * Affiche une métrique avec son icône et une tendance optionnelle
+ */
 export default function KPICard({ title, value, icon: Icon, trend, trendUp }: KPICardProps) {
     return (
         <div className="glass rounded-xl p-5 transition-all duration-300 hover:bg-[rgba(255,255,255,0.08)]">

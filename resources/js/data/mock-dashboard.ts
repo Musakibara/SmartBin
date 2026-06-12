@@ -1,3 +1,8 @@
+// ============================================================
+// Types & Interfaces — SmartBin Dashboard
+// ============================================================
+
+/** Représente une benne connectée avec ses métriques live */
 export interface Bin {
     id: string
     name: string
@@ -11,6 +16,7 @@ export interface Bin {
     temperature: number
 }
 
+/** Alerte générée par le système de monitoring */
 export interface Alert {
     id: string
     bin: string
@@ -20,6 +26,7 @@ export interface Alert {
     time: string
 }
 
+/** Prédiction IA de débordement */
 export interface Prediction {
     id: string
     bin: string
@@ -28,11 +35,17 @@ export interface Prediction {
     priority: 'low' | 'medium' | 'high'
 }
 
+/** Lecture capteur pour les graphiques temporels */
 export interface SensorReading {
     time: string
     value: number
 }
 
+// ============================================================
+// Données mock pour le développement
+// ============================================================
+
+/** Indicateurs clés de performance du réseau */
 export const kpiData = {
     totalBins: 24,
     activeSensors: 22,
@@ -43,6 +56,7 @@ export const kpiData = {
     collectionEfficiency: 92,
 }
 
+/** Historique du taux de remplissage (24h) */
 export const fillLevelHistory: SensorReading[] = [
     { time: '00:00', value: 30 },
     { time: '04:00', value: 25 },
@@ -52,6 +66,7 @@ export const fillLevelHistory: SensorReading[] = [
     { time: '20:00', value: 60 },
 ]
 
+/** Données des 24 bennes déployées sur le réseau */
 export const bins: Bin[] = [
     { id: 'BIN-001', name: 'Parc Central', location: 'Av. Charles Atangana', fillLevel: 85, status: 'full', lastUpdate: 'Il y a 2 min', lat: 3.848, lng: 11.502, battery: 42, temperature: 24 },
     { id: 'BIN-002', name: 'Gare SNCF', location: 'Place de la Gare', fillLevel: 62, status: 'warning', lastUpdate: 'Il y a 5 min', lat: 3.851, lng: 11.498, battery: 68, temperature: 26 },
@@ -79,6 +94,7 @@ export const bins: Bin[] = [
     { id: 'BIN-024', name: 'Centre Culturel', location: 'Rue de la Culture', fillLevel: 36, status: 'normal', lastUpdate: 'Il y a 6 min', lat: 3.835, lng: 11.505, battery: 84, temperature: 21 },
 ]
 
+/** Alertes actives et résolues */
 export const alerts: Alert[] = [
     { id: 'ALT-001', bin: 'BIN-001', message: 'Benne presque pleine (85%)', severity: 'high', status: 'pending', time: 'Il y a 10 min' },
     { id: 'ALT-002', bin: 'BIN-004', message: 'Benne critique (91%)', severity: 'critical', status: 'pending', time: 'Il y a 15 min' },
@@ -87,6 +103,7 @@ export const alerts: Alert[] = [
     { id: 'ALT-005', bin: 'BIN-003', message: 'Capteur inactif', severity: 'low', status: 'resolved', time: 'Il y a 2h' },
 ]
 
+/** Prédictions IA générées */
 export const predictions: Prediction[] = [
     { id: 'PRD-001', bin: 'BIN-001', message: 'Sera pleine dans environ 2 heures', estimatedHours: 2, priority: 'high' },
     { id: 'PRD-002', bin: 'BIN-004', message: 'Sera pleine dans environ 1 heure', estimatedHours: 1, priority: 'high' },
@@ -95,6 +112,7 @@ export const predictions: Prediction[] = [
     { id: 'PRD-005', bin: 'BIN-005', message: 'Sera pleine dans environ 12 heures', estimatedHours: 12, priority: 'low' },
 ]
 
+/** Activité récente du système */
 export const activityTimeline = [
     { action: 'Alerte résolue', detail: 'BIN-003 - Capteur inactif', time: 'Il y a 2h' },
     { action: 'Notification envoyée', detail: 'Agent municipal alerté pour BIN-004', time: 'Il y a 15 min' },

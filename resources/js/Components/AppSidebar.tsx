@@ -14,12 +14,14 @@ import {
     type LucideIcon,
 } from 'lucide-react'
 
+// Structure d'un élément de navigation
 interface NavItem {
     label: string
     icon: LucideIcon
     href: string
 }
 
+/** Éléments de navigation principale */
 const navItems: NavItem[] = [
     { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
     { label: 'Smart Bins', icon: Trash2, href: '/bins' },
@@ -31,6 +33,10 @@ const navItems: NavItem[] = [
     { label: 'Paramètres', icon: Settings, href: '/settings' },
 ]
 
+/**
+ * Hook d'effet 3D tilt au survol
+ * Calcule la rotation en fonction de la position de la souris
+ */
 function useTilt() {
     const handleMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
         const el = e.currentTarget
@@ -49,10 +55,15 @@ function useTilt() {
     return { handleMouseMove, handleMouseLeave }
 }
 
+/**
+ * Barre latérale fixe avec navigation principale
+ * Inclut logo, liens, et section utilisateur
+ */
 export default function AppSidebar() {
     const { url } = usePage()
     const tilt = useTilt()
 
+    // Détermine si un lien est actif selon l'URL courante
     function isActive(href: string) {
         if (href === '/dashboard') return url === '/dashboard'
         return url.startsWith(href)
@@ -60,7 +71,7 @@ export default function AppSidebar() {
 
     return (
         <aside className="fixed left-0 top-0 h-screen w-64 bg-[#0F172A]/90 backdrop-blur-xl border-r border-[#334155] z-50 flex flex-col">
-            {/* Logo section with bottom divider */}
+            {/* Logo + titre */}
             <div className="px-6 py-6 flex items-center gap-3 border-b border-[#334155]">
                 <div className="w-10 h-10 rounded-lg bg-white overflow-hidden">
                     <img src="/images/logo.png" alt="SmartBin Logo" className="w-full h-full object-cover" />
@@ -71,7 +82,7 @@ export default function AppSidebar() {
                 </div>
             </div>
 
-            {/* Navigation items */}
+            {/* Menu de navigation */}
             <nav className="flex-1 flex flex-col px-4 py-4 overflow-y-auto">
                 <div className="space-y-1.5">
                     {navItems.map((item) => {
@@ -94,6 +105,7 @@ export default function AppSidebar() {
                         )
                     })}
                 </div>
+                {/* Section profil en bas */}
                 <div className="mt-16">
                     <div className="mb-3 border-t border-[#334155]" />
                     <div className="space-y-1.5">
