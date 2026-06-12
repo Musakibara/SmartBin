@@ -1,5 +1,6 @@
 import AppSidebar from '../Components/AppSidebar'
 import AppNavbar from '../Components/AppNavbar'
+import { ToastProvider } from '../Components/Toast'
 import { ReactNode } from 'react'
 
 // Props du layout principal
@@ -13,6 +14,7 @@ interface AppLayoutProps {
  */
 export default function AppLayout({ children }: AppLayoutProps) {
     return (
+        <ToastProvider>
         <div className="min-h-screen bg-[#020617]">
             <AppSidebar />
             <div className="pl-64 flex flex-col min-h-screen">
@@ -37,5 +39,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 </footer>
             </div>
         </div>
+        </ToastProvider>
     )
 }
