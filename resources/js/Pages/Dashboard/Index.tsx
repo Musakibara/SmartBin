@@ -181,11 +181,11 @@ function DashboardPage() {
             </div>
 
             {/* Cartes bennes + Carte interactive */}
-            <div className="grid grid-cols-12 gap-[24px]">
+            <div className="grid grid-cols-12 gap-4 sm:gap-[24px]">
                 {/* Liste horizontale des bennes en direct */}
-                <div className="col-span-12 space-y-4 animate-fade-in" style={{ animationDelay: '650ms' }}>
+                <div className="col-span-12 space-y-3 sm:space-y-4 animate-fade-in" style={{ animationDelay: '650ms' }}>
                     <div className="flex items-center justify-between">
-                        <h4 className="text-[24px] leading-[32px] font-semibold text-[#f8fafc]">Live Bin Status</h4>
+                        <h4 className="text-lg sm:text-[24px] sm:leading-[32px] font-semibold text-[#f8fafc]">Live Bin Status</h4>
                         <div className="flex gap-2">
                             <button className="p-1.5 glass rounded hover:bg-white/10 transition-colors">
                                 <span className="material-symbols-outlined text-[20px] text-[#94a3b8]">chevron_left</span>
@@ -196,9 +196,8 @@ function DashboardPage() {
                         </div>
                     </div>
                     {/* Scroll horizontal avec snap */}
-                    <div className="flex gap-[24px] overflow-x-auto no-scrollbar py-2 snap-x">
+                    <div className="flex gap-3 sm:gap-[24px] overflow-x-auto no-scrollbar py-2 snap-x">
                         {bins.map((bin) => {
-                            // Couleurs dynamiques selon le statut
                             const borderColor = bin.status === 'full' ? 'border-red-500' : bin.status === 'warning' ? 'border-orange-400' : 'border-[#10B981]'
                             const fillColor = bin.fillLevel > 80 ? 'text-red-500' : bin.fillLevel > 50 ? 'text-orange-400' : 'text-[#10B981]'
                             const fillBg = bin.fillLevel > 80 ? 'bg-red-500' : bin.fillLevel > 50 ? 'bg-orange-400' : 'bg-[#10B981]'
@@ -209,7 +208,7 @@ function DashboardPage() {
                                     key={bin.id}
                                     onMouseMove={handleTiltMove}
                                     onMouseLeave={handleTiltLeave}
-                                    className={`glass min-w-[280px] p-4 rounded-xl flex flex-col gap-4 snap-start border-l-4 ${borderColor}`}
+                                    className={`glass min-w-[220px] sm:min-w-[280px] p-3 sm:p-4 rounded-xl flex flex-col gap-3 sm:gap-4 snap-start border-l-4 ${borderColor}`}
                                 >
                                     {/* En-tête: ID et icône de statut */}
                                     <div className="flex justify-between items-start">
@@ -248,7 +247,7 @@ function DashboardPage() {
                 </div>
 
                 {/* Carte interactive du réseau — overlay d'information + marqueurs Leaflet */}
-                <div className="col-span-12 lg:col-span-12 glass p-0 rounded-xl overflow-hidden h-[400px] relative">
+                <div className="col-span-12 glass p-0 rounded-xl overflow-hidden h-[300px] sm:h-[400px] relative">
                     {/* Overlay d'information en haut à gauche */}
                     <div className="absolute top-4 left-4 z-[9999] flex flex-col gap-2">
                         <div className="bg-[#1E293B] p-3 rounded-lg flex flex-col gap-1 shadow-lg border border-white/10 hover:scale-105 transition-transform duration-200 cursor-default">
@@ -272,7 +271,7 @@ function DashboardPage() {
                             zoomControl={false}
                         >
                             <TileLayer
-                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                                attribution='&copy; <a href="https://osm.org/copyright">OSM</a>'
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             />
                             {bins.map((bin) => (

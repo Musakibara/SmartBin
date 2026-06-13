@@ -1,13 +1,14 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Head, Link } from '@inertiajs/react'
 import {
     BadgeCheck, ArrowRight, Trash2, BatteryCharging,
     Radio, Brain, Bell, Route, Settings, LayoutDashboard,
     Antenna, Cpu, CloudUpload, BarChart3, CheckCircle,
-    Globe, Share2, Menu, X, Leaf
+    Globe, Share2, Menu, X
 } from 'lucide-react'
 
 function Welcome() {
+    const [mobileOpen, setMobileOpen] = useState(false)
     const scrolledRef = useRef(false)
     const headerRef = useRef<HTMLElement>(null)
 
@@ -77,11 +78,11 @@ function Welcome() {
 
             <header
                 ref={headerRef}
-                className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-[40px] py-[8px] max-w-[1440px] mx-auto backdrop-blur-md border-b border-[#bbcabf] bg-[#f7f9fb]/80 transition-all duration-300"
+                className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-4 sm:px-6 md:px-[40px] py-[8px] max-w-[1440px] mx-auto backdrop-blur-md border-b border-[#bbcabf] bg-[#f7f9fb]/80 transition-all duration-300"
             >
-                <div className="flex items-center gap-[8px]">
-                    <Leaf className="h-6 w-6 text-[#006c49]" />
-                    <span className="text-[24px] font-semibold leading-[32px] text-[#006c49]">SmartBin</span>
+                <div className="flex items-center gap-2 sm:gap-[8px]">
+                    <img src="/images/logo.png" alt="SmartBin" className="h-8 w-8 sm:h-12 sm:w-12 rounded" />
+                    <span className="text-[18px] sm:text-[24px] font-semibold leading-[32px] text-[#006c49]">SmartBin</span>
                 </div>
 
                 <nav className="hidden md:flex items-center gap-[24px]">
@@ -91,22 +92,47 @@ function Welcome() {
                     <a href="#dashboard" className="text-[#3c4a42] hover:text-[#006c49] transition-colors text-[16px] leading-[24px]">Solution</a>
                 </nav>
 
-                <div className="flex items-center gap-[16px]">
+                <div className="flex items-center gap-2 sm:gap-[16px]">
                     <span className="hidden lg:block text-[#3c4a42] text-[14px] leading-[20px] font-medium tracking-[0.01em] cursor-pointer hover:text-[#006c49] transition-colors">Support</span>
                     <Link
                         href="/signup"
-                        className="bg-[#006c49] hover:bg-[#10b981] text-white px-6 py-2 rounded-xl text-[14px] leading-[20px] font-bold tracking-[0.01em] active:scale-95 transition-transform"
+                        className="bg-[#006c49] hover:bg-[#10b981] text-white px-4 sm:px-6 py-2 rounded-xl text-[14px] leading-[20px] font-bold tracking-[0.01em] active:scale-95 transition-transform"
                     >
                         Get Started
                     </Link>
-                    <button className="md:hidden p-2 text-[#3c4a42]" aria-label="Menu">
-                        <Menu size={24} />
+                    <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2 text-[#3c4a42]" aria-label="Menu">
+                        {mobileOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>
                 </div>
             </header>
 
+            {/* Mobile nav overlay */}
+            {mobileOpen && (
+                <div className="fixed inset-0 z-40 md:hidden">
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
+                    <nav className="absolute top-0 right-0 w-72 h-full bg-[#f7f9fb] shadow-2xl p-8 pt-24 flex flex-col gap-6">
+                        {[
+                            { href: '#', label: 'Home' },
+                            { href: '#features', label: 'Features' },
+                            { href: '#architecture', label: 'Architecture' },
+                            { href: '#dashboard', label: 'Solution' },
+                        ].map(({ href, label }) => (
+                            <a key={label} href={href} onClick={() => setMobileOpen(false)}
+                                className="text-[#3c4a42] hover:text-[#006c49] text-lg font-semibold transition-colors border-b border-[#bbcabf] pb-3"
+                            >{label}</a>
+                        ))}
+                        <div className="mt-auto pt-6 border-t border-[#bbcabf]">
+                            <span className="block text-[#3c4a42] text-sm mb-4">Support</span>
+                            <Link href="/signup" onClick={() => setMobileOpen(false)}
+                                className="block text-center bg-[#006c49] text-white px-6 py-3 rounded-xl font-bold"
+                            >Get Started</Link>
+                        </div>
+                    </nav>
+                </div>
+            )}
+
             <main className="pt-[80px]">
-                <section className="relative min-h-[90vh] flex items-center px-[40px] py-[48px] max-w-[1440px] mx-auto hero-gradient">
+                <section className="relative md:min-h-[90vh] flex items-center px-4 sm:px-6 md:px-[40px] py-6 md:py-[48px] max-w-[1440px] mx-auto hero-gradient">
                     <div className="grid lg:grid-cols-2 gap-[48px] items-center w-full">
                         <div className="flex flex-col gap-[24px] z-10">
                             <div className="inline-flex items-center gap-[8px] bg-[#10b981]/10 text-[#10b981] px-4 py-1 rounded-full w-fit">
@@ -159,7 +185,7 @@ function Welcome() {
                             </div>
                         </div>
 
-                        <div className="relative w-full aspect-square md:aspect-video lg:aspect-auto h-full min-h-[500px]">
+                        <div className="relative w-full aspect-square md:aspect-video lg:aspect-auto h-full min-h-[280px] md:min-h-[500px]">
                             <div className="absolute inset-0 rounded-[32px] overflow-hidden shadow-2xl border border-[#bbcabf]/30">
                                 <img
                                     className="w-full h-full object-cover"
@@ -199,20 +225,20 @@ function Welcome() {
                     </div>
                 </section>
 
-                <section className="py-[48px] px-[40px] max-w-[1440px] mx-auto animate-on-scroll">
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-[24px]">
+                <section className="py-6 md:py-[48px] px-4 sm:px-6 md:px-[40px] max-w-[1440px] mx-auto animate-on-scroll">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-[24px]">
                         {stats.map((s) => (
-                            <div key={s.label} className="bg-[#f2f4f6] p-8 rounded-2xl border border-[#bbcabf] hover:border-[#006c49] transition-colors group">
-                                <p className="text-[#006c49] text-[48px] font-bold leading-[1.1] tracking-[-0.02em] mb-2">{s.value}</p>
-                                <p className="text-[24px] leading-[32px] font-semibold text-[#191c1e]">{s.label}</p>
-                                <p className="text-[#6c7a71] mt-2 text-[16px] leading-[24px]">{s.desc}</p>
+                            <div key={s.label} className="bg-[#f2f4f6] p-4 md:p-8 rounded-2xl border border-[#bbcabf] hover:border-[#006c49] transition-colors group">
+                                <p className="text-[#006c49] text-[32px] md:text-[48px] font-bold leading-[1.1] tracking-[-0.02em] mb-2">{s.value}</p>
+                                <p className="text-[18px] md:text-[24px] leading-[32px] font-semibold text-[#191c1e]">{s.label}</p>
+                                <p className="text-[#6c7a71] mt-2 text-[14px] md:text-[16px] leading-[24px]">{s.desc}</p>
                             </div>
                         ))}
                     </div>
                 </section>
 
-                <section className="py-[48px] px-[40px] max-w-[1440px] mx-auto" id="features">
-                    <div className="text-center mb-[48px] animate-on-scroll">
+                <section className="py-6 md:py-[48px] px-4 sm:px-6 md:px-[40px] max-w-[1440px] mx-auto" id="features">
+                    <div className="text-center mb-6 md:mb-[48px] animate-on-scroll">
                         <h2 className="text-[30px] md:text-[48px] font-bold leading-[1.1] tracking-[-0.02em] text-[#191c1e]">Comprehensive AI Suite</h2>
                         <p className="text-[18px] leading-[28px] text-[#6c7a71] mt-[8px] max-w-2xl mx-auto">Enterprise-grade tools designed for the next generation of urban sanitation.</p>
                     </div>
@@ -230,14 +256,14 @@ function Welcome() {
                     </div>
                 </section>
 
-                <section className="py-[48px] bg-white overflow-hidden" id="architecture">
-                    <div className="px-[40px] max-w-[1440px] mx-auto">
-                        <div className="text-center mb-[48px] animate-on-scroll">
+                <section className="py-6 md:py-[48px] bg-white overflow-hidden" id="architecture">
+                    <div className="px-4 sm:px-6 md:px-[40px] max-w-[1440px] mx-auto">
+                        <div className="text-center mb-6 md:mb-[48px] animate-on-scroll">
                             <h2 className="text-[30px] md:text-[48px] font-bold leading-[1.1] tracking-[-0.02em] text-[#191c1e]">Seamless Architecture</h2>
                             <p className="text-[18px] leading-[28px] text-[#6c7a71] mt-[8px]">From physical signals to actionable insights in milliseconds.</p>
                         </div>
 
-                        <div className="grid lg:grid-cols-4 gap-[24px] relative">
+                        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-[24px] relative">
                             {steps.map((s, i) => (
                                 <div key={s.title} className="flex flex-col items-center text-center group animate-on-scroll">
                                     <div className="relative">
@@ -254,8 +280,8 @@ function Welcome() {
                     </div>
                 </section>
 
-                <section className="py-[48px] px-[40px] max-w-[1440px] mx-auto" id="dashboard">
-                    <div className="bg-[#2d3133] rounded-[40px] p-8 md:p-16 shadow-2xl relative overflow-hidden group animate-on-scroll">
+                <section className="py-6 md:py-[48px] px-4 sm:px-6 md:px-[40px] max-w-[1440px] mx-auto" id="dashboard">
+                    <div className="bg-[#2d3133] rounded-2xl md:rounded-[40px] p-4 md:p-8 lg:p-16 shadow-2xl relative overflow-hidden group animate-on-scroll">
                         <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
 
                         <div className="relative z-10 grid lg:grid-cols-12 gap-[24px] items-center">
@@ -325,17 +351,17 @@ function Welcome() {
                     </div>
                 </section>
 
-                <section className="py-[48px] px-[40px] max-w-[1440px] mx-auto text-center animate-on-scroll">
-                    <div className="bg-[#006c49] p-12 md:p-24 rounded-[40px] text-white relative overflow-hidden">
+                <section className="py-6 md:py-[48px] px-4 sm:px-6 md:px-[40px] max-w-[1440px] mx-auto text-center animate-on-scroll">
+                    <div className="bg-[#006c49] p-6 md:p-12 lg:p-24 rounded-2xl md:rounded-[40px] text-white relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-[#10b981]/20 rounded-full -mr-32 -mt-32 blur-3xl"></div>
                         <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#6ffbbe]/20 rounded-full -ml-32 -mb-32 blur-3xl"></div>
-                        <h2 className="text-[32px] md:text-[48px] font-bold leading-[1.1] tracking-[-0.02em] mb-[16px] relative z-10">Ready to Build Smarter Cities?</h2>
-                        <p className="text-[18px] leading-[28px] opacity-90 max-w-2xl mx-auto mb-[48px] relative z-10">Join forward-thinking governments and industrial leaders in redefining urban sanitation infrastructure.</p>
-                        <div className="flex flex-wrap justify-center gap-[16px] relative z-10">
-                            <button className="bg-white text-[#006c49] px-10 py-5 rounded-xl text-[24px] leading-[32px] font-semibold hover:bg-[#f2f4f6] active:scale-95 transition-all shadow-xl">
+                        <h2 className="text-[24px] md:text-[32px] lg:text-[48px] font-bold leading-[1.1] tracking-[-0.02em] mb-4 md:mb-[16px] relative z-10">Ready to Build Smarter Cities?</h2>
+                        <p className="text-[16px] md:text-[18px] leading-[28px] opacity-90 max-w-2xl mx-auto mb-6 md:mb-[48px] relative z-10">Join forward-thinking governments and industrial leaders in redefining urban sanitation infrastructure.</p>
+                        <div className="flex flex-wrap justify-center gap-3 md:gap-[16px] relative z-10">
+                            <button className="bg-white text-[#006c49] px-6 md:px-10 py-3 md:py-5 rounded-xl text-[16px] md:text-[24px] leading-[32px] font-semibold hover:bg-[#f2f4f6] active:scale-95 transition-all shadow-xl">
                                 Schedule a Demo
                             </button>
-                            <button className="bg-[#002113] text-white px-10 py-5 rounded-xl text-[24px] leading-[32px] font-semibold hover:bg-[#005236] active:scale-95 transition-all">
+                            <button className="bg-[#002113] text-white px-6 md:px-10 py-3 md:py-5 rounded-xl text-[16px] md:text-[24px] leading-[32px] font-semibold hover:bg-[#005236] active:scale-95 transition-all">
                                 Contact Sales
                             </button>
                         </div>
@@ -343,10 +369,10 @@ function Welcome() {
                 </section>
             </main>
 
-            <footer className="w-full py-[24px] px-[40px] flex flex-col md:flex-row justify-between items-center gap-[16px] bg-[#eceef0] border-t border-[#bbcabf]">
+            <footer className="w-full py-4 md:py-[24px] px-4 sm:px-6 md:px-[40px] flex flex-col md:flex-row justify-between items-center gap-4 md:gap-[16px] bg-[#eceef0] border-t border-[#bbcabf]">
                 <div className="flex flex-col gap-2 items-center md:items-start">
                     <div className="flex items-center gap-2">
-                        <Leaf className="h-6 w-6 text-[#006c49]" />
+                        <img src="/images/logo.png" alt="SmartBin" className="h-12 w-12 rounded" />
                         <span className="text-[14px] leading-[20px] font-bold tracking-[0.01em] text-[#191c1e]">SmartBin</span>
                     </div>
                     <p className="text-[#6c7a71] max-w-xs text-center md:text-left text-[12px] leading-[16px] font-semibold">© 2024 SmartBin. All rights reserved. Government-grade infrastructure security.</p>

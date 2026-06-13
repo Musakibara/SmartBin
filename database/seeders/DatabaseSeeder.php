@@ -2,24 +2,84 @@
 
 namespace Database\Seeders;
 
+use App\Models\Alert;
+use App\Models\Bin;
+use App\Models\Notification;
+use App\Models\Prediction;
+use App\Models\Report;
+use App\Models\Sensor;
+use App\Models\SensorReading;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
+        User::factory()->create([
+            'name' => 'Admin SmartBin',
+            'email' => 'admin@smartbin.cm',
+            'role' => 'ADMIN',
+            'phone' => '+237 690 000 000',
+        ]);
 
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Agent Terrain',
+            'email' => 'agent@smartbin.cm',
+            'role' => 'AGENT',
+            'phone' => '+237 690 000 001',
         ]);
+
+        User::factory(8)->create();
+
+        $bins = Bin::factory(24)->create();
+
+        foreach ($bins as $bin) {
+            Sensor::factory()->create([
+                'bin_id' => $bin->id,
+                'type' => 'ULTRASONIC',
+                'model' => 'HC-SR04',
+            ]);
+            Sensor::factory()->create([
+                'bin_id' => $bin->id,
+                'type' => 'WEIGHT',
+                'model' => 'HX711',
+            ]);
+            Sensor::factory()->create([
+                'bin_id' => $bin->id,
+                'type' => 'TEMPERATURE',
+                'model' => 'DS18B20',
+            ]);
+            Sensor::factory()->create([
+                'bin_id' => $bin->id,
+                'type' => 'BATTERY',
+                'model' => 'MAX17048',
+            ]);
+
+            SensorReading::factory(48)->create([
+                'bin_id' => $bin->id,
+            ]);
+
+            Prediction::factory()->create([
+                'bin_id' => $bin->id,
+            ]);
+
+            if (fake()->boolean(60)) {
+                Alert::factory(2)->create([
+                    'bin_id' => $bin->id,
+                ]);
+            }
+        }
+
+        $alerts = Alert::all();
+        foreach ($alerts as $alert) {
+            if (fake()->boolean(70)) {
+                Notification::factory()->create([
+                    'alert_id' => $alert->id,
+                ]);
+            }
+        }
+
+        Report::factory(6)->create();
     }
 }
