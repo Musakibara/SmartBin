@@ -275,3 +275,19 @@ Avant chaque mise en production :
 ---
 
 > Document généré le 13/06/2026 — références : [Copenhagen Book](https://thecopenhagenbook.com/), [OWASP Cheat Sheet Series](https://cheatsheetseries.owasp.org/)
+
+
+❌ Pas encore fait
+Backend
+- ❌ Contrôleurs CRUD : BinController, AlertController, PredictionController, MonitoringController, SensorController
+- ❌ Authentification Laravel Breeze/Sanctum : login réel, sessions, tokens API
+- ❌ Routes API sécurisées (manque auth pour /api/sensor-readings)
+Pages frontend (reliées aux données réelles)
+- ❌ Bins (filtres/recherche existent mais données mock)
+- ❌ Alerts, Predictions, Sensors, Monitoring, Users, Settings (tous en mock)
+Infrastructure
+- ❌ Docker / déploiement
+- ❌ Tests (Feature/Unit PHPUnit, peut-être frontend)
+Arduino (le jour J)
+- ❌ Code Arduino à écrire (lecture capteur ultrasons, envoi Serial)
+- ❌ Bridge Python à lancer dans un terminal séparé

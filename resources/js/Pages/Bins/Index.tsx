@@ -7,8 +7,7 @@ import 'leaflet/dist/leaflet.css'
 import AppLayout from '../../Layouts/AppLayout'
 import StatusBadge from '../../Components/StatusBadge'
 import { useToast } from '../../Components/Toast'
-import { bins, alerts, predictions } from '../../data/mock-dashboard'
-import type { Bin } from '../../data/mock-dashboard'
+import { usePage, router } from '@inertiajs/react'
 
 const markerIcon = L.divIcon({
     className: '',
@@ -39,6 +38,14 @@ const sortOptions = [
 const PER_PAGE = 9
 
 function BinsPage() {
+    const { bins: initialBins } = usePage().props as unknown as { bins: Array<{
+        id: string; name: string; location: string; fillLevel: number
+        status: 'normal' | 'warning' | 'full'; lastUpdate: string
+        lat: number; lng: number; battery: number; temperature: number
+    }> }
+
+    type BinType = typeof initialBins[number]
+
     const [search, setSearch] = useState('')
     const [statusFilter, setStatusFilter] = useState<string>('Tous')
     const [sortBy, setSortBy] = useState<'name' | 'fillLevel' | 'battery' | 'temperature'>('name')
@@ -47,21 +54,12 @@ function BinsPage() {
     const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid')
     const [mapReady, setMapReady] = useState(false)
     const [showAddModal, setShowAddModal] = useState(false)
-    const [editingBin, setEditingBin] = useState<Bin | null>(null)
-    const [deleteTarget, setDeleteTarget] = useState<Bin | null>(null)
-    const [localBins, setLocalBins] = useState(bins)
+    const [editingBin, setEditingBin] = useState<typeof initialBins[number] | null>(null)
+    const [deleteTarget, setDeleteTarget] = useState<typeof initialBins[number] | null>(null)
+    const [localBins, setLocalBins] = useState(initialBins)
 
     useEffect(() => { setMapReady(true) }, [])
-
-    const binAlerts = useMemo(() => {
-        const map = new Map<string, number>()
-        alerts.forEach((a) => {
-            if (a.status === 'pending') {
-                map.set(a.bin, (map.get(a.bin) || 0) + 1)
-            }
-        })
-        return map
-    }, [])
+    useEffect(() => { setLocalBins(initialBins) }, [initialBins])
 
     const result = useMemo(() => {
         return localBins
@@ -80,7 +78,7 @@ function BinsPage() {
                 if (sortBy === 'name') return a.name.localeCompare(b.name) * dir
                 return (a[sortBy] - b[sortBy]) * dir
             })
-    }, [search, statusFilter, sortBy, sortAsc])
+    }, [search, statusFilter, sortBy, sortAsc, localBins])
 
     const totalPages = Math.ceil(result.length / PER_PAGE)
     const paginated = result.slice((page - 1) * PER_PAGE, page * PER_PAGE)
@@ -102,15 +100,11 @@ function BinsPage() {
         })
     }
 
-    const [selectedBin, setSelectedBin] = useState<Bin | null>(null)
+    const [selectedBin, setSelectedBin] = useState<BinType | null>(null)
 
     // Gestion de la modale
-    const binDetailAlerts = useMemo(() =>
-        alerts.filter((a) => a.bin === selectedBin?.id),
-    [selectedBin])
-    const binPredictions = useMemo(() =>
-        predictions.filter((p) => p.bin === selectedBin?.id),
-    [selectedBin])
+    const binDetailAlerts: Array<{ id: string; message: string; severity: string; time: string }> = []
+    const binPredictions: Array<{ id: string; message: string; priority: string; estimatedHours: number }> = []
     const binHistoryData = useMemo(() =>
         selectedBin ? binHistory(selectedBin.fillLevel) : [],
     [selectedBin])
@@ -129,7 +123,7 @@ function BinsPage() {
     const [form, setForm] = useState({ name: '', location: '', fillLevel: 0, battery: 100, temperature: 22 })
     const { notify } = useToast()
 
-    function openEdit(bin: Bin) {
+    function openEdit(bin: typeof initialBins[number]) {
         setEditingBin(bin)
         setForm({ name: bin.name, location: bin.location, fillLevel: bin.fillLevel, battery: bin.battery, temperature: bin.temperature })
         setShowAddModal(true)
@@ -143,31 +137,16 @@ function BinsPage() {
 
     function saveBin() {
         if (!form.name.trim() || !form.location.trim()) return
+        const payload = { name: form.name, location: form.location, fill: form.fillLevel, battery: form.battery }
+
         if (editingBin) {
-            setLocalBins((prev) =>
-                prev.map((b) =>
-                    b.id === editingBin.id
-                        ? { ...b, name: form.name, location: form.location, fillLevel: form.fillLevel, battery: form.battery, temperature: form.temperature, status: form.fillLevel > 80 ? 'full' : form.fillLevel > 50 ? 'warning' : 'normal', lastUpdate: "À l'instant" }
-                        : b
-                )
-            )
-            notify({ message: `Benne modifiée`, sub: `${form.name} — ${form.location}`, type: 'info' })
+            router.patch(`/bins/${editingBin.id}`, payload, { preserveScroll: true, preserveState: true })
+            notify({ message: 'Benne modifiée', sub: `${form.name} — ${form.location}`, type: 'info' })
         } else {
-            const newBin: Bin = {
-                id: `BIN-${String(localBins.length + 1).padStart(3, '0')}`,
-                name: form.name,
-                location: form.location,
-                fillLevel: form.fillLevel,
-                battery: form.battery,
-                temperature: form.temperature,
-                status: form.fillLevel > 80 ? 'full' : form.fillLevel > 50 ? 'warning' : 'normal',
-                lastUpdate: "À l'instant",
-                lat: 3.848 + (Math.random() - 0.5) * 0.04,
-                lng: 11.502 + (Math.random() - 0.5) * 0.04,
-            }
-            setLocalBins((prev) => [newBin, ...prev])
-            notify({ message: `Nouvelle benne ajoutée`, sub: `${form.name} — ${form.location}`, type: 'success' })
+            router.post('/bins', payload, { preserveScroll: true, preserveState: true })
+            notify({ message: 'Nouvelle benne ajoutée', sub: `${form.name} — ${form.location}`, type: 'success' })
         }
+
         setForm({ name: '', location: '', fillLevel: 0, battery: 100, temperature: 22 })
         setShowAddModal(false)
         setEditingBin(null)
@@ -175,8 +154,9 @@ function BinsPage() {
 
     function confirmDelete() {
         if (!deleteTarget) return
+        router.delete(`/bins/${deleteTarget.id}`, { preserveScroll: true, preserveState: true })
         setLocalBins((prev) => prev.filter((b) => b.id !== deleteTarget.id))
-        notify({ message: `Benne supprimée`, sub: `${deleteTarget.name} — ${deleteTarget.location}`, type: 'success' })
+        notify({ message: 'Benne supprimée', sub: `${deleteTarget.name} — ${deleteTarget.location}`, type: 'success' })
         setDeleteTarget(null)
     }
 
@@ -294,7 +274,7 @@ function BinsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {paginated.map((bin) => {
                     const styles = fillLevelStyles(bin.fillLevel)
-                    const alertCount = binAlerts.get(bin.id) ?? 0
+                    const alertCount = 0
                     return (
                         <div
                             key={bin.id}

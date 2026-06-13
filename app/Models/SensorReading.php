@@ -19,6 +19,7 @@ class SensorReading extends Model
         'distance',
         'fill_level',
         'detected_presence',
+        'created_at',
     ];
 
     protected function casts(): array

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\BinController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -15,12 +17,13 @@ Route::get('/signup', function () {
     return Inertia::render('Auth/SignUp');
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard/Index');
-});
+Route::get('/dashboard', [DashboardController::class, 'index']);
 
-Route::get('/bins', function () {
-    return Inertia::render('Bins/Index');
+Route::prefix('/bins')->group(function () {
+    Route::get('/', [BinController::class, 'index'])->name('bins.index');
+    Route::post('/', [BinController::class, 'store'])->name('bins.store');
+    Route::patch('/{code}', [BinController::class, 'update'])->name('bins.update');
+    Route::delete('/{code}', [BinController::class, 'destroy'])->name('bins.destroy');
 });
 
 Route::get('/profile', function () {

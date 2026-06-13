@@ -25,12 +25,7 @@ import {
     Tooltip,
     ResponsiveContainer,
 } from 'recharts'
-import {
-    kpiData,
-    fillLevelHistory,
-    bins,
-    alerts,
-} from '../../data/mock-dashboard'
+import { usePage, router } from '@inertiajs/react'
 
 // ============================================================
 // Icônes de marqueurs Leaflet pour la carte
@@ -39,25 +34,25 @@ import {
 /** Marqueur vert — statut normal */
 const markerIcon = L.divIcon({
     className: '',
-    html: '<div style="width:12px;height:12px;border-radius:50%;background:#10B981;border:2px solid #fff;box-shadow:0 0 0 4px rgba(16,185,129,0.2)"></div>',
-    iconSize: [12, 12],
-    iconAnchor: [6, 6],
+    html: '<div style="width:18px;height:18px;border-radius:50%;background:#10B981;border:3px solid #fff;box-shadow:0 0 0 5px rgba(16,185,129,0.25),0 2px 8px rgba(0,0,0,0.4)"></div>',
+    iconSize: [18, 18],
+    iconAnchor: [9, 9],
 })
 
 /** Marqueur orange — seuil d'attention */
 const markerIconWarning = L.divIcon({
     className: '',
-    html: '<div style="width:12px;height:12px;border-radius:50%;background:#f59e0b;border:2px solid #fff;box-shadow:0 0 0 4px rgba(245,158,11,0.2)"></div>',
-    iconSize: [12, 12],
-    iconAnchor: [6, 6],
+    html: '<div style="width:18px;height:18px;border-radius:50%;background:#f59e0b;border:3px solid #fff;box-shadow:0 0 0 5px rgba(245,158,11,0.25),0 2px 8px rgba(0,0,0,0.4)"></div>',
+    iconSize: [18, 18],
+    iconAnchor: [9, 9],
 })
 
 /** Marqueur rouge animé — benne pleine / critique */
 const markerIconFull = L.divIcon({
     className: '',
-    html: '<div class="animate-pulse" style="width:14px;height:14px;border-radius:50%;background:#ef4444;border:2px solid #fff;box-shadow:0 0 0 6px rgba(239,68,68,0.3)"></div>',
-    iconSize: [14, 14],
-    iconAnchor: [7, 7],
+    html: '<div class="animate-pulse" style="width:20px;height:20px;border-radius:50%;background:#ef4444;border:3px solid #fff;box-shadow:0 0 0 6px rgba(239,68,68,0.3),0 2px 8px rgba(0,0,0,0.4)"></div>',
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
 })
 
 /**
@@ -65,6 +60,25 @@ const markerIconFull = L.divIcon({
  * Affiche les KPI, graphiques, cartes bennes et carte interactive
  */
 function DashboardPage() {
+    const { kpiData, fillLevelHistory, bins, alerts, period } = usePage().props as unknown as {
+        kpiData: typeof import('../../data/mock-dashboard').kpiData
+        fillLevelHistory: typeof import('../../data/mock-dashboard').fillLevelHistory
+        bins: typeof import('../../data/mock-dashboard').bins
+        alerts: typeof import('../../data/mock-dashboard').alerts
+        period: string
+    }
+
+    const periods = [
+        { key: '24h', label: '24h' },
+        { key: '7d', label: '7 jours' },
+        { key: '30d', label: '30 jours' },
+        { key: '12m', label: '12 mois' },
+    ] as const
+
+    function changePeriod(key: string) {
+        if (key === period) return
+        router.get('/dashboard', { period: key }, { preserveScroll: true, preserveState: true })
+    }
     const [mapReady, setMapReady] = useState(false)
 
     // La carte Leaflet ne se monte qu'après le rendu initial (SSR safe)
@@ -121,7 +135,24 @@ function DashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Graphique d'évolution du remplissage */}
                 <div className="lg:col-span-2 glass rounded-xl p-6">
-                    <h2 className="text-lg font-semibold text-white mb-4">Évolution du remplissage</h2>
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-semibold text-white">Évolution du remplissage</h2>
+                        <div className="flex gap-1 bg-white/5 rounded-lg p-1">
+                            {periods.map((p) => (
+                                <button
+                                    key={p.key}
+                                    onClick={() => changePeriod(p.key)}
+                                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                                        period === p.key
+                                            ? 'bg-emerald-500 text-white shadow'
+                                            : 'text-gray-400 hover:text-white hover:bg-white/10'
+                                    }`}
+                                >
+                                    {p.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                     <ResponsiveContainer width="100%" height={300}>
                         <LineChart data={fillLevelHistory}>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
