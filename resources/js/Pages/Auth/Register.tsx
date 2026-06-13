@@ -1,7 +1,8 @@
-import { useState, FormEvent } from 'react'
-import { router, Link } from '@inertiajs/react'
+import { useState } from 'react'
+import { Link, Head, useForm } from '@inertiajs/react'
 import { Mail, Lock, Eye, EyeOff, User, Loader2, Leaf, UserPlus } from 'lucide-react'
 import GuestLayout from '../../Layouts/GuestLayout'
+import InputError from '@/Components/InputError'
 
 /**
  * Page d'inscription — création de compte utilisateur
@@ -9,18 +10,20 @@ import GuestLayout from '../../Layouts/GuestLayout'
  */
 function SignUpPage() {
     const [showPassword, setShowPassword] = useState(false)
-    const [loading, setLoading] = useState(false)
     const [focusedField, setFocusedField] = useState<'name' | 'email' | 'password' | null>(null)
 
-    // Simulation d'inscription — remplacée par l'API Laravel
-    function handleSubmit(e: FormEvent) {
-        e.preventDefault()
-        setLoading(true)
+    const { data, setData, post, processing, errors, reset } = useForm({
+        name: '',
+        email: '',
+        password: '',
+        password_confirmation: '',
+    })
 
-        setTimeout(() => {
-            setLoading(false)
-            router.visit('/dashboard')
-        }, 1500)
+    function handleSubmit(e: React.FormEvent) {
+        e.preventDefault()
+        post(route('register'), {
+            onFinish: () => reset('password', 'password_confirmation'),
+        })
     }
 
     // Classe dynamique pour les champs selon le focus
@@ -33,6 +36,7 @@ function SignUpPage() {
 
     return (
         <main className="flex h-dvh min-h-dvh flex-col overflow-hidden bg-white">
+            <Head title="Sign up" />
             <div className="flex h-full flex-col md:flex-row font-sans">
                 {/* Panneau gauche — branding et visuel */}
                 <section className="relative hidden h-full overflow-hidden md:flex md:w-[40%]">
@@ -87,6 +91,8 @@ function SignUpPage() {
                                         <input
                                             id="name"
                                             type="text"
+                                            value={data.name}
+                                            onChange={e => setData('name', e.target.value)}
                                             required
                                             placeholder="John Doe"
                                             onFocus={() => setFocusedField('name')}
@@ -95,6 +101,7 @@ function SignUpPage() {
                                             autoComplete="name"
                                         />
                                     </div>
+                                    <InputError message={errors.name} className="mt-1" />
                                 </div>
 
                                 {/* Champ email */}
@@ -110,6 +117,8 @@ function SignUpPage() {
                                         <input
                                             id="email"
                                             type="email"
+                                            value={data.email}
+                                            onChange={e => setData('email', e.target.value)}
                                             required
                                             placeholder="name@domain.com"
                                             onFocus={() => setFocusedField('email')}
@@ -118,6 +127,7 @@ function SignUpPage() {
                                             autoComplete="email"
                                         />
                                     </div>
+                                    <InputError message={errors.email} className="mt-1" />
                                 </div>
 
                                 {/* Champ mot de passe */}
@@ -133,6 +143,8 @@ function SignUpPage() {
                                         <input
                                             id="password"
                                             type={showPassword ? 'text' : 'password'}
+                                            value={data.password}
+                                            onChange={e => setData('password', e.target.value)}
                                             required
                                             placeholder="Create a strong password"
                                             minLength={8}
@@ -152,15 +164,42 @@ function SignUpPage() {
                                             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                         </button>
                                     </div>
+                                    <InputError message={errors.password} className="mt-1" />
+                                </div>
+
+                                {/* Champ confirmation mot de passe */}
+                                <div>
+                                    <label htmlFor="password_confirmation" className="mb-1.5 block text-[13px] font-medium tracking-[0.01em] text-[#3c4a42]">Confirm Password</label>
+                                    <div className="relative">
+                                        <Lock
+                                            className={`pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors duration-200 ${
+                                                focusedField === 'password' ? 'text-emerald-500' : 'text-[#bbcabf]'
+                                            }`}
+                                            size={18}
+                                        />
+                                        <input
+                                            id="password_confirmation"
+                                            type={showPassword ? 'text' : 'password'}
+                                            value={data.password_confirmation}
+                                            onChange={e => setData('password_confirmation', e.target.value)}
+                                            required
+                                            placeholder="Repeat your password"
+                                            onFocus={() => setFocusedField('password')}
+                                            onBlur={() => setFocusedField(null)}
+                                            className={inputClass('password')}
+                                            autoComplete="new-password"
+                                        />
+                                    </div>
+                                    <InputError message={errors.password_confirmation} className="mt-1" />
                                 </div>
 
                                 {/* Bouton inscription */}
                                 <button
                                     type="submit"
-                                    disabled={loading}
+                                    disabled={processing}
                                     className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3.5 text-[14px] font-semibold text-white shadow-sm transition-all duration-200 hover:bg-emerald-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
                                 >
-                                    {loading ? (
+                                    {processing ? (
                                         <>
                                             <Loader2 className="h-4 w-4 animate-spin" />
                                             <span>Creating account...</span>

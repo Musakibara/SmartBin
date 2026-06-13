@@ -1,26 +1,33 @@
-import { useState, FormEvent } from 'react'
-import { router, Link } from '@inertiajs/react'
+import { useState } from 'react'
+import { Link, Head, useForm } from '@inertiajs/react'
 import { Mail, Lock, Eye, EyeOff, LogIn, Loader2, Leaf } from 'lucide-react'
 import GuestLayout from '../../Layouts/GuestLayout'
+import InputError from '@/Components/InputError'
+
+interface LoginProps {
+    canResetPassword: boolean
+    status?: string
+}
 
 /**
  * Page d'authentification — connexion utilisateur
  * Composée d'une section visuelle (gauche) et du formulaire (droite)
  */
-function LoginPage() {
+function LoginPage({ canResetPassword, status }: LoginProps) {
     const [showPassword, setShowPassword] = useState(false)
-    const [loading, setLoading] = useState(false)
     const [focusedField, setFocusedField] = useState<'email' | 'password' | null>(null)
 
-    // Simulation de connexion — remplacée par l'API Laravel
-    function handleSubmit(e: FormEvent) {
-        e.preventDefault()
-        setLoading(true)
+    const { data, setData, post, processing, errors, reset } = useForm({
+        email: '',
+        password: '',
+        remember: false,
+    })
 
-        setTimeout(() => {
-            setLoading(false)
-            router.visit('/dashboard')
-        }, 1500)
+    function handleSubmit(e: React.FormEvent) {
+        e.preventDefault()
+        post(route('login'), {
+            onFinish: () => reset('password'),
+        })
     }
 
     // Classe dynamique pour les champs selon le focus
@@ -33,6 +40,7 @@ function LoginPage() {
 
     return (
         <main className="flex h-dvh min-h-dvh flex-col overflow-hidden bg-white">
+            <Head title="Sign in" />
             <div className="flex h-full flex-col md:flex-row font-sans">
                 {/* Panneau gauche — branding et visuel */}
                 <section className="relative hidden h-full overflow-hidden md:flex md:w-[40%]">
@@ -72,6 +80,12 @@ function LoginPage() {
                             <p className="mt-1 text-[15px] text-[#6c7a71]">Access your monitoring dashboard</p>
                         </div>
 
+                        {status && (
+                            <div className="mb-4 rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-[13px] text-emerald-700">
+                                {status}
+                            </div>
+                        )}
+
                         <div className="rounded-2xl border border-[#dce8e0]/50 bg-white p-7 shadow-lg shadow-black/[0.02]">
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 {/* Champ email */}
@@ -87,6 +101,8 @@ function LoginPage() {
                                         <input
                                             id="email"
                                             type="email"
+                                            value={data.email}
+                                            onChange={e => setData('email', e.target.value)}
                                             required
                                             placeholder="name@domain.com"
                                             onFocus={() => setFocusedField('email')}
@@ -95,15 +111,18 @@ function LoginPage() {
                                             autoComplete="email"
                                         />
                                     </div>
+                                    <InputError message={errors.email} className="mt-1" />
                                 </div>
 
                                 {/* Champ mot de passe */}
                                 <div>
                                     <div className="mb-1.5 flex items-center justify-between">
                                         <label htmlFor="password" className="block text-[13px] font-medium tracking-[0.01em] text-[#3c4a42]">Password</label>
-                                        <button type="button" className="whitespace-nowrap text-[12px] font-medium text-emerald-600 hover:text-emerald-700">
-                                            Forgot Password?
-                                        </button>
+                                        {canResetPassword && (
+                                            <Link href={route('password.request')} className="whitespace-nowrap text-[12px] font-medium text-emerald-600 hover:text-emerald-700">
+                                                Forgot Password?
+                                            </Link>
+                                        )}
                                     </div>
                                     <div className="relative">
                                         <Lock
@@ -115,6 +134,8 @@ function LoginPage() {
                                         <input
                                             id="password"
                                             type={showPassword ? 'text' : 'password'}
+                                            value={data.password}
+                                            onChange={e => setData('password', e.target.value)}
                                             required
                                             placeholder="Enter your password"
                                             onFocus={() => setFocusedField('password')}
@@ -140,6 +161,8 @@ function LoginPage() {
                                     <input
                                         id="remember"
                                         type="checkbox"
+                                        checked={data.remember}
+                                        onChange={e => setData('remember', e.target.checked)}
                                         className="h-4 w-4 rounded border-[#bbcabf] text-emerald-600 focus:ring-emerald-500/30"
                                     />
                                     <label htmlFor="remember" className="ml-2.5 cursor-pointer text-[13px] font-medium text-[#3c4a42] select-none">
@@ -150,10 +173,10 @@ function LoginPage() {
                                 {/* Bouton de connexion */}
                                 <button
                                     type="submit"
-                                    disabled={loading}
+                                    disabled={processing}
                                     className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3.5 text-[14px] font-semibold text-white shadow-sm transition-all duration-200 hover:bg-emerald-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
                                 >
-                                    {loading ? (
+                                    {processing ? (
                                         <>
                                             <Loader2 className="h-4 w-4 animate-spin" />
                                             <span>Signing in...</span>

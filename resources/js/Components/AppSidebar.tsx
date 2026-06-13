@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react'
+import { Link, usePage, router } from '@inertiajs/react'
 import { useCallback } from 'react'
 import {
     LayoutDashboard,
@@ -126,15 +126,15 @@ export default function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                             <User className="w-5 h-5" />
                             Profile
                         </Link>
-                        <Link
-                            href="/login"
+                        <button
+                            onClick={() => router.post(route('logout'))}
                             onMouseMove={tilt.handleMouseMove}
                             onMouseLeave={tilt.handleMouseLeave}
-                            className="flex items-center gap-3 px-5 py-3.5 rounded-xl text-[14px] leading-[20px] font-semibold tracking-[0.01em] text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/5 transition-colors"
+                            className="flex w-full items-center gap-3 px-5 py-3.5 rounded-xl text-[14px] leading-[20px] font-semibold tracking-[0.01em] text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/5 transition-colors"
                         >
                             <LogOut className="w-5 h-5" />
                             Logout
-                        </Link>
+                        </button>
                     </div>
                 </div>
             </nav>

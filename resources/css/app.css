@@ -1,125 +1,47 @@
-@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
-@source '../**/*.ts';
-@source '../**/*.tsx';
-
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
-    --font-inter: 'Inter', ui-sans-serif, system-ui, sans-serif;
-    --font-geist: 'Geist', ui-sans-serif, system-ui, sans-serif;
-
-    --color-emerald-400: #34D399;
-    --color-emerald-500: #10B981;
-    --color-emerald-600: #059669;
-
-    --color-navy-900: #0F172A;
-    --color-navy-800: #1E293B;
-    --color-navy-700: #334155;
-    --color-navy-600: #475569;
-
-    --color-glass: rgba(255, 255, 255, 0.05);
-    --color-glass-border: rgba(255, 255, 255, 0.1);
-    --color-glass-hover: rgba(255, 255, 255, 0.1);
+/* ============================================================
+   Glassmorphism — panneaux translucides du dashboard
+   ============================================================ */
+.glass {
+    background: rgba(30, 41, 59, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-@layer base {
-    * {
-        scrollbar-width: thin;
-        scrollbar-color: var(--color-navy-700) transparent;
-    }
-
-    body {
-        @apply bg-[#0B1120] text-gray-100;
-    }
+/* ============================================================
+   Surbrillance au survol — réservée aux KPICards
+   ============================================================ */
+.kpi-card {
+    transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+.kpi-card:hover {
+    background: rgba(40, 54, 74, 0.75);
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.07), 0 8px 30px rgba(0, 0, 0, 0.3);
+    transform: scale(1.02);
 }
 
-@layer utilities {
-    .glass {
-        background: var(--color-glass);
-        backdrop-filter: blur(12px);
-        border: 1px solid var(--color-glass-border);
-    }
+/* ============================================================
+   Cache la scrollbar tout en gardant le défilement
+   ============================================================ */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
 
-    .glass-hover:hover {
-        background: var(--color-glass-hover);
-    }
-
-    .card-gradient {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(15, 23, 42, 0.4));
-    }
-
-    .glass-card {
-        background: rgba(255, 255, 255, 0.75);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    }
-
-    .hero-gradient {
-        background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
-    }
-
-    .step-connector-line {
-        position: absolute;
-        top: 50%;
-        right: -50%;
-        width: 100%;
-        height: 2px;
-        background: repeating-linear-gradient(to right, #CBD5E1, #CBD5E1 4px, transparent 4px, transparent 8px);
-        z-index: -1;
-    }
-
-    @media (max-width: 1024px) {
-        .step-connector-line {
-            display: none;
-        }
-    }
-
-    .animate-on-scroll {
-        opacity: 0;
-        transform: translateY(40px);
-        transition: opacity 0.7s ease, transform 0.7s ease;
-    }
-
-    .animate-on-scroll.visible {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    .no-scrollbar::-webkit-scrollbar {
-        display: none;
-    }
-
-    .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
-
-    .material-symbols-outlined {
-        font-family: 'Material Symbols Outlined';
-        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .animate-fade-in {
-        animation: fadeIn 0.5s ease-out forwards;
-    }
-
-    @keyframes slideDown {
-        from { transform: translateY(-20px) scale(0.95); opacity: 0; }
-        to { transform: translateY(0) scale(1); opacity: 1; }
-    }
-
-    .animate-slide-down {
-        animation: slideDown 0.35s ease-out forwards;
-    }
+/* ============================================================
+   Animation d'apparition progressive
+   ============================================================ */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-out both;
 }

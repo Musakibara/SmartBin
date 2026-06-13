@@ -15,7 +15,7 @@ interface KPICardProps {
  */
 export default function KPICard({ title, value, icon: Icon, trend, trendUp }: KPICardProps) {
     return (
-        <div className="glass rounded-xl p-5 transition-all duration-300 hover:bg-[rgba(255,255,255,0.08)]">
+        <div className="glass kpi-card rounded-xl p-5">
             <div className="flex items-start justify-between">
                 <div className="space-y-2">
                     <p className="text-sm text-gray-400 font-medium">{title}</p>

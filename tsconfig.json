@@ -12,7 +12,8 @@
         "isolatedModules": true,
         "noEmit": true,
         "paths": {
-            "@/*": ["./resources/js/*"]
+            "@/*": ["./resources/js/*"],
+            "ziggy-js": ["./vendor/tightenco/ziggy/dist/index.js"]
         }
     },
     "include": ["resources/js/**/*.ts", "resources/js/**/*.tsx"],

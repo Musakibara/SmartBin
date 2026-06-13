@@ -1,8 +1,8 @@
-import { useState } from 'react'
-import AppSidebar from '../Components/AppSidebar'
-import AppNavbar from '../Components/AppNavbar'
-import { ToastProvider } from '../Components/Toast'
-import { ReactNode } from 'react'
+import { useState, ReactNode } from 'react'
+import { usePage, router } from '@inertiajs/react'
+import AppSidebar from '@/Components/AppSidebar'
+import AppNavbar from '@/Components/AppNavbar'
+import { ToastProvider } from '@/Components/Toast'
 
 interface AppLayoutProps {
     children: ReactNode
@@ -10,32 +10,54 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children }: AppLayoutProps) {
     const [sidebarOpen, setSidebarOpen] = useState(false)
+    const user = usePage().props.auth?.user
 
     return (
         <ToastProvider>
-        <div className="min-h-screen bg-[#020617]">
-            <AppSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-            <div className="lg:pl-64 flex flex-col min-h-screen">
-                <AppNavbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-                <main className="flex-1 min-h-0 p-4 sm:p-6 pb-4">
-                    {children}
-                </main>
-                <footer className="py-4 px-6 border-t border-[#334155] bg-[#0F172A]/50 backdrop-blur-md">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] text-[#94a3b8] uppercase tracking-widest font-bold">
-                        <div className="flex items-center gap-4">
-                            <span>© 2024 SmartBin Command</span>
-                            <span className="w-1 h-1 bg-[#475569] rounded-full" />
-                            <span>v2.4.8-Enterprise</span>
+            <div className="min-h-screen bg-[#020617]">
+                <AppSidebar
+                    isOpen={sidebarOpen}
+                    onClose={() => setSidebarOpen(false)}
+                />
+                <div className="flex min-h-screen flex-col lg:pl-64">
+                    <AppNavbar
+                        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+                        user={user}
+                    />
+                    <main className="min-h-0 flex-1 p-4 pb-4 sm:p-6">
+                        {children}
+                    </main>
+                    <footer className="border-t border-[#334155] bg-[#0F172A]/50 px-6 py-4 backdrop-blur-md">
+                        <div className="flex flex-col items-center justify-between gap-4 text-[11px] font-bold uppercase tracking-widest text-[#94a3b8] md:flex-row">
+                            <div className="flex items-center gap-4">
+                                <span>© 2024 SmartBin Command</span>
+                                <span className="h-1 w-1 rounded-full bg-[#475569]" />
+                                <span>v2.4.8-Enterprise</span>
+                            </div>
+                            <div className="flex items-center gap-6">
+                                <a
+                                    href="#"
+                                    className="transition-colors hover:text-[#10B981]"
+                                >
+                                    Privacy Policy
+                                </a>
+                                <a
+                                    href="#"
+                                    className="transition-colors hover:text-[#10B981]"
+                                >
+                                    System Health
+                                </a>
+                                <a
+                                    href="#"
+                                    className="transition-colors hover:text-[#10B981]"
+                                >
+                                    API Access
+                                </a>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-6">
-                            <a className="hover:text-[#10B981] transition-colors" href="#">Privacy Policy</a>
-                            <a className="hover:text-[#10B981] transition-colors" href="#">System Health</a>
-                            <a className="hover:text-[#10B981] transition-colors" href="#">API Access</a>
-                        </div>
-                    </div>
-                </footer>
+                    </footer>
+                </div>
             </div>
-        </div>
         </ToastProvider>
     )
 }

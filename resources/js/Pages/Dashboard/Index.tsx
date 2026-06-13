@@ -1,5 +1,5 @@
 import 'leaflet/dist/leaflet.css'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import AppLayout from '../../Layouts/AppLayout'
@@ -25,7 +25,7 @@ import {
     Tooltip,
     ResponsiveContainer,
 } from 'recharts'
-import { usePage, router } from '@inertiajs/react'
+import { usePage, router, Link } from '@inertiajs/react'
 
 // ============================================================
 // Icônes de marqueurs Leaflet pour la carte
@@ -85,6 +85,16 @@ function DashboardPage() {
     useEffect(() => {
         setMapReady(true)
     }, [])
+
+    const scrollRef = useRef<HTMLDivElement>(null)
+
+    function scrollLeft() {
+        scrollRef.current?.scrollBy({ left: -300, behavior: 'smooth' })
+    }
+
+    function scrollRight() {
+        scrollRef.current?.scrollBy({ left: 300, behavior: 'smooth' })
+    }
 
     // Sélectionne l'icône selon le statut de la benne
     function getMarkerIcon(status: string) {
@@ -182,7 +192,7 @@ function DashboardPage() {
                 <div className="glass rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg font-semibold text-white">Alertes récentes</h2>
-                        <span className="text-xs text-emerald-400 cursor-pointer hover:text-emerald-300">Voir tout</span>
+                        <Link href="/alerts" className="text-xs text-emerald-400 cursor-pointer hover:text-emerald-300">Voir tout</Link>
                     </div>
                     <div className="space-y-3">
                         {alerts.slice(0, 4).map((alert) => (
@@ -218,16 +228,16 @@ function DashboardPage() {
                     <div className="flex items-center justify-between">
                         <h4 className="text-lg sm:text-[24px] sm:leading-[32px] font-semibold text-[#f8fafc]">Live Bin Status</h4>
                         <div className="flex gap-2">
-                            <button className="p-1.5 glass rounded hover:bg-white/10 transition-colors">
+                            <button onClick={scrollLeft} className="p-1.5 glass rounded hover:bg-white/10 transition-colors">
                                 <span className="material-symbols-outlined text-[20px] text-[#94a3b8]">chevron_left</span>
                             </button>
-                            <button className="p-1.5 glass rounded hover:bg-white/10 transition-colors">
+                            <button onClick={scrollRight} className="p-1.5 glass rounded hover:bg-white/10 transition-colors">
                                 <span className="material-symbols-outlined text-[20px] text-[#94a3b8]">chevron_right</span>
                             </button>
                         </div>
                     </div>
                     {/* Scroll horizontal avec snap */}
-                    <div className="flex gap-3 sm:gap-[24px] overflow-x-auto no-scrollbar py-2 snap-x">
+                    <div ref={scrollRef} className="flex gap-3 sm:gap-[24px] overflow-x-auto no-scrollbar py-2 snap-x">
                         {bins.map((bin) => {
                             const borderColor = bin.status === 'full' ? 'border-red-500' : bin.status === 'warning' ? 'border-orange-400' : 'border-[#10B981]'
                             const fillColor = bin.fillLevel > 80 ? 'text-red-500' : bin.fillLevel > 50 ? 'text-orange-400' : 'text-[#10B981]'

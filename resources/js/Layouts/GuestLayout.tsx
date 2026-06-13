@@ -1,6 +1,5 @@
 import { ReactNode } from 'react'
 
-// Props du layout invité
 interface GuestLayoutProps {
     children: ReactNode
 }
