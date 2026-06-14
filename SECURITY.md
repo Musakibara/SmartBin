@@ -291,3 +291,6 @@ Infrastructure
 Arduino (le jour J)
 - ❌ Code Arduino à écrire (lecture capteur ultrasons, envoi Serial)
 - ❌ Bridge Python à lancer dans un terminal séparé
+
+email:randd981@gmail.com
+pwd:admin123
