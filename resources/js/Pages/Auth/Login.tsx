@@ -72,8 +72,8 @@ function LoginPage({ canResetPassword, status }: LoginProps) {
                 </section>
 
                 {/* Panneau droit — formulaire */}
-                <section className="flex h-full w-full flex-col items-center justify-start overflow-y-auto bg-[#f0f4f2] px-6 md:w-[60%]">
-                    <div className="w-full max-w-sm py-10">
+                <section className="flex h-full w-full flex-col items-center justify-center bg-[#f0f4f2] px-6 md:w-[60%]">
+                    <div className="w-full max-w-sm">
                         <div className="mb-2 text-center">
                             <img src="/images/logo.png" alt="SmartBin" className="mx-auto mb-4 h-auto w-32" />
                             <h2 className="text-[26px] font-semibold tracking-[-0.01em] text-[#191c1e]">Welcome back</h2>

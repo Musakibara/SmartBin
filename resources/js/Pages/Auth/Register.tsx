@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, Head, useForm } from '@inertiajs/react'
-import { Mail, Lock, Eye, EyeOff, User, Loader2, Leaf, UserPlus } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, User, Phone, Loader2, Leaf, UserPlus } from 'lucide-react'
 import GuestLayout from '../../Layouts/GuestLayout'
 import InputError from '@/Components/InputError'
 
@@ -10,11 +10,12 @@ import InputError from '@/Components/InputError'
  */
 function SignUpPage() {
     const [showPassword, setShowPassword] = useState(false)
-    const [focusedField, setFocusedField] = useState<'name' | 'email' | 'password' | null>(null)
+    const [focusedField, setFocusedField] = useState<'name' | 'email' | 'phone' | 'password' | null>(null)
 
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         email: '',
+        phone: '',
         password: '',
         password_confirmation: '',
     })
@@ -27,7 +28,7 @@ function SignUpPage() {
     }
 
     // Classe dynamique pour les champs selon le focus
-    const inputClass = (field: 'name' | 'email' | 'password') =>
+    const inputClass = (field: 'name' | 'email' | 'phone' | 'password') =>
         `w-full rounded-xl border bg-white py-3.5 pl-11 pr-4 text-[15px] text-[#191c1e] placeholder:text-[#bbcabf]/70 outline-none transition-all duration-200 ${
             focusedField === field
                 ? 'border-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.15)]'
@@ -128,6 +129,31 @@ function SignUpPage() {
                                         />
                                     </div>
                                     <InputError message={errors.email} className="mt-1" />
+                                </div>
+
+                                {/* Champ téléphone */}
+                                <div>
+                                    <label htmlFor="phone" className="mb-1.5 block text-[13px] font-medium tracking-[0.01em] text-[#3c4a42]">Phone Number</label>
+                                    <div className="relative">
+                                        <Phone
+                                            className={`pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors duration-200 ${
+                                                focusedField === 'name' ? 'text-emerald-500' : 'text-[#bbcabf]'
+                                            }`}
+                                            size={18}
+                                        />
+                                        <input
+                                            id="phone"
+                                            type="tel"
+                                            value={data.phone}
+                                            onChange={e => setData('phone', e.target.value)}
+                                            placeholder="+237 6XX XXX XXX"
+                                            onFocus={() => setFocusedField('name')}
+                                            onBlur={() => setFocusedField(null)}
+                                            className={inputClass('name')}
+                                            autoComplete="tel"
+                                        />
+                                    </div>
+                                    <InputError message={errors.phone} className="mt-1" />
                                 </div>
 
                                 {/* Champ mot de passe */}
