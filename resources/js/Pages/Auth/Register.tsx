@@ -29,7 +29,7 @@ function SignUpPage() {
 
     // Classe dynamique pour les champs selon le focus
     const inputClass = (field: 'name' | 'email' | 'phone' | 'password') =>
-        `w-full rounded-xl border bg-white py-3.5 pl-11 pr-4 text-[15px] text-[#191c1e] placeholder:text-[#bbcabf]/70 outline-none transition-all duration-200 ${
+        `w-full rounded-xl border bg-white py-2.5 pl-10 pr-3 text-[14px] text-[#191c1e] placeholder:text-[#bbcabf]/70 outline-none transition-all duration-200 ${
             focusedField === field
                 ? 'border-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.15)]'
                 : 'border-[#dce8e0] hover:border-[#bbcabf]'
@@ -69,25 +69,25 @@ function SignUpPage() {
                 </section>
 
                 {/* Panneau droit — formulaire */}
-                <section className="flex h-full w-full flex-col items-center justify-start overflow-y-auto bg-[#f0f4f2] px-6 md:w-[60%]">
-                    <div className="w-full max-w-sm py-10">
-                        <div className="mb-2 text-center">
-                            <img src="/images/logo.png" alt="SmartBin" className="mx-auto mb-4 h-auto w-32" />
-                            <h2 className="text-[26px] font-semibold tracking-[-0.01em] text-[#191c1e]">Create your account</h2>
-                            <p className="mt-1 text-[15px] text-[#6c7a71]">Get started with SmartBin monitoring</p>
+                <section className="flex h-full w-full flex-col items-center justify-center bg-[#f0f4f2] px-6 md:w-[60%]">
+                    <div className="w-full max-w-sm">
+                        <div className="text-center">
+                            <img src="/images/logo.png" alt="SmartBin" className="mx-auto mb-3 h-auto w-28" />
+                            <h2 className="text-[24px] font-semibold tracking-[-0.01em] text-[#191c1e]">Create your account</h2>
+                            <p className="text-[14px] text-[#6c7a71]">Get started with SmartBin monitoring</p>
                         </div>
 
-                        <div className="rounded-2xl border border-[#dce8e0]/50 bg-white p-7 shadow-lg shadow-black/[0.02]">
-                            <form onSubmit={handleSubmit} className="space-y-3.5">
+                        <div className="mt-4 rounded-2xl border border-[#dce8e0]/50 bg-white p-5 shadow-lg shadow-black/[0.02]">
+                            <form onSubmit={handleSubmit} className="space-y-2.5">
                                 {/* Champ nom complet */}
                                 <div>
-                                    <label htmlFor="name" className="mb-1.5 block text-[13px] font-medium tracking-[0.01em] text-[#3c4a42]">Full Name</label>
+                                    <label htmlFor="name" className="mb-1 block text-[12px] font-medium tracking-[0.01em] text-[#3c4a42]">Full Name</label>
                                     <div className="relative">
                                         <User
-                                            className={`pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors duration-200 ${
+                                            className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 transition-colors duration-200 ${
                                                 focusedField === 'name' ? 'text-emerald-500' : 'text-[#bbcabf]'
                                             }`}
-                                            size={18}
+                                            size={16}
                                         />
                                         <input
                                             id="name"
@@ -102,18 +102,18 @@ function SignUpPage() {
                                             autoComplete="name"
                                         />
                                     </div>
-                                    <InputError message={errors.name} className="mt-1" />
+                                    <InputError message={errors.name} className="mt-0.5" />
                                 </div>
 
                                 {/* Champ email */}
                                 <div>
-                                    <label htmlFor="email" className="mb-1.5 block text-[13px] font-medium tracking-[0.01em] text-[#3c4a42]">Email</label>
+                                    <label htmlFor="email" className="mb-1 block text-[12px] font-medium tracking-[0.01em] text-[#3c4a42]">Email</label>
                                     <div className="relative">
                                         <Mail
-                                            className={`pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors duration-200 ${
+                                            className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 transition-colors duration-200 ${
                                                 focusedField === 'email' ? 'text-emerald-500' : 'text-[#bbcabf]'
                                             }`}
-                                            size={18}
+                                            size={16}
                                         />
                                         <input
                                             id="email"
@@ -128,18 +128,18 @@ function SignUpPage() {
                                             autoComplete="email"
                                         />
                                     </div>
-                                    <InputError message={errors.email} className="mt-1" />
+                                    <InputError message={errors.email} className="mt-0.5" />
                                 </div>
 
                                 {/* Champ téléphone */}
                                 <div>
-                                    <label htmlFor="phone" className="mb-1.5 block text-[13px] font-medium tracking-[0.01em] text-[#3c4a42]">Phone Number</label>
+                                    <label htmlFor="phone" className="mb-1 block text-[12px] font-medium tracking-[0.01em] text-[#3c4a42]">Phone Number</label>
                                     <div className="relative">
                                         <Phone
-                                            className={`pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors duration-200 ${
+                                            className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 transition-colors duration-200 ${
                                                 focusedField === 'name' ? 'text-emerald-500' : 'text-[#bbcabf]'
                                             }`}
-                                            size={18}
+                                            size={16}
                                         />
                                         <input
                                             id="phone"
@@ -153,18 +153,18 @@ function SignUpPage() {
                                             autoComplete="tel"
                                         />
                                     </div>
-                                    <InputError message={errors.phone} className="mt-1" />
+                                    <InputError message={errors.phone} className="mt-0.5" />
                                 </div>
 
                                 {/* Champ mot de passe */}
                                 <div>
-                                    <label htmlFor="password" className="mb-1.5 block text-[13px] font-medium tracking-[0.01em] text-[#3c4a42]">Password</label>
+                                    <label htmlFor="password" className="mb-1 block text-[12px] font-medium tracking-[0.01em] text-[#3c4a42]">Password</label>
                                     <div className="relative">
                                         <Lock
-                                            className={`pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors duration-200 ${
+                                            className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 transition-colors duration-200 ${
                                                 focusedField === 'password' ? 'text-emerald-500' : 'text-[#bbcabf]'
                                             }`}
-                                            size={18}
+                                            size={16}
                                         />
                                         <input
                                             id="password"
@@ -190,18 +190,18 @@ function SignUpPage() {
                                             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                         </button>
                                     </div>
-                                    <InputError message={errors.password} className="mt-1" />
+                                    <InputError message={errors.password} className="mt-0.5" />
                                 </div>
 
                                 {/* Champ confirmation mot de passe */}
                                 <div>
-                                    <label htmlFor="password_confirmation" className="mb-1.5 block text-[13px] font-medium tracking-[0.01em] text-[#3c4a42]">Confirm Password</label>
+                                    <label htmlFor="password_confirmation" className="mb-1 block text-[12px] font-medium tracking-[0.01em] text-[#3c4a42]">Confirm Password</label>
                                     <div className="relative">
                                         <Lock
-                                            className={`pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors duration-200 ${
+                                            className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 transition-colors duration-200 ${
                                                 focusedField === 'password' ? 'text-emerald-500' : 'text-[#bbcabf]'
                                             }`}
-                                            size={18}
+                                            size={16}
                                         />
                                         <input
                                             id="password_confirmation"
@@ -216,14 +216,14 @@ function SignUpPage() {
                                             autoComplete="new-password"
                                         />
                                     </div>
-                                    <InputError message={errors.password_confirmation} className="mt-1" />
+                                    <InputError message={errors.password_confirmation} className="mt-0.5" />
                                 </div>
 
                                 {/* Bouton inscription */}
                                 <button
                                     type="submit"
                                     disabled={processing}
-                                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3.5 text-[14px] font-semibold text-white shadow-sm transition-all duration-200 hover:bg-emerald-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-[13px] font-semibold text-white shadow-sm transition-all duration-200 hover:bg-emerald-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     {processing ? (
                                         <>
@@ -239,19 +239,19 @@ function SignUpPage() {
                                 </button>
 
                                 {/* Séparateur avec "or" */}
-                                <div className="relative flex items-center py-1">
+                                <div className="relative flex items-center">
                                     <div className="flex-grow border-t border-[#dce8e0]" />
-                                    <span className="mx-4 text-[11px] font-medium uppercase tracking-[0.1em] text-[#6c7a71]">or</span>
+                                    <span className="mx-3 text-[10px] font-medium uppercase tracking-[0.1em] text-[#6c7a71]">or</span>
                                     <div className="flex-grow border-t border-[#dce8e0]" />
                                 </div>
 
                                 {/* Boutons SSO */}
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-2 gap-2">
                                     <button
                                         type="button"
-                                        className="flex items-center justify-center gap-2 rounded-xl border border-[#dce8e0] bg-white px-4 py-3 text-[13px] font-medium text-[#3c4a42] transition-colors hover:bg-[#f2f5f3] active:scale-[0.98]"
+                                        className="flex items-center justify-center gap-1.5 rounded-xl border border-[#dce8e0] bg-white px-3 py-2 text-[12px] font-medium text-[#3c4a42] transition-colors hover:bg-[#f2f5f3] active:scale-[0.98]"
                                     >
-                                        <svg className="h-5 w-5 flex-shrink-0" viewBox="0 0 24 24">
+                                        <svg className="h-4 w-4 flex-shrink-0" viewBox="0 0 24 24">
                                             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                                             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
                                             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05" />
@@ -261,9 +261,9 @@ function SignUpPage() {
                                     </button>
                                     <button
                                         type="button"
-                                        className="flex items-center justify-center gap-2 rounded-xl border border-[#dce8e0] bg-white px-4 py-3 text-[13px] font-medium text-[#3c4a42] transition-colors hover:bg-[#f2f5f3] active:scale-[0.98]"
+                                        className="flex items-center justify-center gap-1.5 rounded-xl border border-[#dce8e0] bg-white px-3 py-2 text-[12px] font-medium text-[#3c4a42] transition-colors hover:bg-[#f2f5f3] active:scale-[0.98]"
                                     >
-                                        <svg className="h-5 w-5 flex-shrink-0" viewBox="0 0 24 24">
+                                        <svg className="h-4 w-4 flex-shrink-0" viewBox="0 0 24 24">
                                             <path d="M11.4 24H0V12.6h11.4V24zM24 24H12.6V12.6H24V24zM11.4 11.4H0V0h11.4v11.4zM24 11.4H12.6V0H24v11.4z" fill="#00a4ef" />
                                         </svg>
                                         <span>Microsoft</span>
@@ -273,8 +273,8 @@ function SignUpPage() {
                         </div>
 
                         {/* Lien vers connexion */}
-                        <div className="mt-5 text-center">
-                            <span className="text-[13px] text-[#6c7a71]">
+                        <div className="mt-4 text-center">
+                            <span className="text-[12px] text-[#6c7a71]">
                                 Already have an account?{' '}
                                 <Link href="/login" className="font-medium text-emerald-600 transition-colors hover:text-emerald-700">
                                     Sign in

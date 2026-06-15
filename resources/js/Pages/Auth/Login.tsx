@@ -32,7 +32,7 @@ function LoginPage({ canResetPassword, status }: LoginProps) {
 
     // Classe dynamique pour les champs selon le focus
     const inputClass = (field: 'email' | 'password') =>
-        `w-full rounded-xl border bg-white py-3.5 pl-11 pr-4 text-[15px] text-[#191c1e] placeholder:text-[#bbcabf]/70 outline-none transition-all duration-200 ${
+        `w-full rounded-xl border bg-white py-3 pl-11 pr-4 text-[14px] text-[#191c1e] placeholder:text-[#bbcabf]/70 outline-none transition-all duration-200 ${
             focusedField === field
                 ? 'border-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.15)]'
                 : 'border-[#dce8e0] hover:border-[#bbcabf]'
@@ -74,10 +74,10 @@ function LoginPage({ canResetPassword, status }: LoginProps) {
                 {/* Panneau droit — formulaire */}
                 <section className="flex h-full w-full flex-col items-center justify-center bg-[#f0f4f2] px-6 md:w-[60%]">
                     <div className="w-full max-w-sm">
-                        <div className="mb-2 text-center">
+                        <div className="text-center">
                             <img src="/images/logo.png" alt="SmartBin" className="mx-auto mb-4 h-auto w-32" />
                             <h2 className="text-[26px] font-semibold tracking-[-0.01em] text-[#191c1e]">Welcome back</h2>
-                            <p className="mt-1 text-[15px] text-[#6c7a71]">Access your monitoring dashboard</p>
+                            <p className="text-[15px] text-[#6c7a71]">Access your monitoring dashboard</p>
                         </div>
 
                         {status && (
@@ -86,8 +86,8 @@ function LoginPage({ canResetPassword, status }: LoginProps) {
                             </div>
                         )}
 
-                        <div className="rounded-2xl border border-[#dce8e0]/50 bg-white p-7 shadow-lg shadow-black/[0.02]">
-                            <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="mt-6 rounded-2xl border border-[#dce8e0]/50 bg-white p-6 shadow-lg shadow-black/[0.02]">
+                            <form onSubmit={handleSubmit} className="space-y-3.5">
                                 {/* Champ email */}
                                 <div>
                                     <label htmlFor="email" className="mb-1.5 block text-[13px] font-medium tracking-[0.01em] text-[#3c4a42]">Email</label>
@@ -155,7 +155,7 @@ function LoginPage({ canResetPassword, status }: LoginProps) {
                                         </button>
                                     </div>
                                 </div>
-
+                                
                                 {/* Se souvenir de moi */}
                                 <div className="flex items-center">
                                     <input
@@ -174,7 +174,7 @@ function LoginPage({ canResetPassword, status }: LoginProps) {
                                 <button
                                     type="submit"
                                     disabled={processing}
-                                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3.5 text-[14px] font-semibold text-white shadow-sm transition-all duration-200 hover:bg-emerald-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-[14px] font-semibold text-white shadow-sm transition-all duration-200 hover:bg-emerald-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     {processing ? (
                                         <>
@@ -190,7 +190,7 @@ function LoginPage({ canResetPassword, status }: LoginProps) {
                                 </button>
 
                                 {/* Séparateur avec "or" */}
-                                <div className="relative flex items-center py-1">
+                                <div className="relative flex items-center py-0.5">
                                     <div className="flex-grow border-t border-[#dce8e0]" />
                                     <span className="mx-4 text-[11px] font-medium uppercase tracking-[0.1em] text-[#6c7a71]">or</span>
                                     <div className="flex-grow border-t border-[#dce8e0]" />
@@ -200,7 +200,7 @@ function LoginPage({ canResetPassword, status }: LoginProps) {
                                 <div className="grid grid-cols-2 gap-3">
                                     <button
                                         type="button"
-                                        className="flex items-center justify-center gap-2 rounded-xl border border-[#dce8e0] bg-white px-4 py-3 text-[13px] font-medium text-[#3c4a42] transition-colors hover:bg-[#f2f5f3] active:scale-[0.98]"
+                                        className="flex items-center justify-center gap-2 rounded-xl border border-[#dce8e0] bg-white px-4 py-2.5 text-[13px] font-medium text-[#3c4a42] transition-colors hover:bg-[#f2f5f3] active:scale-[0.98]"
                                     >
                                         <svg className="h-5 w-5 flex-shrink-0" viewBox="0 0 24 24">
                                             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -212,7 +212,7 @@ function LoginPage({ canResetPassword, status }: LoginProps) {
                                     </button>
                                     <button
                                         type="button"
-                                        className="flex items-center justify-center gap-2 rounded-xl border border-[#dce8e0] bg-white px-4 py-3 text-[13px] font-medium text-[#3c4a42] transition-colors hover:bg-[#f2f5f3] active:scale-[0.98]"
+                                        className="flex items-center justify-center gap-2 rounded-xl border border-[#dce8e0] bg-white px-4 py-2.5 text-[13px] font-medium text-[#3c4a42] transition-colors hover:bg-[#f2f5f3] active:scale-[0.98]"
                                     >
                                         <svg className="h-5 w-5 flex-shrink-0" viewBox="0 0 24 24">
                                             <path d="M11.4 24H0V12.6h11.4V24zM24 24H12.6V12.6H24V24zM11.4 11.4H0V0h11.4v11.4zM24 11.4H12.6V0H24v11.4z" fill="#00a4ef" />
