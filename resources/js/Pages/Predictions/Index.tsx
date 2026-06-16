@@ -1,246 +1,372 @@
 import { useState, useMemo } from 'react'
-import { Brain, AlertTriangle, Search, ChevronLeft, ChevronRight, ArrowUpDown, Target, Layers, Cpu, Activity, ShieldCheck, GitBranch, Sigma } from 'lucide-react'
+import { Brain, AlertTriangle, Search, ChevronLeft, ChevronRight, ArrowUpDown, Target, ShieldCheck, MapPin, RefreshCw, Trash2 } from 'lucide-react'
 import AppLayout from '../../Layouts/AppLayout'
-import { predictions, bins } from '../../data/mock-dashboard'
+import { usePage, router } from '@inertiajs/react'
 
-const priorityColors: Record<string, string> = {
+const levelColors: Record<string, string> = {
     high: 'bg-red-500/15 text-red-400 border-red-500/30',
     medium: 'bg-amber-500/15 text-amber-400 border-amber-400/25',
     low: 'bg-blue-500/15 text-blue-400 border-blue-400/25',
 }
 
-const modelInfo = {
-    version: 'DeepBin v3.2',
-    accuracy: 96.4,
-    trained: '12 mai 2026',
-    dataPoints: '15 840',
-    lastRun: 'Il y a 3 min',
-    algorithm: 'LSTM + Transformer',
+const levelBg: Record<string, string> = {
+    high: 'bg-red-500/10',
+    medium: 'bg-amber-500/10',
+    low: 'bg-blue-500/10',
+}
+
+const levelDot: Record<string, string> = {
+    high: 'bg-red-500',
+    medium: 'bg-amber-400',
+    low: 'bg-blue-400',
 }
 
 function PredictionsPage() {
-    const [search, setSearch] = useState('')
-    const [priorityFilter, setPriorityFilter] = useState('Toutes')
-    const [sortAsc, setSortAsc] = useState(false)
-    const [page, setPage] = useState(1)
-    const perPage = 4
+    const { predictions, bins, filters, stats } = usePage().props as unknown as {
+        predictions: {
+            data: Array<{
+                id: string; bin: string; binName: string; binLocation: string
+                fillLevel: number; message: string; priority: string
+                estimatedHours: number; progress: number; confidence: number; riskScore: number
+            }>
+            current_page: number; last_page: number; total: number
+        }
+        bins: Array<{ id: string; code: string; name: string; location: string; fill_level: number }>
+        filters: { search?: string; priority?: string }
+        stats: {
+            total: number; high: number; medium: number; low: number
+            avgConfidence: number; activeFilter: string
+        }
+    }
 
-    const enriched = useMemo(() => predictions.map((p, i) => {
-        const bin = bins.find((b) => b.id === p.bin)
-        const progress = Math.min(95, Math.max(5, (p.estimatedHours - 1) / 12 * 100 + Math.random() * 15))
-        const confidence = Number((85 + Math.random() * 14).toFixed(1))
-        const riskScore = p.priority === 'high' ? Math.round(75 + Math.random() * 20) : p.priority === 'medium' ? Math.round(45 + Math.random() * 25) : Math.round(15 + Math.random() * 25)
-        return { ...p, binName: bin?.name ?? p.bin, binLocation: bin?.location ?? '', fillLevel: bin?.fillLevel ?? 0, progress, confidence, riskScore }
-    }), [])
+    const [search, setSearch] = useState(filters?.search ?? '')
+    const [priorityFilter, setPriorityFilter] = useState(filters?.priority ?? 'Toutes')
+    const [sortAsc, setSortAsc] = useState(false)
+    const [generating, setGenerating] = useState(false)
+    const [showInfo, setShowInfo] = useState(false)
 
     const filtered = useMemo(() => {
-        const f = enriched.filter((p) => {
-            const matchSearch = p.id.toLowerCase().includes(search.toLowerCase()) || p.message.toLowerCase().includes(search.toLowerCase()) || p.binName.toLowerCase().includes(search.toLowerCase())
-            const matchPriority = priorityFilter === 'Toutes' || p.priority === priorityFilter
-            return matchSearch && matchPriority
-        })
+        const items = [...predictions.data]
         const order = { high: 0, medium: 1, low: 2 }
-        return f.sort((a, b) => sortAsc ? order[a.priority] - order[b.priority] : order[b.priority] - order[a.priority])
-    }, [search, priorityFilter, sortAsc])
-
-    const totalPages = Math.ceil(filtered.length / perPage)
-    const paginated = filtered.slice((page - 1) * perPage, page * perPage)
-    const highCount = enriched.filter((p) => p.priority === 'high').length
-    const imminentCount = enriched.filter((p) => p.estimatedHours <= 3).length
-    const avgConfidence = Math.round(enriched.reduce((s, p) => s + p.confidence, 0) / enriched.length)
+        return items.sort((a, b) => sortAsc ? order[a.priority] - order[b.priority] : order[b.priority] - order[a.priority])
+    }, [predictions.data, sortAsc])
 
     return (
         <div className="space-y-6">
-            <div>
-                <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                    <Brain className="w-6 h-6 text-purple-400" />AI Predictions
-                </h1>
-                <p className="text-sm text-gray-400 mt-1">Modèle LSTM + Transformer · Anticipation des débordements en temps réel</p>
+            {/* En-tête */}
+            <div className="flex items-center justify-between flex-wrap gap-3">
+                <div>
+                    <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                        <Brain className="w-6 h-6 text-purple-400" />Prédictions IA
+                    </h1>
+                    <p className="text-sm text-gray-400 mt-1">
+                        Anticipation des débordements par régression linéaire
+                    </p>
+                </div>
+                <button
+                    onClick={() => { setGenerating(true); router.post('/predictions/generate', {}, { preserveState: true, onFinish: () => setGenerating(false) }); }}
+                    disabled={generating}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold transition-all disabled:opacity-50"
+                >
+                    <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
+                    {generating ? 'Génération...' : "Lancer l'IA"}
+                </button>
             </div>
 
-            {/* Résumé IA */}
-            <div className="glass rounded-xl p-5 bg-gradient-to-r from-purple-500/5 to-transparent border-purple-500/10">
+            {/* Message explicatif */}
+            <div className="glass rounded-xl p-4 bg-gradient-to-r from-purple-500/5 to-transparent border border-purple-500/10">
                 <div className="flex items-start gap-3">
                     <div className="p-2 rounded-xl bg-purple-500/10 shrink-0"><Brain className="w-5 h-5 text-purple-400" /></div>
-                    <div>
-                        <p className="text-sm font-semibold text-white">Analyse IA du réseau</p>
-                        <p className="text-xs text-gray-400 mt-1">
-                            {highCount > 0
-                                ? `${highCount} benne${highCount > 1 ? 's' : ''} à risque critique détectée${highCount > 1 ? 's' : ''}. Intervention recommandée sous ${Math.min(...enriched.filter(p => p.priority === 'high').map(p => p.estimatedHours))}h. `
-                                : 'Aucun risque critique détecté. '}
-                            Taux de confiance moyen : <span className="text-purple-400 font-semibold">{avgConfidence}%</span> · 
-                            Précision historique du modèle : <span className="text-emerald-400 font-semibold">{modelInfo.accuracy}%</span>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-white">Comment ça marche ?</p>
+                        <p className="text-xs text-gray-400 mt-1 leading-relaxed">
+                            Le modèle analyse les <strong className="text-purple-400">24 derniers relevés</strong> de chaque benne (espacés de ~30 min)
+                            et calcule une <strong className="text-purple-400">droite de tendance</strong> par régression linéaire.
+                            En prolongeant cette droite, il estime le moment où la benne atteindra <strong className="text-purple-400">100% de remplissage</strong>.
+                            {stats.high > 0 && (
+                                <span className="text-red-400"> {stats.high} benne{stats.high > 1 ? 's' : ''} à risque élevé détectée{stats.high > 1 ? 's' : ''}.</span>
+                            )}
                         </p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Stats IA */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                    { label: 'Prédictions actives', value: enriched.length, sub: 'Dernière exécution', subValue: modelInfo.lastRun, color: 'text-purple-400', bg: 'bg-purple-500/10', icon: Brain },
-                    { label: 'Haute priorité', value: highCount, sub: 'Intervention urgente', subValue: `${imminentCount} imminente${imminentCount > 1 ? 's' : ''}`, color: 'text-red-400', bg: 'bg-red-500/10', icon: AlertTriangle },
-                    { label: 'Confiance IA', value: `${avgConfidence}%`, sub: 'Score moyen', subValue: `Modèle ${modelInfo.version}`, color: 'text-emerald-400', bg: 'bg-emerald-500/10', icon: ShieldCheck },
-                    { label: 'Précision', value: `${modelInfo.accuracy}%`, sub: `${modelInfo.dataPoints} points`, subValue: `v${modelInfo.version}`, color: 'text-cyan-400', bg: 'bg-cyan-500/10', icon: Target },
-                ].map(({ label, value, sub, subValue, color, bg, icon: Icon }) => (
-                    <div key={label} className="glass rounded-xl p-4">
-                        <div className="flex items-center gap-3">
-                            <div className={`p-2.5 rounded-xl ${bg}`}><Icon className={`w-5 h-5 ${color}`} /></div>
-                            <div>
-                                <p className="text-xs text-gray-500">{label}</p>
-                                <p className={`text-lg font-bold ${color}`}>{value}</p>
+                        <button onClick={() => setShowInfo(!showInfo)} className="text-[10px] text-gray-500 hover:text-gray-400 mt-1 underline underline-offset-2">
+                            {showInfo ? 'Masquer les détails' : 'Voir les détails techniques'}
+                        </button>
+                        {showInfo && (
+                            <div className="mt-2 text-[10px] text-gray-500 space-y-0.5 pl-2 border-l border-purple-500/30">
+                                <p>📊 <strong className="text-gray-400">Algorithme :</strong> Régression linéaire (numpy.polyfit)</p>
+                                <p>📐 <strong className="text-gray-400">Équation :</strong> y = a·x + b (a = pente de remplissage en %/h)</p>
+                                <p>📈 <strong className="text-gray-400">Confiance :</strong> Coefficient R² (qualité de l'alignement des points)</p>
+                                <p>⏱️ <strong className="text-gray-400">Données :</strong> 24 relevés × {predictions.total} prédictions</p>
                             </div>
-                        </div>
-                        <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#334155]/50 text-[10px] text-gray-600">
-                            <span>{sub}</span>
-                            <span className="text-gray-500 font-semibold">{subValue}</span>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* Timeline des prédictions */}
-            <div className="glass rounded-xl p-5">
-                <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                        <Layers className="w-4 h-4 text-purple-400" />Timeline de risque
-                    </h2>
-                    <div className="flex items-center gap-2 text-[10px] text-gray-500">
-                        <span className="w-2 h-2 rounded-full bg-red-500" />Critique
-                        <span className="w-2 h-2 rounded-full bg-amber-400" />Modéré
-                        <span className="w-2 h-2 rounded-full bg-blue-400" />Faible
+                        )}
                     </div>
                 </div>
-                <div className="space-y-2">
-                    {/* En-têtes heures */}
-                    <div className="relative h-5">
-                        <div className="absolute inset-0 flex">
-                            {[0, 3, 6, 9, 12, 15, 18, 21, 24].map((h) => (
-                                <div key={h} className="flex-1 text-[9px] text-gray-600 border-l border-[#334155]/50 pl-1">{h}h</div>
-                            ))}
+            </div>
+
+            {/* Stats — centralisées, réactives au filtre */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                {/* Total prédictions + distribution */}
+                <div className="glass rounded-xl p-4">
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2.5 rounded-xl bg-purple-500/10"><Brain className="w-5 h-5 text-purple-400" /></div>
+                        <div>
+                            <p className="text-xs text-gray-500">Prédictions</p>
+                            <p className="text-lg font-bold text-purple-400">{stats.total}</p>
                         </div>
                     </div>
-                    {/* Barres */}
+                    {/* Barre de distribution */}
+                    {stats.total > 0 && (
+                        <div className="flex h-1.5 rounded-full overflow-hidden bg-[#1E293B]">
+                            {[
+                                { count: stats.high, color: 'bg-red-500', label: 'Urgent' },
+                                { count: stats.medium, color: 'bg-amber-400', label: 'Planifier' },
+                                { count: stats.low, color: 'bg-blue-400', label: 'Routine' },
+                            ].map(({ count, color, label }) =>
+                                count > 0 && (
+                                    <div key={label} className={`${color} h-full transition-all`} style={{ width: `${(count / stats.total) * 100}%` }} title={`${label}: ${count}`} />
+                                )
+                            )}
+                        </div>
+                    )}
+                    <div className="flex items-center gap-3 mt-2 text-[9px] text-gray-600">
+                        {[
+                            { count: stats.high, color: 'bg-red-500', label: 'Urgent' },
+                            { count: stats.medium, color: 'bg-amber-400', label: 'Planifier' },
+                            { count: stats.low, color: 'bg-blue-400', label: 'Routine' },
+                        ].map(({ count, color, label }) => (
+                            <span key={label} className="flex items-center gap-1">
+                                <span className={`w-1.5 h-1.5 rounded-full ${color}`} />
+                                {count} {label}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Cartes par niveau — cliquables pour filtrer */}
+                {[
+                    { key: 'high', label: 'Haute priorité', value: stats.high, color: 'text-red-400', icon: AlertTriangle, desc: 'Intervention immédiate' },
+                    { key: 'medium', label: 'Planification', value: stats.medium, color: 'text-amber-400', icon: AlertTriangle, desc: 'Collecte à programmer' },
+                    { key: 'low', label: 'Surveillance', value: stats.low, color: 'text-blue-400', icon: ShieldCheck, desc: 'Routine' },
+                ].map(({ key, label, value, color, icon: Icon, desc }) => {
+                    const isActive = priorityFilter === key
+                    return (
+                        <button
+                            key={key}
+                            onClick={() => {
+                                const newFilter = isActive ? 'Toutes' : key
+                                setPriorityFilter(newFilter)
+                                router.get('/predictions', { priority: newFilter === 'Toutes' ? '' : newFilter, search }, { preserveState: true, replace: true })
+                            }}
+                            className={`glass rounded-xl p-4 text-left transition-all cursor-pointer hover:scale-[1.02] ${isActive ? 'ring-2 ring-purple-500/60 shadow-lg shadow-purple-500/20' : ''}`}
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className={`p-2.5 rounded-xl ${levelBg[key]}`}><Icon className={`w-5 h-5 ${color}`} /></div>
+                                <div>
+                                    <p className="text-xs text-gray-500">{label}</p>
+                                    <p className={`text-lg font-bold ${color}`}>{value}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#334155]/50 text-[10px] text-gray-600">
+                                <span>{desc}</span>
+                                {isActive && <span className="text-purple-400 font-semibold text-[9px]">● Filtre actif</span>}
+                            </div>
+                        </button>
+                    )
+                })}
+
+                {/* Confiance moyenne + Bennes */}
+                <div className="glass rounded-xl p-4">
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2.5 rounded-xl bg-emerald-500/10"><ShieldCheck className="w-5 h-5 text-emerald-400" /></div>
+                        <div>
+                            <p className="text-xs text-gray-500">Confiance R²</p>
+                            <p className="text-lg font-bold text-emerald-400">{stats.avgConfidence}%</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#334155]/50 text-[10px] text-gray-600">
+                        <span>Bennes suivies</span>
+                        <span className="text-cyan-400 font-semibold">{bins.length} bennes</span>
+                    </div>
+                    <div className="flex items-center justify-between text-[10px] text-gray-600">
+                        <span>Dernière exécution</span>
+                        <span className="text-gray-500 font-semibold">À la demande</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Timeline */}
+            {predictions.data.length > 0 && (
+                <div className="glass rounded-xl p-5">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                            <Brain className="w-4 h-4 text-purple-400" />Temps avant débordement
+                        </h2>
+                        <div className="flex items-center gap-2 text-[10px] text-gray-500">
+                            <span className="w-2 h-2 rounded-full bg-red-500" />&lt;3h
+                            <span className="w-2 h-2 rounded-full bg-amber-400" />3-12h
+                            <span className="w-2 h-2 rounded-full bg-blue-400" />&gt;12h
+                        </div>
+                    </div>
                     <div className="space-y-1.5">
-                        {enriched.sort((a, b) => a.estimatedHours - b.estimatedHours).map((p) => {
-                            const widthPct = (p.estimatedHours / 24) * 100
+                        {[...predictions.data].sort((a, b) => a.estimatedHours - b.estimatedHours).map((p) => {
+                            const widthPct = Math.min(100, (p.estimatedHours / 24) * 100)
                             const barColor = p.priority === 'high' ? 'bg-red-500/80' : p.priority === 'medium' ? 'bg-amber-400/70' : 'bg-blue-400/60'
-                            const dotColor = p.priority === 'high' ? 'bg-red-500 shadow-red-500/50' : p.priority === 'medium' ? 'bg-amber-400 shadow-amber-400/30' : 'bg-blue-400 shadow-blue-400/30'
+                            const dotColor = p.priority === 'high' ? 'bg-red-500' : p.priority === 'medium' ? 'bg-amber-400' : 'bg-blue-400'
                             return (
-                                <div key={p.id} className="flex items-center gap-3 group cursor-pointer">
-                                    <div className="w-16 shrink-0 text-right">
-                                        <p className="text-[10px] font-bold text-white truncate">{p.binName}</p>
+                                <div key={p.id} className="flex items-center gap-3 group">
+                                    <div className="w-20 shrink-0 text-right">
+                                        <p className="text-[10px] font-bold text-white truncate" title={p.binName}>{p.binName}</p>
+                                        <p className="text-[8px] text-gray-600 truncate">{p.binLocation}</p>
                                     </div>
                                     <div className="flex-1 h-6 bg-[#1E293B] rounded-md overflow-hidden relative">
                                         <div className={`h-full rounded-md ${barColor} transition-all duration-500`} style={{ width: `${widthPct}%` }} />
                                         <div className="absolute inset-0 flex items-center px-2 justify-between">
                                             <div className={`w-2 h-2 rounded-full ${dotColor} ${p.priority === 'high' ? 'animate-pulse' : ''}`} />
-                                            <span className="text-[9px] font-bold text-white drop-shadow-md">T-{p.estimatedHours}h</span>
+                                            <span className="text-[9px] font-bold text-white drop-shadow-md">
+                                                {p.estimatedHours > 0 ? `~${Math.round(p.estimatedHours)}h` : '< 1h'}
+                                            </span>
                                         </div>
                                     </div>
-                                    <div className="w-12 shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                                        <span className={`text-[9px] font-semibold ${p.priority === 'high' ? 'text-red-400' : p.priority === 'medium' ? 'text-amber-400' : 'text-blue-400'}`}>{p.priority}</span>
-                                    </div>
+                                    <span className={`text-[9px] font-semibold w-10 shrink-0 hidden sm:block text-center ${p.priority === 'high' ? 'text-red-400' : p.priority === 'medium' ? 'text-amber-400' : 'text-blue-400'}`}>
+                                        {p.priority === 'high' ? 'Urgent' : p.priority === 'medium' ? 'Planifier' : 'Routine'}
+                                    </span>
                                 </div>
                             )
                         })}
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* Filtres */}
-            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                <div className="relative flex-1 max-w-md">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                    <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} placeholder="Rechercher une prédiction..." className="w-full pl-10 pr-4 py-2.5 bg-[#1E293B]/80 rounded-xl border border-[#334155] focus:border-purple-500 outline-none text-sm text-white placeholder:text-gray-600 transition-all" />
-                </div>
-                <div className="flex items-center gap-3 flex-wrap">
-                    <div className="flex items-center gap-1 bg-[#1E293B]/80 rounded-lg p-0.5 overflow-x-auto no-scrollbar">
-                        {['Toutes', 'high', 'medium', 'low'].map((p) => (
-                            <button key={p} onClick={() => { setPriorityFilter(p); setPage(1) }} className={`shrink-0 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${priorityFilter === p ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-500 hover:text-gray-300'}`}>{p === 'Toutes' ? 'Toutes' : p}</button>
-                        ))}
+            {predictions.total > 0 && (
+                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                    <div className="relative flex-1 max-w-md">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                        <input value={search} onChange={(e) => { setSearch(e.target.value); router.get('/predictions', { search: e.target.value, priority: priorityFilter === 'Toutes' ? '' : priorityFilter }, { preserveState: true, replace: true }) }} placeholder="Rechercher par benne, lieu..." className="w-full pl-10 pr-4 py-2.5 bg-[#1E293B]/80 rounded-xl border border-[#334155] focus:border-purple-500 outline-none text-sm text-white placeholder:text-gray-600 transition-all" />
                     </div>
-                    <button onClick={() => setSortAsc(!sortAsc)} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1E293B]/80 rounded-lg text-xs text-gray-500 hover:text-gray-300 transition-all">
-                        <ArrowUpDown className="w-3.5 h-3.5" />{sortAsc ? '↑' : '↓'}
-                    </button>
-                </div>
-            </div>
-
-            {/* Cartes prédictions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {paginated.map((p) => (
-                    <div key={p.id} className={`glass rounded-xl p-5 border-l-4 transition-all group hover:bg-[rgba(255,255,255,0.04)] ${p.priority === 'high' ? 'border-l-red-500' : p.priority === 'medium' ? 'border-l-amber-400' : 'border-l-blue-400'}`}>
-                        <div className="flex items-start justify-between mb-3">
-                            <div>
-                                <p className="text-[10px] text-gray-500 font-bold flex items-center gap-2">
-                                    {p.id}
-                                    <span className="flex items-center gap-1 text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded-full"><Cpu className="w-2.5 h-2.5" />IA</span>
-                                </p>
-                                <p className="text-sm font-bold text-white mt-0.5">{p.binName}</p>
-                            </div>
-                            <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${priorityColors[p.priority]}`}>{p.priority}</span>
-                        </div>
-
-                        <p className="text-xs text-gray-300 mb-3">{p.message}</p>
-
-                        {/* Barre de progression temps restant */}
-                        <div className="space-y-1.5 mb-3">
-                            <div className="flex justify-between text-xs">
-                                <span className="text-gray-500">Fenêtre d'intervention</span>
-                                <span className="font-semibold text-white">{p.estimatedHours}h restantes</span>
-                            </div>
-                            <div className="w-full h-2 bg-[#1E293B] rounded-full overflow-hidden">
-                                <div className={`h-full rounded-full transition-all duration-700 ${p.priority === 'high' ? 'bg-red-500' : p.priority === 'medium' ? 'bg-amber-400' : 'bg-blue-400'}`} style={{ width: `${100 - p.progress}%` }} />
-                            </div>
-                        </div>
-
-                        {/* Métriques IA */}
-                        <div className="grid grid-cols-3 gap-3 mt-3 pt-3 border-t border-[#334155]/50">
-                            <div className="text-center">
-                                <div className="flex items-center justify-center gap-1">
-                                    <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                                    <span className="text-xs font-bold text-emerald-400">{p.confidence}%</span>
-                                </div>
-                                <p className="text-[9px] text-gray-600 mt-0.5">Confiance</p>
-                            </div>
-                            <div className="text-center">
-                                <div className="flex items-center justify-center gap-1">
-                                    <Activity className="w-3 h-3 text-purple-400" />
-                                    <span className="text-xs font-bold text-white">{p.riskScore}</span>
-                                </div>
-                                <p className="text-[9px] text-gray-600 mt-0.5">Risque</p>
-                            </div>
-                            <div className="text-center">
-                                <div className="flex items-center justify-center gap-1">
-                                    <Sigma className="w-3 h-3 text-cyan-400" />
-                                    <span className="text-xs font-bold text-white">{p.binLocation}</span>
-                                </div>
-                                <p className="text-[9px] text-gray-600 mt-0.5">Localisation</p>
-                            </div>
-                        </div>
+                    <div className="flex items-center gap-3 flex-wrap">
+                        {priorityFilter !== 'Toutes' && (
+                            <span className="text-[10px] text-gray-500 flex items-center gap-1">
+                                Filtre : <span className={`font-semibold ${priorityFilter === 'high' ? 'text-red-400' : priorityFilter === 'medium' ? 'text-amber-400' : 'text-blue-400'}`}>
+                                    {priorityFilter === 'high' ? 'Urgent' : priorityFilter === 'medium' ? 'Planifier' : 'Routine'}
+                                </span>
+                                <button onClick={() => { setPriorityFilter('Toutes'); router.get('/predictions', { priority: '', search }, { preserveState: true, replace: true }) }} className="ml-1 text-gray-600 hover:text-white transition-colors">✕</button>
+                            </span>
+                        )}
+                        <button onClick={() => setSortAsc(!sortAsc)} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1E293B]/80 rounded-lg text-xs text-gray-500 hover:text-gray-300 transition-all">
+                            <ArrowUpDown className="w-3.5 h-3.5" />{sortAsc ? 'Urgent ▲' : 'Urgent ▼'}
+                        </button>
                     </div>
-                ))}
-            </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 overflow-x-auto no-scrollbar">
-                    <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="p-2 rounded-lg bg-[#1E293B]/80 text-gray-500 hover:text-white disabled:opacity-30 transition-all shrink-0"><ChevronLeft className="w-4 h-4" /></button>
-                    {Array.from({ length: totalPages }, (_, i) => (
-                        <button key={i} onClick={() => setPage(i + 1)} className={`w-8 h-8 rounded-lg text-xs font-bold transition-all shrink-0 ${page === i + 1 ? 'bg-purple-600 text-white shadow-lg' : 'bg-[#1E293B]/80 text-gray-500 hover:text-white'}`}>{i + 1}</button>
-                    ))}
-                    <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 rounded-lg bg-[#1E293B]/80 text-gray-500 hover:text-white disabled:opacity-30 transition-all shrink-0"><ChevronRight className="w-4 h-4" /></button>
                 </div>
             )}
 
-            {/* Modèle info */}
-            <div className="glass rounded-xl p-4 flex items-center justify-between text-xs text-gray-500">
-                <div className="flex items-center gap-4">
-                    <span className="flex items-center gap-1.5"><GitBranch className="w-3.5 h-3.5 text-purple-400" />{modelInfo.version}</span>
-                    <span className="flex items-center gap-1.5"><Cpu className="w-3.5 h-3.5 text-cyan-400" />{modelInfo.algorithm}</span>
-                    <span className="flex items-center gap-1.5"><Sigma className="w-3.5 h-3.5 text-emerald-400" />{modelInfo.dataPoints} entrées</span>
+            {/* État vide */}
+            {predictions.total === 0 ? (
+                <div className="glass rounded-xl p-10 text-center">
+                    <Brain className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                    <p className="text-lg font-bold text-white">Aucune prédiction</p>
+                    <p className="text-sm text-gray-400 mt-1 max-w-md mx-auto">
+                        Cliquez sur <strong className="text-purple-400">"Lancer l'IA"</strong> pour générer les prédictions. 
+                        Le modèle analysera les relevés de toutes les bennes et estimera les risques de débordement.
+                    </p>
+                    <button
+                        onClick={() => { setGenerating(true); router.post('/predictions/generate', {}, { preserveState: true, onFinish: () => setGenerating(false) }); }}
+                        disabled={generating}
+                        className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold transition-all disabled:opacity-50"
+                    >
+                        <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
+                        {generating ? 'Génération...' : "Lancer l'IA"}
+                    </button>
                 </div>
-                <span>Dernier entraînement : {modelInfo.trained}</span>
+            ) : (
+                <>
+                    {/* Cartes prédictions */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {filtered.map((p) => (
+                            <div key={p.id} className={`glass rounded-xl p-5 border-l-4 transition-all hover:bg-[rgba(255,255,255,0.04)] ${p.priority === 'high' ? 'border-l-red-500' : p.priority === 'medium' ? 'border-l-amber-400' : 'border-l-blue-400'}`}>
+                                <div className="flex items-start justify-between mb-3">
+                                    <div>
+                                        <p className="text-xs font-bold text-white flex items-center gap-2">
+                                            {p.binName}
+                                            <span className="text-[9px] font-normal text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded-full">IA</span>
+                                        </p>
+                                        <p className="text-[10px] text-gray-500 mt-0.5 flex items-center gap-1">
+                                            <MapPin className="w-3 h-3" />{p.binLocation}
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${levelColors[p.priority]}`}>
+                                            {p.priority === 'high' ? 'Urgent' : p.priority === 'medium' ? 'Planifier' : 'Routine'}
+                                        </span>
+                                        <button onClick={() => { if (confirm('Supprimer cette prédiction ?')) router.delete(`/predictions/${p.id}`, { preserveState: true }) }} className="p-1 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-500/10 text-gray-500 hover:text-red-400 transition-all" title="Supprimer">
+                                            <Trash2 className="w-3 h-3" />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <p className="text-xs text-gray-300 mb-3 leading-relaxed">{p.message}</p>
+
+                                {/* Barre temps restant */}
+                                <div className="space-y-1.5 mb-3">
+                                    <div className="flex justify-between text-xs">
+                                        <span className="text-gray-500">Temps avant débordement</span>
+                                        <span className="font-semibold text-white">
+                                            {p.estimatedHours > 0 ? `~${Math.round(p.estimatedHours)}h` : '< 1h'}
+                                        </span>
+                                    </div>
+                                    <div className="w-full h-2 bg-[#1E293B] rounded-full overflow-hidden">
+                                        <div className={`h-full rounded-full transition-all duration-700 ${p.priority === 'high' ? 'bg-red-500' : p.priority === 'medium' ? 'bg-amber-400' : 'bg-blue-400'}`} style={{ width: `${100 - p.progress}%` }} />
+                                    </div>
+                                </div>
+
+                                {/* Métriques */}
+                                <div className="grid grid-cols-3 gap-3 mt-3 pt-3 border-t border-[#334155]/50">
+                                    <div className="text-center">
+                                        <div className="flex items-center justify-center gap-1">
+                                            <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                                            <span className="text-xs font-bold text-emerald-400">{p.confidence}%</span>
+                                        </div>
+                                        <p className="text-[9px] text-gray-600 mt-0.5">Confiance R²</p>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="flex items-center justify-center gap-1">
+                                            <AlertTriangle className={`w-3 h-3 ${p.priority === 'high' ? 'text-red-400' : p.priority === 'medium' ? 'text-amber-400' : 'text-blue-400'}`} />
+                                            <span className={`text-xs font-bold ${p.priority === 'high' ? 'text-red-400' : p.priority === 'medium' ? 'text-amber-400' : 'text-blue-400'}`}>{p.riskScore}</span>
+                                        </div>
+                                        <p className="text-[9px] text-gray-600 mt-0.5">Score de risque</p>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="flex items-center justify-center gap-1">
+                                            <MapPin className="w-3 h-3 text-cyan-400" />
+                                            <span className="text-xs font-bold text-white truncate max-w-[80px] block" title={p.binLocation}>{p.binLocation}</span>
+                                        </div>
+                                        <p className="text-[9px] text-gray-600 mt-0.5">Localisation</p>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Pagination */}
+                    {predictions.last_page > 1 && (
+                        <div className="flex items-center justify-center gap-2 overflow-x-auto no-scrollbar">
+                            <button onClick={() => router.get('/predictions', { page: predictions.current_page - 1, search: filters?.search, priority: filters?.priority }, { preserveState: true })} disabled={predictions.current_page === 1} className="p-2 rounded-lg bg-[#1E293B]/80 text-gray-500 hover:text-white disabled:opacity-30 transition-all shrink-0"><ChevronLeft className="w-4 h-4" /></button>
+                            {Array.from({ length: predictions.last_page }, (_, i) => (
+                                <button key={i} onClick={() => router.get('/predictions', { page: i + 1, search: filters?.search, priority: filters?.priority }, { preserveState: true })} className={`w-8 h-8 rounded-lg text-xs font-bold transition-all shrink-0 ${predictions.current_page === i + 1 ? 'bg-purple-600 text-white shadow-lg' : 'bg-[#1E293B]/80 text-gray-500 hover:text-white'}`}>{i + 1}</button>
+                            ))}
+                            <button onClick={() => router.get('/predictions', { page: predictions.current_page + 1, search: filters?.search, priority: filters?.priority }, { preserveState: true })} disabled={predictions.current_page === predictions.last_page} className="p-2 rounded-lg bg-[#1E293B]/80 text-gray-500 hover:text-white disabled:opacity-30 transition-all shrink-0"><ChevronRight className="w-4 h-4" /></button>
+                        </div>
+                    )}
+                </>
+            )}
+
+            {/* Info bas de page */}
+            <div className="glass rounded-xl p-4 flex items-center justify-between text-xs text-gray-500">
+                <div className="flex items-center gap-4 flex-wrap">
+                    <span className="flex items-center gap-1.5"><Brain className="w-3.5 h-3.5 text-purple-400" />Régression linéaire (numpy)</span>
+                    <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />R² = confiance</span>
+                    <span className="flex items-center gap-1.5"><Target className="w-3.5 h-3.5 text-cyan-400" />{predictions.total} prédictions sur {bins.length} bennes</span>
+                </div>
+                <span>Analyse à la demande</span>
             </div>
         </div>
     )

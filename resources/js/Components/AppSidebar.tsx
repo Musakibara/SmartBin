@@ -21,17 +21,6 @@ interface NavItem {
     href: string
 }
 
-const navItems: NavItem[] = [
-    { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-    { label: 'Smart Bins', icon: Trash2, href: '/bins' },
-    { label: 'Capteurs', icon: Radio, href: '/sensors' },
-    { label: 'Monitoring', icon: Map, href: '/monitoring' },
-    { label: 'Alertes', icon: Bell, href: '/alerts' },
-    { label: 'IA Prédictions', icon: Brain, href: '/predictions' },
-    { label: 'Utilisateurs', icon: Users, href: '/users' },
-    { label: 'Paramètres', icon: Settings, href: '/settings' },
-]
-
 function useTilt() {
     const handleMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
         const el = e.currentTarget
@@ -56,7 +45,19 @@ interface AppSidebarProps {
 }
 
 export default function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
-    const { url } = usePage()
+    const { url, props } = usePage()
+    const userRole = (props.auth as { user?: { role?: string } } | undefined)?.user?.role
+
+    const navItems: NavItem[] = [
+        { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
+        { label: 'Smart Bins', icon: Trash2, href: '/bins' },
+        { label: 'Capteurs', icon: Radio, href: '/sensors' },
+        { label: 'Monitoring', icon: Map, href: '/monitoring' },
+        { label: 'Alertes', icon: Bell, href: '/alerts' },
+        { label: 'IA Prédictions', icon: Brain, href: '/predictions' },
+        ...(userRole === 'ADMIN' ? [{ label: 'Utilisateurs', icon: Users, href: '/users' }] : []),
+        { label: 'Paramètres', icon: Settings, href: '/settings' },
+    ]
     const tilt = useTilt()
 
     function isActive(href: string) {
@@ -98,13 +99,16 @@ export default function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                                 href={item.href}
                                 onMouseMove={tilt.handleMouseMove}
                                 onMouseLeave={tilt.handleMouseLeave}
-                                className={`flex items-center gap-3 px-5 py-3.5 rounded-xl text-[14px] leading-[20px] font-semibold tracking-[0.01em] transition-all duration-200 ${
+                                className={`relative flex items-center gap-3 px-5 py-3.5 rounded-xl text-[14px] leading-[20px] font-semibold tracking-[0.01em] transition-all duration-200 overflow-hidden ${
                                     active
-                                        ? 'text-[#10B981] font-bold border-l-4 border-[#10B981] bg-[#10B981]/5 shadow-sm shadow-[#10B981]/5'
-                                        : 'text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/5 hover:shadow-sm hover:shadow-white/5'
+                                        ? 'text-emerald-400 bg-[#10B981]/10 shadow-[0_0_20px_-8px_rgba(16,185,129,0.3)]'
+                                        : 'text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/5'
                                 }`}
                             >
-                                <item.icon className="w-5 h-5" />
+                                {active && (
+                                    <span className="absolute left-0 inset-y-2 w-1 bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-r-full shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+                                )}
+                                <item.icon className={`w-5 h-5 transition-transform duration-200 ${active ? 'scale-110 drop-shadow-[0_0_6px_rgba(16,185,129,0.5)]' : ''}`} />
                                 {item.label}
                             </Link>
                         )
@@ -117,13 +121,16 @@ export default function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                             href="/profile"
                             onMouseMove={tilt.handleMouseMove}
                             onMouseLeave={tilt.handleMouseLeave}
-                            className={`flex items-center gap-3 px-5 py-3.5 rounded-xl text-[14px] leading-[20px] font-semibold tracking-[0.01em] transition-all duration-200 ${
+                            className={`relative flex items-center gap-3 px-5 py-3.5 rounded-xl text-[14px] leading-[20px] font-semibold tracking-[0.01em] transition-all duration-200 overflow-hidden ${
                                 isActive('/profile')
-                                    ? 'text-[#10B981] font-bold border-l-4 border-[#10B981] bg-[#10B981]/5 shadow-sm shadow-[#10B981]/5'
-                                    : 'text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/5 hover:shadow-sm hover:shadow-white/5'
+                                    ? 'text-emerald-400 bg-[#10B981]/10 shadow-[0_0_20px_-8px_rgba(16,185,129,0.3)]'
+                                    : 'text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/5'
                             }`}
                         >
-                            <User className="w-5 h-5" />
+                            {isActive('/profile') && (
+                                <span className="absolute left-0 inset-y-2 w-1 bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-r-full shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+                            )}
+                            <User className={`w-5 h-5 transition-transform duration-200 ${isActive('/profile') ? 'scale-110 drop-shadow-[0_0_6px_rgba(16,185,129,0.5)]' : ''}`} />
                             Profile
                         </Link>
                         <button

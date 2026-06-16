@@ -8,6 +8,7 @@ use App\Models\Notification;
 use App\Models\Prediction;
 use App\Models\Sensor;
 use App\Models\SensorReading;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -109,16 +110,23 @@ class DashboardController extends Controller
         // ============================================================
         $period = request()->query('period', '24h');
 
-        $startDate = match ($period) {
-            '24h' => now()->subHours(24),
-            '7d'  => now()->subDays(7),
-            '30d' => now()->subDays(30),
-            '12m' => now()->subYear(),
-            default => now()->subHours(24),
-        };
+        $latestReadingDate = SensorReading::max('created_at');
 
-        $readings = SensorReading::where('created_at', '>=', $startDate)
-            ->get(['created_at', 'fill_level']);
+        $readings = collect();
+        if ($latestReadingDate) {
+            $latestReadingDate = Carbon::parse($latestReadingDate);
+            $startDate = match ($period) {
+                '24h' => $latestReadingDate->copy()->subHours(24),
+                '7d'  => $latestReadingDate->copy()->subDays(7),
+                '30d' => $latestReadingDate->copy()->subDays(30),
+                '12m' => $latestReadingDate->copy()->subYear(),
+                default => $latestReadingDate->copy()->subHours(24),
+            };
+
+            $readings = SensorReading::where('created_at', '>=', $startDate)
+                ->where('created_at', '<=', $latestReadingDate)
+                ->get(['created_at', 'fill_level']);
+        }
 
         $fillLevelHistory = match ($period) {
             '24h' => $readings

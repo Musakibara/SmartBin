@@ -90,24 +90,27 @@ class BinController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name'     => 'required|string|max:150',
-            'location' => 'required|string|max:255',
-            'fill'     => 'nullable|numeric|between:0,100',
-            'battery'  => 'nullable|numeric|between:0,100',
+            'name'      => 'required|string|max:150',
+            'location'  => 'required|string|max:255',
+            'latitude'  => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
         ]);
 
-        // Génération d'un code unique incrémental
-        $code = 'BIN-' . str_pad((Bin::count() + 1), 3, '0', STR_PAD_LEFT);
+        // Génération d'un code unique incrémental (basé sur le max existant)
+        $maxCode = Bin::max('code');
+        $num = $maxCode ? (int) substr($maxCode, 4) + 1 : 1;
+        $code = 'BIN-' . str_pad($num, 3, '0', STR_PAD_LEFT);
 
         Bin::create([
             'code'          => $code,
             'name'          => $validated['name'],
             'location'      => $validated['location'],
-            'latitude'      => 3.848 + (mt_rand(-200, 200) / 10000),
-            'longitude'     => 11.502 + (mt_rand(-200, 200) / 10000),
-            'fill_level'    => $validated['fill'] ?? 0,
-            'battery_level' => $validated['battery'] ?? 100,
+            'latitude'      => $validated['latitude'],
+            'longitude'     => $validated['longitude'],
+            'fill_level'    => 0,
+            'battery_level' => 100,
             'status'        => 'NORMAL',
+            'lid_status'    => 'CLOSED',
             'last_update'   => now(),
         ]);
 
@@ -115,8 +118,7 @@ class BinController extends Controller
     }
 
     /**
-     * Modifie une benne existante (nom, emplacement, remplissage, batterie).
-     * Le statut est recalculé automatiquement.
+     * Modifie une benne existante (nom, emplacement).
      */
     public function update(Request $request, string $code): RedirectResponse
     {
@@ -125,21 +127,12 @@ class BinController extends Controller
         $validated = $request->validate([
             'name'     => 'required|string|max:150',
             'location' => 'required|string|max:255',
-            'fill'     => 'nullable|numeric|between:0,100',
-            'battery'  => 'nullable|numeric|between:0,100',
         ]);
 
-        // Recalcule le statut à partir du nouveau remplissage
-        $fill = $validated['fill'] ?? $bin->fill_level;
-        $status = $fill >= 80 ? 'FULL' : ($fill >= 60 ? 'WARNING' : 'NORMAL');
-
         $bin->update([
-            'name'          => $validated['name'],
-            'location'      => $validated['location'],
-            'fill_level'    => $fill,
-            'battery_level' => $validated['battery'] ?? $bin->battery_level,
-            'status'        => $status,
-            'last_update'   => now(),
+            'name'        => $validated['name'],
+            'location'    => $validated['location'],
+            'last_update' => now(),
         ]);
 
         return redirect()->back();

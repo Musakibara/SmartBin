@@ -15,6 +15,9 @@ import {
     Gauge,
     BatteryCharging,
     Thermometer,
+    RefreshCw,
+    Pause,
+    Play,
 } from 'lucide-react'
 import {
     LineChart,
@@ -81,6 +84,41 @@ function DashboardPage() {
     }
     const [mapReady, setMapReady] = useState(false)
 
+    const [live, setLive] = useState(true)
+    const [lastRefresh, setLastRefresh] = useState<Date>(new Date())
+    const [now, setNow] = useState(Date.now())
+
+    // Auto-refresh toutes les 30s
+    useEffect(() => {
+        if (!live) return
+        const id = setInterval(() => {
+            router.get('/dashboard', { period }, {
+                preserveState: true,
+                preserveScroll: true,
+                only: ['kpiData', 'fillLevelHistory', 'bins', 'alerts'],
+            })
+            setLastRefresh(new Date())
+        }, 30000)
+        return () => clearInterval(id)
+    }, [live, period])
+
+    // Met à jour l'affichage "dernière mise à jour" chaque seconde
+    useEffect(() => {
+        const id = setInterval(() => setNow(Date.now()), 1000)
+        return () => clearInterval(id)
+    }, [])
+
+    const secondsSinceRefresh = Math.round((Date.now() - lastRefresh.getTime()) / 1000)
+
+    function manualRefresh() {
+        router.get('/dashboard', { period }, {
+            preserveState: true,
+            preserveScroll: true,
+            only: ['kpiData', 'fillLevelHistory', 'bins', 'alerts'],
+        })
+        setLastRefresh(new Date())
+    }
+
     // La carte Leaflet ne se monte qu'après le rendu initial (SSR safe)
     useEffect(() => {
         setMapReady(true)
@@ -121,9 +159,27 @@ function DashboardPage() {
     return (
         <div className="space-y-6">
             {/* En-tête du dashboard */}
-            <div>
-                <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-                <p className="text-sm text-gray-400 mt-1">Vue d'ensemble du réseau SmartBin</p>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-bold text-white">Dashboard</h1>
+                    <p className="text-sm text-gray-400 mt-1">Vue d'ensemble du réseau SmartBin</p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1E293B]/80 border border-[#334155] text-xs">
+                        <span className={`w-2 h-2 rounded-full ${live ? 'bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'bg-gray-500'}`} />
+                        <span className={`font-semibold ${live ? 'text-emerald-400' : 'text-gray-400'}`}>Live</span>
+                        {live && <span className="text-gray-500">{30 - (secondsSinceRefresh % 30)}s</span>}
+                    </div>
+                    <span className="text-xs text-gray-500">
+                        Mis à jour il y a {secondsSinceRefresh < 60 ? `${secondsSinceRefresh}s` : `${Math.floor(secondsSinceRefresh / 60)}min`}
+                    </span>
+                    <button onClick={() => setLive((p) => !p)} className="p-2 rounded-lg bg-[#1E293B]/80 border border-[#334155] text-gray-400 hover:text-white hover:border-emerald-500/40 transition-all" title={live ? 'Pause' : 'Reprendre'}>
+                        {live ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                    </button>
+                    <button onClick={manualRefresh} className="p-2 rounded-lg bg-[#1E293B]/80 border border-[#334155] text-gray-400 hover:text-white hover:border-emerald-500/40 transition-all" title="Rafraîchir maintenant">
+                        <RefreshCw className="w-3.5 h-3.5" />
+                    </button>
+                </div>
             </div>
 
             {/* Rangée 1 — KPI principaux */}

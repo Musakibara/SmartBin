@@ -7,8 +7,27 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 import AppLayout from '../../Layouts/AppLayout'
 import StatusBadge from '../../Components/StatusBadge'
 import { useToast } from '../../Components/Toast'
-import { bins, alerts, predictions, fillLevelHistory } from '../../data/mock-dashboard'
-import type { Bin } from '../../data/mock-dashboard'
+import { usePage } from '@inertiajs/react'
+
+interface Bin {
+    id: string; name: string; location: string; fillLevel: number
+    status: 'normal' | 'warning' | 'full'; lastUpdate: string
+    lat: number; lng: number; battery: number; temperature: number
+}
+
+interface AlertItem {
+    id: string; bin: string; message: string; severity: string
+    status: string; time: string
+}
+
+interface PredictionItem {
+    id: string; bin: string; message: string; priority: string
+    estimatedHours: number
+}
+
+interface ActivityItem {
+    action: string; detail: string; time: string
+}
 
 function MapResize({ showPanel }: { showPanel: boolean }) {
   const map = useMap()
@@ -43,6 +62,11 @@ const severityColors: Record<string, string> = {
 }
 
 function MonitoringPage() {
+    const props = usePage().props as unknown as {
+        bins: Bin[]; alerts: AlertItem[]; predictions: PredictionItem[]
+        activity: ActivityItem[]; fillLevelHistory: { time: string; value: number }[]
+    }
+    const { bins, alerts, predictions, activity, fillLevelHistory } = props
     const { notify } = useToast()
     const [mapReady, setMapReady] = useState(false)
     const [filter, setFilter] = useState<'all' | 'normal' | 'warning' | 'full'>('all')
@@ -112,13 +136,9 @@ function MonitoringPage() {
         return (
             <div className="space-y-2">
                 <h3 className="text-xs font-bold text-white flex items-center gap-1.5"><Activity className="w-3.5 h-3.5 text-cyan-400" />Activité récente</h3>
-                {[
-                    { action: 'Alerte résolue', detail: 'BIN-003 — Capteur inactif', time: 'Il y a 2h' },
-                    { action: 'Notification envoyée', detail: 'Agent alerté pour BIN-004', time: 'Il y a 15 min' },
-                    { action: 'Nouvelle alerte', detail: 'BIN-001 — Seuil critique', time: 'Il y a 10 min' },
-                    { action: 'Lecture capteur', detail: 'BIN-005 — 15%', time: 'Il y a 4 min' },
-                    { action: 'Prédiction', detail: 'BIN-004 — Débordement T-1h', time: 'Il y a 5 min' },
-                ].map((item, i) => (
+                {activity.length === 0 ? (
+                    <p className="text-xs text-gray-600 italic">Aucune activité récente</p>
+                ) : activity.map((item, i) => (
                     <div key={i} className="flex items-start gap-2.5 text-xs">
                         <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 mt-1.5 shrink-0" />
                         <div>
@@ -186,28 +206,28 @@ function MonitoringPage() {
                         />
                         {filteredBins.map((bin) => (
                             <Marker key={bin.id} position={[bin.lat, bin.lng]} icon={binIcon(bin.status)}>
-                                <Popup>
-                                    <div className="text-[#0F172A] min-w-[180px]">
+                                <Popup className="glass-popup">
+                                    <div className="min-w-[180px]">
                                         <div className="flex items-center justify-between mb-2">
                                             <div>
-                                                <p className="text-[10px] font-bold text-gray-500">{bin.id}</p>
-                                                <p className="text-sm font-bold">{bin.name}</p>
+                                                <p className="text-[10px] font-bold text-white/60">{bin.id}</p>
+                                                <p className="text-sm font-bold text-white">{bin.name}</p>
                                             </div>
                                             <StatusBadge status={bin.status} />
                                         </div>
-                                        <div className="space-y-1 text-xs text-gray-600">
+                                        <div className="space-y-1 text-xs text-gray-400">
                                             <p className="flex items-center gap-1.5"><MapPin className="w-3 h-3" />{bin.location}</p>
                                             <p className="flex items-center gap-1.5"><Thermometer className="w-3 h-3" />{bin.temperature}°C</p>
                                             <p className="flex items-center gap-1.5"><BatteryCharging className="w-3 h-3" />{bin.battery}%</p>
                                             <div className="mt-2">
                                                 <div className="flex justify-between text-[10px] mb-1">
-                                                    <span>Remplissage</span><span className="font-bold">{bin.fillLevel}%</span>
+                                                    <span className="text-gray-500">Remplissage</span><span className="font-bold text-white">{bin.fillLevel}%</span>
                                                 </div>
-                                                <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                                <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
                                                     <div className={`h-full rounded-full ${bin.fillLevel > 80 ? 'bg-red-500' : bin.fillLevel > 50 ? 'bg-orange-400' : 'bg-emerald-500'}`} style={{ width: `${bin.fillLevel}%` }} />
                                                 </div>
                                             </div>
-                                            <p className="text-[10px] text-gray-400 mt-1">{bin.lastUpdate}</p>
+                                            <p className="text-[10px] text-gray-600 mt-1">{bin.lastUpdate}</p>
                                         </div>
                                     </div>
                                 </Popup>

@@ -1,8 +1,12 @@
 <?php
 
+use App\Http\Controllers\AlertController;
 use App\Http\Controllers\BinController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SensorController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -29,29 +33,37 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{code}', [BinController::class, 'destroy'])->name('bins.destroy');
     });
 
-    Route::get('/monitoring', function () {
-        return Inertia::render('Monitoring/Index');
-    })->name('monitoring');
+    Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring');
 
-    Route::get('/users', function () {
-        return Inertia::render('Users/Index');
-    })->name('users');
+    Route::prefix('/users')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('users.index');
+        Route::post('/', [UserController::class, 'store'])->name('users.store');
+        Route::patch('/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    });
 
-    Route::get('/alerts', function () {
-        return Inertia::render('Alerts/Index');
-    })->name('alerts');
+    Route::prefix('/alerts')->group(function () {
+        Route::get('/', [AlertController::class, 'index'])->name('alerts.index');
+        Route::patch('/{alert}', [AlertController::class, 'update'])->name('alerts.update');
+        Route::delete('/{alert}', [AlertController::class, 'destroy'])->name('alerts.destroy');
+    });
 
     Route::get('/settings', function () {
         return Inertia::render('Settings/Index');
     })->name('settings');
 
-    Route::get('/predictions', function () {
-        return Inertia::render('Predictions/Index');
-    })->name('predictions');
+    Route::prefix('/predictions')->group(function () {
+        Route::get('/', [\App\Http\Controllers\PredictionController::class, 'index'])->name('predictions.index');
+        Route::post('/generate', [\App\Http\Controllers\PredictionController::class, 'generate'])->name('predictions.generate');
+        Route::delete('/{prediction}', [\App\Http\Controllers\PredictionController::class, 'destroy'])->name('predictions.destroy');
+    });
 
-    Route::get('/sensors', function () {
-        return Inertia::render('Sensors/Index');
-    })->name('sensors');
+    Route::prefix('/sensors')->group(function () {
+        Route::get('/', [SensorController::class, 'index'])->name('sensors.index');
+        Route::post('/', [SensorController::class, 'store'])->name('sensors.store');
+        Route::patch('/{id}', [SensorController::class, 'update'])->name('sensors.update');
+        Route::delete('/{id}', [SensorController::class, 'destroy'])->name('sensors.destroy');
+    });
 });
 
 require __DIR__.'/auth.php';

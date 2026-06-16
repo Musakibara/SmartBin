@@ -1,5 +1,5 @@
-import { useState, useMemo, useEffect } from 'react'
-import { Search, SlidersHorizontal, MapPin, BatteryCharging, Thermometer, Trash2, ArrowUpDown, ChevronLeft, ChevronRight, AlertTriangle, X, Clock, Brain, Activity, Map as MapIcon, Grid3X3 } from 'lucide-react'
+import { useState, useMemo, useEffect, useRef } from 'react'
+import { Search, SlidersHorizontal, MapPin, BatteryCharging, Thermometer, Trash2, ArrowUpDown, ChevronLeft, ChevronRight, AlertTriangle, X, Clock, Brain, Activity, Map as MapIcon, Grid3X3, Crosshair } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
@@ -36,6 +36,133 @@ const sortOptions = [
     { label: 'Température', value: 'temperature' as const },
 ]
 const PER_PAGE = 9
+
+const pickerIcon = L.divIcon({
+    className: '',
+    html: '<div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#10B981,#059669);border:3px solid #fff;box-shadow:0 2px 12px rgba(16,185,129,0.5)"></div>',
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+})
+
+interface NominatimResult {
+    display_name: string
+    lat: string
+    lon: string
+}
+
+function MapClickPicker({ lat, lng, onLocationChange }: { lat: number; lng: number; onLocationChange: (lat: number, lng: number) => void }) {
+    const mapRef = useRef<HTMLDivElement>(null)
+    const markerRef = useRef<L.Marker | null>(null)
+    const instanceRef = useRef<L.Map | null>(null)
+    const [query, setQuery] = useState('')
+    const [results, setResults] = useState<NominatimResult[]>([])
+    const [searching, setSearching] = useState(false)
+    const [showResults, setShowResults] = useState(false)
+    const debounceRef = useRef<ReturnType<typeof setTimeout>>()
+
+    useEffect(() => {
+        if (!mapRef.current || instanceRef.current) return
+
+        const map = L.map(mapRef.current, { zoomControl: false }).setView([lat, lng], 14)
+        instanceRef.current = map
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap',
+        }).addTo(map)
+
+        const marker = L.marker([lat, lng], { draggable: true, icon: pickerIcon }).addTo(map)
+        markerRef.current = marker
+
+        function handleMove(m: L.Marker) {
+            const pos = m.getLatLng()
+            onLocationChange(Math.round(pos.lat * 10000) / 10000, Math.round(pos.lng * 10000) / 10000)
+        }
+
+        marker.on('dragend', () => handleMove(marker))
+        map.on('click', (e: L.LeafletMouseEvent) => {
+            marker.setLatLng(e.latlng)
+            handleMove(marker)
+        })
+
+        return () => {
+            map.remove()
+            instanceRef.current = null
+            markerRef.current = null
+        }
+    }, [])
+
+    useEffect(() => {
+        if (markerRef.current) {
+            markerRef.current.setLatLng([lat, lng])
+            instanceRef.current?.setView([lat, lng], instanceRef.current.getZoom())
+        }
+    }, [lat, lng])
+
+    function onSearch(value: string) {
+        setQuery(value)
+        setShowResults(true)
+        if (debounceRef.current) clearTimeout(debounceRef.current)
+        if (!value.trim()) { setResults([]); return }
+
+        debounceRef.current = setTimeout(async () => {
+            setSearching(true)
+            try {
+                const res = await fetch(
+                    `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(value)}&format=json&limit=5&countrycodes=cm`,
+                    { headers: { 'User-Agent': 'SmartBin/1.0' } }
+                )
+                const data: NominatimResult[] = await res.json()
+                setResults(data)
+            } catch { setResults([]) }
+            setSearching(false)
+        }, 500)
+    }
+
+    function selectResult(r: NominatimResult) {
+        const newLat = Math.round(parseFloat(r.lat) * 10000) / 10000
+        const newLng = Math.round(parseFloat(r.lon) * 10000) / 10000
+        onLocationChange(newLat, newLng)
+        setQuery(r.display_name.split(',')[0])
+        setResults([])
+        setShowResults(false)
+    }
+
+    return (
+        <div className="relative w-full h-full min-h-[300px] sm:min-h-[350px]">
+            {/* Barre de recherche */}
+            <div className="absolute top-3 left-3 right-3 z-[1000]">
+                <div className="relative">
+                    <input
+                        type="text"
+                        placeholder="Rechercher un lieu (Yaoundé, Bastos...)"
+                        value={query}
+                        onChange={(e) => onSearch(e.target.value)}
+                        onFocus={() => setShowResults(true)}
+                        className="w-full pl-9 pr-3 py-2 bg-[#0F172A]/90 backdrop-blur-md rounded-lg border border-[#334155] focus:border-emerald-500 outline-none text-xs text-white placeholder:text-gray-500 transition-all"
+                    />
+                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    {searching && <div className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />}
+                </div>
+                {/* Dropdown résultats */}
+                {showResults && results.length > 0 && (
+                    <div className="mt-1 bg-[#0F172A]/95 backdrop-blur-md rounded-lg border border-[#334155] overflow-hidden shadow-xl">
+                        {results.map((r, i) => (
+                            <button
+                                key={i}
+                                onClick={() => selectResult(r)}
+                                className="w-full text-left px-3 py-2 text-xs text-gray-300 hover:bg-white/5 hover:text-white transition-all border-b border-[#334155]/50 last:border-0"
+                            >
+                                <span className="line-clamp-1">{r.display_name}</span>
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </div>
+            {/* Carte */}
+            <div ref={mapRef} className="w-full h-full min-h-[300px] sm:min-h-[350px]" />
+        </div>
+    )
+}
 
 function BinsPage() {
     const { bins: initialBins } = usePage().props as unknown as { bins: Array<{
@@ -120,41 +247,40 @@ function BinsPage() {
 
     useEffect(() => { setPage(1) }, [search, statusFilter])
 
-    const [form, setForm] = useState({ name: '', location: '', fillLevel: 0, battery: 100, temperature: 22 })
+    const [form, setForm] = useState({ name: '', location: '', lat: 3.848, lng: 11.502 })
     const { notify } = useToast()
 
     function openEdit(bin: typeof initialBins[number]) {
         setEditingBin(bin)
-        setForm({ name: bin.name, location: bin.location, fillLevel: bin.fillLevel, battery: bin.battery, temperature: bin.temperature })
+        setForm({ name: bin.name, location: bin.location, lat: bin.lat, lng: bin.lng })
         setShowAddModal(true)
     }
 
     function openAdd() {
         setEditingBin(null)
-        setForm({ name: '', location: '', fillLevel: 0, battery: 100, temperature: 22 })
+        setForm({ name: '', location: '', lat: 3.848, lng: 11.502 })
         setShowAddModal(true)
     }
 
     function saveBin() {
         if (!form.name.trim() || !form.location.trim()) return
-        const payload = { name: form.name, location: form.location, fill: form.fillLevel, battery: form.battery }
 
         if (editingBin) {
-            router.patch(`/bins/${editingBin.id}`, payload, { preserveScroll: true, preserveState: true })
+            router.patch(`/bins/${editingBin.id}`, { name: form.name, location: form.location }, { preserveScroll: true })
             notify({ message: 'Benne modifiée', sub: `${form.name} — ${form.location}`, type: 'info' })
         } else {
-            router.post('/bins', payload, { preserveScroll: true, preserveState: true })
+            router.post('/bins', { name: form.name, location: form.location, latitude: form.lat, longitude: form.lng }, { preserveScroll: true })
             notify({ message: 'Nouvelle benne ajoutée', sub: `${form.name} — ${form.location}`, type: 'success' })
         }
 
-        setForm({ name: '', location: '', fillLevel: 0, battery: 100, temperature: 22 })
+        setForm({ name: '', location: '', lat: 3.848, lng: 11.502 })
         setShowAddModal(false)
         setEditingBin(null)
     }
 
     function confirmDelete() {
         if (!deleteTarget) return
-        router.delete(`/bins/${deleteTarget.id}`, { preserveScroll: true, preserveState: true })
+        router.delete(`/bins/${deleteTarget.id}`, { preserveScroll: true })
         setLocalBins((prev) => prev.filter((b) => b.id !== deleteTarget.id))
         notify({ message: 'Benne supprimée', sub: `${deleteTarget.name} — ${deleteTarget.location}`, type: 'success' })
         setDeleteTarget(null)
@@ -556,39 +682,44 @@ function BinsPage() {
             {showAddModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => { setShowAddModal(false); setEditingBin(null) }}>
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-                    <div className="relative w-full max-w-md glass rounded-2xl p-6 border border-[#334155] shadow-2xl" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-between mb-4">
+                    <div className="relative w-full max-w-3xl glass rounded-2xl border border-[#334155] shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                        {/* Header */}
+                        <div className="flex items-center justify-between px-6 pt-6 pb-3">
                             <h2 className="text-lg font-bold text-white">{editingBin ? 'Modifier' : 'Nouvelle'} benne</h2>
                             <button onClick={() => { setShowAddModal(false); setEditingBin(null) }} className="p-1 rounded-lg hover:bg-white/5 text-gray-500 hover:text-white transition-all">
                                 <X className="w-4 h-4" />
                             </button>
                         </div>
-                        <div className="space-y-3">
-                            <input type="text" placeholder="Nom" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                                className="w-full px-3 py-2 bg-[#1E293B]/80 rounded-lg border border-[#334155] focus:border-emerald-500 outline-none text-sm text-white placeholder:text-gray-600 transition-all" />
-                            <input type="text" placeholder="Emplacement" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })}
-                                className="w-full px-3 py-2 bg-[#1E293B]/80 rounded-lg border border-[#334155] focus:border-emerald-500 outline-none text-sm text-white placeholder:text-gray-600 transition-all" />
-                            <div className="grid grid-cols-3 gap-3">
+
+                        <div className="flex flex-col sm:flex-row gap-6 p-6 pt-3">
+                            {/* Colonne gauche : formulaire */}
+                            <div className="sm:w-72 space-y-4 shrink-0">
                                 <div>
-                                    <label className="text-[10px] text-gray-500 mb-1 block">Remplissage (%)</label>
-                                    <input type="number" min={0} max={100} value={form.fillLevel} onChange={(e) => setForm({ ...form, fillLevel: Number(e.target.value) })}
-                                        className="w-full px-3 py-2 bg-[#1E293B]/80 rounded-lg border border-[#334155] focus:border-emerald-500 outline-none text-sm text-white transition-all" />
+                                    <label className="text-[12px] font-medium text-gray-400 mb-1.5 block">Quartier</label>
+                                    <input type="text" placeholder="Ex: Mfoundi, Bastos, Mokolo..." value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
+                                        className="w-full px-3 py-2.5 bg-[#1E293B]/80 rounded-lg border border-[#334155] focus:border-emerald-500 outline-none text-sm text-white placeholder:text-gray-600 transition-all" />
                                 </div>
                                 <div>
-                                    <label className="text-[10px] text-gray-500 mb-1 block">Batterie (%)</label>
-                                    <input type="number" min={0} max={100} value={form.battery} onChange={(e) => setForm({ ...form, battery: Number(e.target.value) })}
-                                        className="w-full px-3 py-2 bg-[#1E293B]/80 rounded-lg border border-[#334155] focus:border-emerald-500 outline-none text-sm text-white transition-all" />
+                                    <label className="text-[12px] font-medium text-gray-400 mb-1.5 block">Adresse</label>
+                                    <input type="text" placeholder="Ex: Avenue Kennedy, Rue de la Paix..." value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })}
+                                        className="w-full px-3 py-2.5 bg-[#1E293B]/80 rounded-lg border border-[#334155] focus:border-emerald-500 outline-none text-sm text-white placeholder:text-gray-600 transition-all" />
                                 </div>
-                                <div>
-                                    <label className="text-[10px] text-gray-500 mb-1 block">Température (°C)</label>
-                                    <input type="number" value={form.temperature} onChange={(e) => setForm({ ...form, temperature: Number(e.target.value) })}
-                                        className="w-full px-3 py-2 bg-[#1E293B]/80 rounded-lg border border-[#334155] focus:border-emerald-500 outline-none text-sm text-white transition-all" />
+                                <div className="flex items-center gap-2 py-2 px-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                                    <Crosshair className="w-4 h-4 text-emerald-400 shrink-0" />
+                                    <div className="text-xs text-gray-400">
+                                        <span className="text-gray-300 font-medium">{form.lat.toFixed(4)}</span>, <span className="text-gray-300 font-medium">{form.lng.toFixed(4)}</span>
+                                    </div>
                                 </div>
+                                <button onClick={saveBin}
+                                    className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition-colors">
+                                    {editingBin ? 'Enregistrer' : 'Ajouter'}
+                                </button>
                             </div>
-                            <button onClick={saveBin}
-                                className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition-colors">
-                                {editingBin ? 'Enregistrer' : 'Ajouter'}
-                            </button>
+
+                            {/* Colonne droite : carte de sélection */}
+                            <div className="flex-1 min-h-[300px] sm:min-h-[350px] rounded-xl overflow-hidden border border-[#334155] relative">
+                                <MapClickPicker lat={form.lat} lng={form.lng} onLocationChange={(lat, lng) => setForm({ ...form, lat, lng })} />
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -292,5 +292,45 @@ Arduino (le jour J)
 - ❌ Code Arduino à écrire (lecture capteur ultrasons, envoi Serial)
 - ❌ Bridge Python à lancer dans un terminal séparé
 
+
+Bonne question. Voici une analyse des options gratuites pour les deux canaux :
+Email
+Solution	Gratuit ?	Limite
+Log driver (Laravel)	✅ Illimité	Écrit dans storage/logs, pas de vrai envoi
+Mailtrap	✅ 1000/mois	Dev/test uniquement (emails interceptés)
+Brevo (Sendinblue)	✅ 300/jour	SMTP simple, fiable
+SMTP Gmail	✅ 500/jour	Nécessite un mot de passe d'application
+Mailgun	❌ Plus de gratuit (crédit limité)	Payant après
+Recommandation : log en dev, Brevo SMTP en prod (300 emails/jour largement suffisants pour des alertes).
+Telegram
+✅ Entièrement gratuit, sans limite. Via l'API Bot Telegram :
+1. Créer un bot avec @BotFather (https://t.me/BotFather) → obtention d'un TOKEN
+2. Envoyer des messages avec https://api.telegram.org/bot<TOKEN>/sendMessage
+3. Laravel peut le faire avec un simple Http::post() ou le package irazasyed/telegram-bot-sdk
+Plan d'implémentation proposé
+1. NotificationChannel (abstraction)
+Créer une classe App\Services\NotificationService qui centralise l'envoi :
+NotificationService
+  ├── sendEmail($to, $subject, $body)   → via mail.log (dev) / Brevo (prod)
+  └── sendTelegram($chatId, $message)   → via Bot API (gratuit)
+2. Configuration .env
+MAIL_MAILER=log          # Dev
+# MAIL_MAILER=smtp      # Prod (Brevo)
+# MAIL_HOST=smtp-relay.brevo.com
+# MAIL_USERNAME=...
+# MAIL_PASSWORD=...
+
+TELEGRAM_BOT_TOKEN=      # De @BotFather
+TELEGRAM_CHAT_ID=        # Channel/Group ID
+3. Déclencheurs (quand envoyer ?)
+- Niveau capteur critique (benne > 90%) → email ADMIN + Telegram groupe
+- Capteur hors ligne → email TECHnICIEN
+- Prédiction débordement → notification Telegram
+- Rapport hebdomadaire → email récapitulatif
+4. Packages nécessaires
+Aucun (ou optionnel : irazasyed/telegram-bot-sdk). On peut faire avec Illuminate\Support\Facades\Mail + Illuminate\Support\Facades\Http (déjà inclus dans Laravel).
+
+
+
 email:randd981@gmail.com
 pwd:admin123

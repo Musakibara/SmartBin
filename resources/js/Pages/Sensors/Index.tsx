@@ -1,11 +1,13 @@
-import { useState, useMemo } from 'react'
-import { Radio, Wifi, WifiOff, AlertTriangle, BatteryCharging, Thermometer, Activity, Search, ChevronLeft, ChevronRight, Clock, RefreshCw, Cpu, Zap, type LucideIcon } from 'lucide-react'
+import { useState, useMemo, useEffect } from 'react'
+import { Radio, Wifi, WifiOff, AlertTriangle, BatteryCharging, Thermometer, Activity, Search, ChevronLeft, ChevronRight, Clock, Zap, X, Trash2, type LucideIcon } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import AppLayout from '../../Layouts/AppLayout'
-import { bins } from '../../data/mock-dashboard'
+import { useToast } from '../../Components/Toast'
+import { usePage, router } from '@inertiajs/react'
 
 interface Sensor {
     id: string
+    displayId: string
     binId: string
     binName: string
     type: 'Ultrason' | 'Poids' | 'Température' | 'Batterie'
@@ -20,16 +22,6 @@ interface Sensor {
 
 const sensorTypes = ['Ultrason', 'Poids', 'Température', 'Batterie'] as const
 
-const sensors: Sensor[] = bins.flatMap((bin, bi) => {
-    const base: Sensor[] = [
-        { id: `SNS-${String(bi * 4 + 1).padStart(3, '0')}`, binId: bin.id, binName: bin.name, type: 'Ultrason', status: 'online', battery: Math.round(50 + Math.random() * 50), lastReading: 'Il y a 1 min', lastValue: `${bin.fillLevel}%`, signal: Math.round(70 + Math.random() * 29), location: bin.location, history: Array.from({ length: 8 }, (_, i) => ({ time: `${i * 3}h`, value: Math.max(0, bin.fillLevel + Math.round((Math.random() - 0.5) * 20)) })) },
-        { id: `SNS-${String(bi * 4 + 2).padStart(3, '0')}`, binId: bin.id, binName: bin.name, type: 'Poids', status: bi % 5 === 3 ? 'offline' : 'online', battery: Math.round(30 + Math.random() * 60), lastReading: 'Il y a 2 min', lastValue: `${Math.round(10 + Math.random() * 50)}kg`, signal: Math.round(60 + Math.random() * 35), location: bin.location, history: Array.from({ length: 8 }, (_, i) => ({ time: `${i * 3}h`, value: Math.round(10 + Math.random() * 50) })) },
-        { id: `SNS-${String(bi * 4 + 3).padStart(3, '0')}`, binId: bin.id, binName: bin.name, type: 'Température', status: bin.temperature > 27 ? 'error' : 'online', battery: Math.round(40 + Math.random() * 55), lastReading: 'Il y a 3 min', lastValue: `${bin.temperature}°C`, signal: Math.round(75 + Math.random() * 20), location: bin.location, history: Array.from({ length: 8 }, (_, i) => ({ time: `${i * 3}h`, value: bin.temperature + Math.round((Math.random() - 0.5) * 6) })) },
-        { id: `SNS-${String(bi * 4 + 4).padStart(3, '0')}`, binId: bin.id, binName: bin.name, type: 'Batterie', status: bin.battery < 30 ? 'error' : 'online', battery: bin.battery, lastReading: 'Il y a 1 min', lastValue: `${bin.battery}%`, signal: Math.round(80 + Math.random() * 15), location: bin.location, history: Array.from({ length: 8 }, (_, i) => ({ time: `${i * 3}h`, value: Math.max(0, bin.battery + Math.round((Math.random() - 0.5) * 10)) })) },
-    ]
-    return base
-})
-
 const statusConfig: Record<string, { icon: LucideIcon; color: string; bg: string; label: string }> = {
     online: { icon: Wifi, color: 'text-emerald-400', bg: 'bg-emerald-500/10', label: 'En ligne' },
     offline: { icon: WifiOff, color: 'text-gray-500', bg: 'bg-gray-500/10', label: 'Hors ligne' },
@@ -38,12 +30,27 @@ const statusConfig: Record<string, { icon: LucideIcon; color: string; bg: string
 
 const typeIcons: Record<string, LucideIcon> = { Ultrason: Activity, Poids: Zap, Température: Thermometer, Batterie: BatteryCharging }
 
+const typeToDb: Record<string, string> = { Ultrason: 'ULTRASONIC', Poids: 'WEIGHT', Température: 'TEMPERATURE', Batterie: 'BATTERY' }
+const dbToType: Record<string, string> = { ULTRASONIC: 'Ultrason', WEIGHT: 'Poids', TEMPERATURE: 'Température', BATTERY: 'Batterie' }
+
+const modelByType: Record<string, string> = { Ultrason: 'HC-SR04', Poids: 'HX711', Température: 'DS18B20', Batterie: 'MAX17048' }
+
 function SensorsPage() {
+    const { sensors: initialSensors, bins } = usePage().props as unknown as { sensors: Sensor[]; bins?: Array<{ id: string; name: string; code: string }> }
+
+    const [sensors, setSensors] = useState(initialSensors)
+    useEffect(() => { setSensors(initialSensors) }, [initialSensors])
+
     const [search, setSearch] = useState('')
     const [statusFilter, setStatusFilter] = useState('Tous')
     const [typeFilter, setTypeFilter] = useState('Tous')
     const [page, setPage] = useState(1)
+    const [showModal, setShowModal] = useState(false)
+    const [editingSensor, setEditingSensor] = useState<Sensor | null>(null)
+    const [deleteTarget, setDeleteTarget] = useState<Sensor | null>(null)
+    const [form, setForm] = useState({ binId: '', type: 'Ultrason' as string, model: 'HC-SR04' as string, status: 'ACTIVE' as string })
     const perPage = 8
+    const { notify } = useToast()
 
     const filtered = useMemo(() => {
         return sensors.filter((s) => {
@@ -52,7 +59,7 @@ function SensorsPage() {
             const matchType = typeFilter === 'Tous' || s.type === typeFilter
             return matchSearch && matchStatus && matchType
         })
-    }, [search, statusFilter, typeFilter])
+    }, [search, statusFilter, typeFilter, sensors])
 
     const totalPages = Math.ceil(filtered.length / perPage)
     const paginated = filtered.slice((page - 1) * perPage, page * perPage)
@@ -60,8 +67,65 @@ function SensorsPage() {
     const onlineCount = sensors.filter((s) => s.status === 'online').length
     const errorCount = sensors.filter((s) => s.status === 'error').length
 
+    useEffect(() => { setPage(1) }, [search, statusFilter, typeFilter])
+
+    function openAdd() {
+        setEditingSensor(null)
+        setForm({ binId: bins?.[0]?.id ?? '', type: 'Ultrason', model: 'HC-SR04', status: 'ACTIVE' })
+        setShowModal(true)
+    }
+
+    function openEdit(sensor: Sensor) {
+        setEditingSensor(sensor)
+        const dbType = Object.entries(dbToType).find(([, v]) => v === sensor.type)?.[0] ?? 'ULTRASONIC'
+        setForm({ binId: sensor.binId, type: sensor.type, model: modelByType[sensor.type] ?? 'HC-SR04', status: 'ACTIVE' })
+        setShowModal(true)
+    }
+
+    function saveSensor() {
+        if (editingSensor) {
+            router.patch(`/sensors/${editingSensor.id}`, { type: typeToDb[form.type], model: form.model, status: form.status }, { preserveScroll: true })
+            notify({ message: 'Capteur modifié', sub: `${form.type} — ${editingSensor.binName}`, type: 'info' })
+        } else {
+            router.post('/sensors', { bin_id: form.binId, type: typeToDb[form.type], model: form.model, status: form.status }, { preserveScroll: true })
+            notify({ message: 'Capteur ajouté', sub: `${form.type}`, type: 'success' })
+        }
+        setShowModal(false)
+        setEditingSensor(null)
+    }
+
+    function confirmDelete() {
+        if (!deleteTarget) return
+        router.delete(`/sensors/${deleteTarget.id}`, { preserveScroll: true })
+        setSensors((prev) => prev.filter((s) => s.id !== deleteTarget.id))
+        notify({ message: 'Capteur supprimé', sub: `${deleteTarget.type} — ${deleteTarget.binName}`, type: 'success' })
+        setDeleteTarget(null)
+    }
+
     return (
         <div className="space-y-6">
+            {/* Confirmation suppression */}
+            {deleteTarget && (
+                <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] flex items-center bg-gradient-to-r from-red-600/95 to-red-700/95 backdrop-blur-md border border-red-400/30 shadow-2xl shadow-red-900/50 animate-slide-down rounded-xl">
+                    <div className="flex items-center gap-4 py-2.5 px-5 justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center">
+                                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            </div>
+                            <div>
+                                <p className="text-sm font-semibold text-white">Supprimer le capteur</p>
+                                <p className="text-xs text-red-200/80">{deleteTarget.type} — {deleteTarget.binName}</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button onClick={confirmDelete} className="px-4 py-1.5 bg-white text-red-700 text-xs font-bold rounded-lg hover:bg-red-50 transition-all shadow-lg">Confirmer</button>
+                            <button onClick={() => setDeleteTarget(null)} className="px-4 py-1.5 bg-white/10 text-white text-xs font-semibold rounded-lg hover:bg-white/20 transition-all">Annuler</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* En-tête */}
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold text-white flex items-center gap-2">
@@ -69,6 +133,9 @@ function SensorsPage() {
                     </h1>
                     <p className="text-sm text-gray-400 mt-1">{sensors.length} capteurs · {onlineCount} en ligne · {errorCount} en erreur</p>
                 </div>
+                <button onClick={openAdd} className="flex items-center gap-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-semibold rounded-xl transition-colors">
+                    Ajouter un capteur
+                </button>
             </div>
 
             {/* KPIs */}
@@ -114,15 +181,21 @@ function SensorsPage() {
                 {paginated.map((sensor) => {
                     const st = statusConfig[sensor.status]
                     const TypeIcon = typeIcons[sensor.type]
-                    const SignalIcon = sensor.signal > 80 ? Wifi : sensor.signal > 50 ? Wifi : WifiOff
+                    const bars = sensor.signal > 80 ? 5 : sensor.signal > 60 ? 4 : sensor.signal > 40 ? 3 : sensor.signal > 20 ? 2 : 1
+                    const signalColor = bars >= 4 ? 'bg-emerald-400' : bars >= 3 ? 'bg-amber-400' : 'bg-red-400'
                     return (
-                        <div key={sensor.id} className={`glass rounded-xl p-4 transition-all hover:bg-[rgba(255,255,255,0.04)] ${sensor.status === 'error' ? 'border border-red-500/20' : ''}`}>
+                        <div key={sensor.id} className={`group glass rounded-xl p-4 transition-all hover:bg-[rgba(255,255,255,0.04)] ${sensor.status === 'error' ? 'border border-red-500/20' : ''}`}>
+                            {/* En-tête : ID + bin code + nom */}
                             <div className="flex items-start justify-between mb-3">
                                 <div className="flex items-center gap-2">
                                     <div className={`p-2 rounded-lg ${st.bg}`}><TypeIcon className={`w-4 h-4 ${st.color}`} /></div>
                                     <div>
-                                        <p className="text-[10px] text-gray-500 font-bold">{sensor.id}</p>
-                                        <p className="text-xs font-bold text-white">{sensor.binName}</p>
+                                        <p className="text-[10px] text-gray-500 font-bold">{sensor.displayId}</p>
+                                        <p className="text-xs text-white">
+                                            <span className="text-gray-400">{sensor.binId}</span>
+                                            <span className="text-gray-600 mx-1">•</span>
+                                            <span className="font-semibold">{sensor.binName}</span>
+                                        </p>
                                     </div>
                                 </div>
                                 <span className={`flex items-center gap-1 text-[10px] font-semibold ${st.color}`}>
@@ -130,6 +203,7 @@ function SensorsPage() {
                                 </span>
                             </div>
 
+                            {/* Valeur */}
                             <div className="text-center py-2 mb-2 bg-[#1E293B]/50 rounded-lg">
                                 <p className="text-lg font-bold text-white">{sensor.lastValue}</p>
                                 <p className="text-[10px] text-gray-500">{sensor.type}</p>
@@ -144,16 +218,43 @@ function SensorsPage() {
                                 </ResponsiveContainer>
                             </div>
 
-                            <div className="flex items-center justify-between text-[10px] text-gray-500 pt-2 border-t border-[#334155]/50">
-                                <span className="flex items-center gap-1"><BatteryCharging className="w-3 h-3" />{sensor.battery}%</span>
-                                <span className="flex items-center gap-1"><SignalIcon className={`w-3 h-3 ${sensor.signal > 80 ? 'text-emerald-400' : sensor.signal > 50 ? 'text-amber-400' : 'text-red-400'}`} />{sensor.signal}%</span>
-                                <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{sensor.lastReading}</span>
+                            {/* Footer : batterie + signal visuel + localisation + temps */}
+                            <div className="space-y-1.5 pt-2 border-t border-[#334155]/50">
+                                <div className="flex items-center justify-between text-[10px] text-gray-500">
+                                    <span className="flex items-center gap-1.5">
+                                        <BatteryCharging className="w-3 h-3" />
+                                        <span className={sensor.battery < 20 ? 'text-red-400 font-semibold' : ''}>{sensor.battery}%</span>
+                                    </span>
+                                    <span className="flex items-center gap-1.5">
+                                        <span className="flex items-center gap-0.5">
+                                            {[1, 2, 3, 4, 5].map((b) => (
+                                                <span key={b} className={`w-1 rounded-sm transition-all ${
+                                                    b <= bars ? signalColor : 'bg-[#334155]'
+                                                } ${b <= 2 ? 'h-2' : b <= 4 ? 'h-3' : 'h-4'}`} />
+                                            ))}
+                                        </span>
+                                        <span className="text-gray-500">{sensor.signal}%</span>
+                                    </span>
+                                    <span className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all ml-auto">
+                                        <button onClick={() => openEdit(sensor)} className="p-1 rounded-lg bg-blue-500/15 text-blue-400 hover:bg-blue-500/25 transition-all">
+                                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                        </button>
+                                        <button onClick={() => setDeleteTarget(sensor)} className="p-1 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 transition-all">
+                                            <Trash2 className="w-3 h-3" />
+                                        </button>
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between text-[10px] text-gray-600">
+                                    <span className="truncate max-w-[160px]">{sensor.location}</span>
+                                    <span className="flex items-center gap-1 shrink-0"><Clock className="w-3 h-3" />{sensor.lastReading}</span>
+                                </div>
                             </div>
                         </div>
                     )
                 })}
             </div>
 
+            {/* Pagination */}
             {totalPages > 1 && (
                 <div className="flex items-center justify-center gap-2 overflow-x-auto no-scrollbar">
                     <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="p-2 rounded-lg bg-[#1E293B]/80 text-gray-500 hover:text-white disabled:opacity-30 transition-all shrink-0"><ChevronLeft className="w-4 h-4" /></button>
@@ -161,6 +262,69 @@ function SensorsPage() {
                         <button key={i} onClick={() => setPage(i + 1)} className={`w-8 h-8 rounded-lg text-xs font-bold transition-all shrink-0 ${page === i + 1 ? 'bg-cyan-600 text-white shadow-lg' : 'bg-[#1E293B]/80 text-gray-500 hover:text-white'}`}>{i + 1}</button>
                     ))}
                     <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 rounded-lg bg-[#1E293B]/80 text-gray-500 hover:text-white disabled:opacity-30 transition-all shrink-0"><ChevronRight className="w-4 h-4" /></button>
+                </div>
+            )}
+
+            {/* Modale CRUD */}
+            {showModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => { setShowModal(false); setEditingSensor(null) }}>
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+                    <div className="relative w-full max-w-md glass rounded-2xl p-6 border border-[#334155] shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-lg font-bold text-white">{editingSensor ? 'Modifier' : 'Nouveau'} capteur</h2>
+                            <button onClick={() => { setShowModal(false); setEditingSensor(null) }} className="p-1 rounded-lg hover:bg-white/5 text-gray-500 hover:text-white transition-all">
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+                        <div className="space-y-4">
+                            {!editingSensor && (
+                                <div>
+                                    <label className="text-[12px] font-medium text-gray-400 mb-1.5 block">Benne</label>
+                                    <select value={form.binId} onChange={(e) => setForm({ ...form, binId: e.target.value })}
+                                        className="w-full px-3 py-2.5 bg-[#1E293B]/80 rounded-lg border border-[#334155] focus:border-cyan-500 outline-none text-sm text-white transition-all">
+                                        {(bins as Array<{ id: string; name: string; code: string }>)?.map((b) => (
+                                            <option key={b.id} value={b.id} className="bg-[#1E293B]">{b.name} ({b.code})</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+                            <div>
+                                <label className="text-[12px] font-medium text-gray-400 mb-1.5 block">Type</label>
+                                <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value, model: modelByType[e.target.value] ?? 'HC-SR04' })}
+                                    className="w-full px-3 py-2.5 bg-[#1E293B]/80 rounded-lg border border-[#334155] focus:border-cyan-500 outline-none text-sm text-white transition-all">
+                                    {sensorTypes.map((t) => (
+                                        <option key={t} value={t} className="bg-[#1E293B]">{t}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="text-[12px] font-medium text-gray-400 mb-1.5 block">Modèle</label>
+                                <input type="text" value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })}
+                                    className="w-full px-3 py-2.5 bg-[#1E293B]/80 rounded-lg border border-[#334155] focus:border-cyan-500 outline-none text-sm text-white placeholder:text-gray-600 transition-all" />
+                            </div>
+                            <div>
+                                <label className="text-[12px] font-medium text-gray-400 mb-1.5 block">Statut</label>
+                                <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}
+                                    className="w-full px-3 py-2.5 bg-[#1E293B]/80 rounded-lg border border-[#334155] focus:border-cyan-500 outline-none text-sm text-white transition-all">
+                                    <option value="ACTIVE" className="bg-[#1E293B]">Actif</option>
+                                    <option value="INACTIVE" className="bg-[#1E293B]">Inactif</option>
+                                </select>
+                            </div>
+                            <button onClick={saveSensor}
+                                className="w-full py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-semibold rounded-xl transition-colors">
+                                {editingSensor ? 'Enregistrer' : 'Ajouter'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Message vide */}
+            {paginated.length === 0 && (
+                <div className="text-center py-16">
+                    <Radio className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                    <p className="text-gray-400 text-sm">Aucun capteur trouvé</p>
+                    <p className="text-gray-600 text-xs mt-1">Essayez de modifier vos filtres</p>
                 </div>
             )}
         </div>

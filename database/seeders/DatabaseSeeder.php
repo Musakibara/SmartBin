@@ -20,6 +20,8 @@ class DatabaseSeeder extends Seeder
             'name' => 'Admin SmartBin',
             'email' => 'admin@smartbin.cm',
             'role' => 'ADMIN',
+            'status' => 'ACTIVE',
+            'last_active_at' => now(),
             'phone' => '+237 690 000 000',
         ]);
 
@@ -27,10 +29,45 @@ class DatabaseSeeder extends Seeder
             'name' => 'Agent Terrain',
             'email' => 'agent@smartbin.cm',
             'role' => 'AGENT',
+            'status' => 'ACTIVE',
+            'last_active_at' => now()->subHours(2),
             'phone' => '+237 690 000 001',
         ]);
 
-        User::factory(8)->create();
+        User::factory()->create([
+            'name' => 'Sarah Mbah',
+            'email' => 'sarah@smartbin.cm',
+            'role' => 'SUPERVISEUR',
+            'status' => 'ACTIVE',
+            'last_active_at' => now()->subMinutes(5),
+            'phone' => '+237 690 000 002',
+        ]);
+        User::factory()->create([
+            'name' => 'Jean Nkoulou',
+            'email' => 'jean@smartbin.cm',
+            'role' => 'OPERATEUR',
+            'status' => 'ACTIVE',
+            'last_active_at' => now()->subHours(2),
+            'phone' => '+237 690 000 003',
+        ]);
+        User::factory()->create([
+            'name' => 'Marie Onguéné',
+            'email' => 'marie@smartbin.cm',
+            'role' => 'TECHNICIEN',
+            'status' => 'ACTIVE',
+            'last_active_at' => now()->subMinute(),
+            'phone' => '+237 690 000 004',
+        ]);
+        User::factory()->create([
+            'name' => 'Esther Mengue',
+            'email' => 'esther@smartbin.cm',
+            'role' => 'SUPERVISEUR',
+            'status' => 'SUSPENDED',
+            'last_active_at' => now()->subDays(3),
+            'phone' => '+237 690 000 005',
+        ]);
+
+        User::factory(10)->create();
 
         $bins = Bin::factory(24)->create();
 

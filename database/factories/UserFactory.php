@@ -22,7 +22,9 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
-            'role' => fake()->randomElement(['ADMIN', 'AGENT']),
+            'role' => fake()->randomElement(['ADMIN', 'SUPERVISEUR', 'OPERATEUR', 'TECHNICIEN']),
+            'status' => fake()->randomElement(['ACTIVE', 'ACTIVE', 'ACTIVE', 'SUSPENDED']),
+            'last_active_at' => fake()->dateTimeBetween('-7 days'),
             'phone' => fake()->optional(0.7)->phoneNumber(),
         ];
     }
