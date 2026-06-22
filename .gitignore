@@ -26,3 +26,6 @@ Thumbs.db
 
 check_readings.php
 /ai_service/.venv
+/ai_service/__pycache__/
+__pycache__/
+composer.phar

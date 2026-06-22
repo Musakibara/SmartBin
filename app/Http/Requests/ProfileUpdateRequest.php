@@ -27,6 +27,7 @@ class ProfileUpdateRequest extends FormRequest
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
             'phone' => ['nullable', 'string', 'max:30'],
+            'telegram_chat_id' => ['nullable', 'string', 'max:50'],
         ];
     }
 }

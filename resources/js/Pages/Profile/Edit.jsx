@@ -1,6 +1,6 @@
 import AppLayout from '@/Layouts/AppLayout';
 import { Head, usePage } from '@inertiajs/react';
-import { Clock, Shield, Activity } from 'lucide-react';
+import { Clock, MessageCircle, Shield, Activity } from 'lucide-react';
 import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
@@ -91,6 +91,7 @@ export default function Edit({ mustVerifyEmail, status }) {
                         { label: 'Statut', value: user?.status === 'SUSPENDED' ? 'Suspendu' : 'Actif', icon: Activity, color: user?.status === 'SUSPENDED' ? 'text-red-400' : 'text-emerald-400', bg: user?.status === 'SUSPENDED' ? 'bg-red-500/10' : 'bg-emerald-500/10' },
                         { label: 'Email', value: user?.email_verified_at ? 'Vérifié' : 'Non vérifié', icon: Clock, color: user?.email_verified_at ? 'text-emerald-400' : 'text-amber-400', bg: user?.email_verified_at ? 'bg-emerald-500/10' : 'bg-amber-500/10' },
                         { label: 'Téléphone', value: user?.phone || 'Non renseigné', icon: Clock, color: user?.phone ? 'text-blue-400' : 'text-gray-500', bg: user?.phone ? 'bg-blue-500/10' : 'bg-gray-500/10' },
+                        { label: 'Telegram', value: user?.telegram_chat_id ? 'Connecté' : 'Non connecté', icon: MessageCircle, color: user?.telegram_chat_id ? 'text-sky-400' : 'text-gray-500', bg: user?.telegram_chat_id ? 'bg-sky-500/10' : 'bg-gray-500/10' },
                     ].map(({ label, value, icon: Icon, color, bg }) => (
                         <div key={label} className="glass rounded-xl p-4 flex items-center gap-3 hover:border-emerald-500/30 transition-all duration-300">
                             <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center shrink-0`}>

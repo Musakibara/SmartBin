@@ -2,7 +2,7 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import { User } from 'lucide-react';
+import { MessageCircle, User } from 'lucide-react';
 import { Link, useForm, usePage } from '@inertiajs/react';
 import { useToast } from '@/Components/Toast';
 
@@ -19,6 +19,7 @@ export default function UpdateProfileInformation({
             name: user.name,
             email: user.email,
             phone: user.phone || '',
+            telegram_chat_id: user.telegram_chat_id || '',
         });
 
     const submit = (e) => {
@@ -40,7 +41,7 @@ export default function UpdateProfileInformation({
                         Informations personnelles
                     </h2>
                     <p className="text-sm text-gray-400">
-                        Mettez à jour votre nom, email et téléphone.
+                        Mettez à jour votre nom, email, téléphone et Telegram.
                     </p>
                 </div>
             </header>
@@ -92,6 +93,28 @@ export default function UpdateProfileInformation({
                     />
 
                     <InputError className="mt-2" message={errors.phone} />
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="telegram_chat_id" value="Telegram Chat ID" className="text-gray-300 text-xs font-semibold" />
+
+                    <TextInput
+                        id="telegram_chat_id"
+                        type="text"
+                        className="mt-1 block w-full border-[#334155] bg-[#1E293B] text-white placeholder:text-gray-500 focus:border-emerald-500 focus:ring-emerald-500"
+                        value={data.telegram_chat_id}
+                        onChange={(e) => setData('telegram_chat_id', e.target.value)}
+                        placeholder="1739774375"
+                    />
+
+                    <div className="mt-1.5 flex items-center gap-1.5">
+                        <MessageCircle className="w-3 h-3 text-sky-400" />
+                        <p className="text-[11px] text-gray-500">
+                            ID numérique récupéré depuis <a href="https://t.me/BotFather" target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:underline">@BotFather</a>
+                        </p>
+                    </div>
+
+                    <InputError className="mt-2" message={errors.telegram_chat_id} />
                 </div>
 
                 {mustVerifyEmail && user.email_verified_at === null && (

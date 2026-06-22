@@ -2,6 +2,8 @@
 
 return [
 
+    'alert_email' => env('ALERT_EMAIL', 'admin@smartbin.cm'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Name

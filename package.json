@@ -28,8 +28,10 @@
     },
     "dependencies": {
         "clsx": "^2.1.1",
+        "laravel-echo": "^2.3.7",
         "leaflet": "^1.9.4",
         "lucide-react": "^1.17.0",
+        "pusher-js": "^8.5.0",
         "react-leaflet": "^4.2.1",
         "recharts": "^3.8.1",
         "tailwind-merge": "^3.6.0"

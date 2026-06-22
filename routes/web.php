@@ -4,6 +4,7 @@ use App\Http\Controllers\AlertController;
 use App\Http\Controllers\BinController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MonitoringController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SensorController;
 use App\Http\Controllers\UserController;
@@ -73,6 +74,14 @@ Route::middleware('auth')->group(function () {
             ->middleware('role:OPERATEUR')->name('predictions.generate');
         Route::delete('/{prediction}', [\App\Http\Controllers\PredictionController::class, 'destroy']) // SUPERVISEUR
             ->middleware('role:SUPERVISEUR')->name('predictions.destroy');
+    });
+
+    // Notifications
+    Route::prefix('/notifications')->group(function () {
+        Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('/recent', [NotificationController::class, 'recent'])->name('notifications.recent');
+        Route::patch('/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+        Route::post('/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
     });
 
     // Capteurs

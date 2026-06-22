@@ -1,8 +1,9 @@
-import { useState, ReactNode } from 'react'
+import { useState, useEffect, ReactNode } from 'react'
 import { usePage, router } from '@inertiajs/react'
 import AppSidebar from '@/Components/AppSidebar'
 import AppNavbar from '@/Components/AppNavbar'
 import { ToastProvider } from '@/Components/Toast'
+import '@/echo'
 
 interface AppLayoutProps {
     children: ReactNode
@@ -11,6 +12,20 @@ interface AppLayoutProps {
 export default function AppLayout({ children }: AppLayoutProps) {
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const user = usePage().props.auth?.user
+
+    useEffect(() => {
+        if (user) {
+            window.Echo.join('online-users')
+                .here(() => {})
+                .joining(() => {})
+                .leaving(() => {})
+        }
+        return () => {
+            if (user) {
+                window.Echo.leave('online-users')
+            }
+        }
+    }, [user])
 
     return (
         <ToastProvider>

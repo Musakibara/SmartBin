@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -36,11 +37,20 @@ class HandleInertiaRequests extends Middleware
             }
         }
 
+        $notificationData = null;
+
+        if ($request->user()) {
+            $notificationData = [
+                'unread_count' => Notification::whereNull('read_at')->count(),
+            ];
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
             ],
+            'notifications' => $notificationData,
         ];
     }
 }

@@ -3,6 +3,7 @@ import { Search, User, Clock, CheckCircle, XCircle, Ban, Edit3, Trash2, UserPlus
 import { usePage, router } from '@inertiajs/react'
 import AppLayout from '../../Layouts/AppLayout'
 import { useToast } from '../../Components/Toast'
+import '@/echo'
 
 type AppUser = {
     id: string
@@ -60,8 +61,28 @@ function UsersPage() {
     const searchTimer = useRef<ReturnType<typeof setTimeout>>()
     const modalRef = useRef<HTMLDivElement>(null)
 
+    const [onlineIds, setOnlineIds] = useState<Set<string>>(new Set())
+
+    useEffect(() => {
+        const channel = window.Echo.join('online-users')
+        channel.here((members: { id: string }[]) => {
+            setOnlineIds(new Set(members.map((m) => m.id)))
+        })
+        channel.joining((member: { id: string }) => {
+            setOnlineIds((prev) => new Set(prev).add(member.id))
+        })
+        channel.leaving((member: { id: string }) => {
+            setOnlineIds((prev) => {
+                const next = new Set(prev)
+                next.delete(member.id)
+                return next
+            })
+        })
+        return () => window.Echo.leave('online-users')
+    }, [])
+
     const { data, total, last_page, current_page } = users
-    const onlineCount = data.filter((u) => u.status === 'online').length
+    const onlineCount = data.filter((u) => onlineIds.has(u.id)).length
 
     const navigate = useCallback((overrides?: Record<string, string>) => {
         const params: Record<string, string> = { ...overrides }
@@ -229,7 +250,9 @@ function UsersPage() {
                         </p>
                     </div>
                 ) : data.map((u, i) => {
-                    const StatusIcon = statusIcons[u.status]
+                    const isOnline = onlineIds.has(u.id)
+                    const displayStatus: 'online' | 'offline' | 'suspendu' = isOnline ? 'online' : u.status
+                    const StatusIcon = statusIcons[displayStatus]
                     const timeAgo = u.lastActive
                     const isRecent = timeAgo.includes('instant') || timeAgo.includes('min')
                     const isHours = timeAgo.includes('h')
@@ -241,7 +264,7 @@ function UsersPage() {
                                     <div className="flex items-center gap-3">
                                         <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${u.color} flex items-center justify-center text-white text-sm font-bold shadow-lg relative shrink-0`}>
                                             {u.initials}
-                                            {u.status === 'online' && (
+                                            {isOnline && (
                                                 <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[#1E293B] shadow-lg shadow-emerald-500/50 animate-pulse" />
                                             )}
                                         </div>
@@ -264,9 +287,9 @@ function UsersPage() {
                                 </div>
                                 <div className="flex items-center gap-2.5 text-xs pt-3 border-t border-[#334155]/50">
                                     <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold tracking-wide ${roleColors[u.role] ?? roleColors.Agent}`}>{u.role}</span>
-                                    <span className={`flex items-center gap-1 ${statusColors[u.status]}`}>
-                                        <StatusIcon className={`w-3 h-3 ${u.status === 'online' ? 'animate-pulse' : ''}`} />
-                                        {statusLabels[u.status]}
+                                    <span className={`flex items-center gap-1 ${statusColors[displayStatus]}`}>
+                                        <StatusIcon className={`w-3 h-3 ${isOnline ? 'animate-pulse' : ''}`} />
+                                        {statusLabels[displayStatus]}
                                     </span>
                                     <span className={`ml-auto flex items-center gap-1 ${timeColor}`}>
                                         <Clock className="w-3 h-3" />{u.lastActive}

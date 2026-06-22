@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Alert;
 use App\Models\Bin;
+use App\Models\Notification;
 use App\Models\Sensor;
 use App\Models\SensorReading;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -79,7 +81,7 @@ class SensorReadingController extends Controller
         // Création d'une alerte en fonction du seuil atteint
         // ============================================================
         if ($status === 'FULL') {
-            Alert::create([
+            $alert = Alert::create([
                 'bin_id'  => $bin->id,
                 'type'    => 'BIN_FULL',
                 'message' => "Benne {$bin->code} pleine ({$validated['fill_level']}%)",
@@ -87,8 +89,10 @@ class SensorReadingController extends Controller
                 'status'  => 'PENDING',
                 'created_at' => now(),
             ]);
+
+            $this->createNotifications($alert);
         } elseif ($status === 'WARNING') {
-            Alert::create([
+            $alert = Alert::create([
                 'bin_id'  => $bin->id,
                 'type'    => 'OVERFLOW_RISK',
                 'message' => "Benne {$bin->code} proche de la saturation ({$validated['fill_level']}%)",
@@ -96,6 +100,8 @@ class SensorReadingController extends Controller
                 'status'  => 'PENDING',
                 'created_at' => now(),
             ]);
+
+            $this->createNotifications($alert);
         }
 
         // ============================================================
@@ -110,5 +116,27 @@ class SensorReadingController extends Controller
                 'status'  => $bin->status,
             ],
         ], 201);
+    }
+
+    private function createNotifications(Alert $alert): void
+    {
+        Notification::create([
+            'alert_id'  => $alert->id,
+            'channel'   => 'EMAIL',
+            'recipient' => config('app.alert_email', 'admin@smartbin.cm'),
+            'message'   => $alert->message,
+            'status'    => 'PENDING',
+        ]);
+
+        $telegramUsers = User::whereNotNull('telegram_chat_id')->get();
+        foreach ($telegramUsers as $user) {
+            Notification::create([
+                'alert_id'  => $alert->id,
+                'channel'   => 'TELEGRAM',
+                'recipient' => $user->telegram_chat_id,
+                'message'   => $alert->message,
+                'status'    => 'PENDING',
+            ]);
+        }
     }
 }

@@ -128,7 +128,7 @@ class UserController extends Controller
 
         $minutes = $lastActiveAt->diffInMinutes(now());
 
-        if ($minutes <= 15)  return 'online';
+        if ($minutes <= 5)  return 'online';
         if ($minutes <= 1440) return 'offline';
 
         return 'offline';

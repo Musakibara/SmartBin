@@ -13,14 +13,11 @@
  * ──────────────────────────────────────────────────────────
  */
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
-
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
 
 // Planification des prédictions IA
 Schedule::command('predictions:generate')->hourly();
 Schedule::command('predictions:cleanup --days=30')->daily();
+
+// Envoi des notifications en attente (EMAIL / TELEGRAM)
+Schedule::command('notifications:send')->everyMinute();
