@@ -37,6 +37,7 @@ const modelByType: Record<string, string> = { Ultrason: 'HC-SR04', Poids: 'HX711
 
 function SensorsPage() {
     const { sensors: initialSensors, bins } = usePage().props as unknown as { sensors: Sensor[]; bins?: Array<{ id: string; name: string; code: string }> }
+    const userRole = (usePage().props as { auth?: { user?: { role?: string } } })?.auth?.user?.role
 
     const [sensors, setSensors] = useState(initialSensors)
     useEffect(() => { setSensors(initialSensors) }, [initialSensors])
@@ -133,9 +134,11 @@ function SensorsPage() {
                     </h1>
                     <p className="text-sm text-gray-400 mt-1">{sensors.length} capteurs · {onlineCount} en ligne · {errorCount} en erreur</p>
                 </div>
-                <button onClick={openAdd} className="flex items-center gap-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-semibold rounded-xl transition-colors">
-                    Ajouter un capteur
-                </button>
+                {(userRole === 'ADMIN' || userRole === 'SUPERVISEUR' || userRole === 'OPERATEUR' || userRole === 'TECHNICIEN') && (
+                    <button onClick={openAdd} className="flex items-center gap-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-semibold rounded-xl transition-colors">
+                        Ajouter un capteur
+                    </button>
+                )}
             </div>
 
             {/* KPIs */}
@@ -236,12 +239,16 @@ function SensorsPage() {
                                         <span className="text-gray-500">{sensor.signal}%</span>
                                     </span>
                                     <span className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all ml-auto">
-                                        <button onClick={() => openEdit(sensor)} className="p-1 rounded-lg bg-blue-500/15 text-blue-400 hover:bg-blue-500/25 transition-all">
-                                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                                        </button>
-                                        <button onClick={() => setDeleteTarget(sensor)} className="p-1 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 transition-all">
-                                            <Trash2 className="w-3 h-3" />
-                                        </button>
+                                        {(userRole === 'ADMIN' || userRole === 'SUPERVISEUR' || userRole === 'OPERATEUR' || userRole === 'TECHNICIEN') && (
+                                            <button onClick={() => openEdit(sensor)} className="p-1.5 rounded-lg bg-blue-500/15 text-blue-400 hover:bg-blue-500/25 transition-all">
+                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                            </button>
+                                        )}
+                                        {(userRole === 'ADMIN' || userRole === 'SUPERVISEUR') && (
+                                            <button onClick={() => setDeleteTarget(sensor)} className="p-1.5 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 transition-all">
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        )}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between text-[10px] text-gray-600">

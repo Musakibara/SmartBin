@@ -38,6 +38,7 @@ function PredictionsPage() {
             avgConfidence: number; activeFilter: string
         }
     }
+    const userRole = (usePage().props as { auth?: { user?: { role?: string } } })?.auth?.user?.role
 
     const [search, setSearch] = useState(filters?.search ?? '')
     const [priorityFilter, setPriorityFilter] = useState(filters?.priority ?? 'Toutes')
@@ -63,14 +64,16 @@ function PredictionsPage() {
                         Anticipation des débordements par régression linéaire
                     </p>
                 </div>
-                <button
-                    onClick={() => { setGenerating(true); router.post('/predictions/generate', {}, { preserveState: true, onFinish: () => setGenerating(false) }); }}
-                    disabled={generating}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold transition-all disabled:opacity-50"
-                >
-                    <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
-                    {generating ? 'Génération...' : "Lancer l'IA"}
-                </button>
+                {(userRole === 'ADMIN' || userRole === 'SUPERVISEUR' || userRole === 'OPERATEUR') && (
+                    <button
+                        onClick={() => { setGenerating(true); router.post('/predictions/generate', {}, { preserveState: true, onFinish: () => setGenerating(false) }); }}
+                        disabled={generating}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold transition-all disabled:opacity-50"
+                    >
+                        <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
+                        {generating ? 'Génération...' : "Lancer l'IA"}
+                    </button>
+                )}
             </div>
 
             {/* Message explicatif */}
@@ -268,14 +271,16 @@ function PredictionsPage() {
                         Cliquez sur <strong className="text-purple-400">"Lancer l'IA"</strong> pour générer les prédictions. 
                         Le modèle analysera les relevés de toutes les bennes et estimera les risques de débordement.
                     </p>
-                    <button
-                        onClick={() => { setGenerating(true); router.post('/predictions/generate', {}, { preserveState: true, onFinish: () => setGenerating(false) }); }}
-                        disabled={generating}
-                        className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold transition-all disabled:opacity-50"
-                    >
-                        <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
-                        {generating ? 'Génération...' : "Lancer l'IA"}
-                    </button>
+                    {(userRole === 'ADMIN' || userRole === 'SUPERVISEUR' || userRole === 'OPERATEUR') && (
+                        <button
+                            onClick={() => { setGenerating(true); router.post('/predictions/generate', {}, { preserveState: true, onFinish: () => setGenerating(false) }); }}
+                            disabled={generating}
+                            className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold transition-all disabled:opacity-50"
+                        >
+                            <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
+                            {generating ? 'Génération...' : "Lancer l'IA"}
+                        </button>
+                    )}
                 </div>
             ) : (
                 <>
@@ -297,9 +302,11 @@ function PredictionsPage() {
                                         <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${levelColors[p.priority]}`}>
                                             {p.priority === 'high' ? 'Urgent' : p.priority === 'medium' ? 'Planifier' : 'Routine'}
                                         </span>
-                                        <button onClick={() => { if (confirm('Supprimer cette prédiction ?')) router.delete(`/predictions/${p.id}`, { preserveState: true }) }} className="p-1 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-500/10 text-gray-500 hover:text-red-400 transition-all" title="Supprimer">
-                                            <Trash2 className="w-3 h-3" />
-                                        </button>
+                                        {(userRole === 'ADMIN' || userRole === 'SUPERVISEUR') && (
+                                            <button onClick={() => { if (confirm('Supprimer cette prédiction ?')) router.delete(`/predictions/${p.id}`, { preserveState: true }) }} className="p-1 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-500/10 text-gray-500 hover:text-red-400 transition-all" title="Supprimer">
+                                                <Trash2 className="w-3 h-3" />
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
 

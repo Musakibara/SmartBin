@@ -53,7 +53,6 @@ export const kpiData = {
     averageFillLevel: 47,
     predictedOverflows: 5,
     notificationsSent: 128,
-    collectionEfficiency: 92,
 }
 
 /** Historique du taux de remplissage (24h) */

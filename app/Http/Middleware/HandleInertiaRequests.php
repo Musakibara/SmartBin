@@ -29,6 +29,13 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        if ($user = $request->user()) {
+            if (!$user->last_active_at || $user->last_active_at->diffInMinutes(now()) >= 1) {
+                $user->timestamps = false;
+                $user->update(['last_active_at' => now()]);
+            }
+        }
+
         return [
             ...parent::share($request),
             'auth' => [

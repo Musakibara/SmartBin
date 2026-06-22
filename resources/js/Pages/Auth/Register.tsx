@@ -10,7 +10,7 @@ import InputError from '@/Components/InputError'
  */
 function SignUpPage() {
     const [showPassword, setShowPassword] = useState(false)
-    const [focusedField, setFocusedField] = useState<'name' | 'email' | 'phone' | 'password' | null>(null)
+    const [focusedField, setFocusedField] = useState<'name' | 'email' | 'phone' | 'password' | 'password_confirmation' | null>(null)
 
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
@@ -28,7 +28,7 @@ function SignUpPage() {
     }
 
     // Classe dynamique pour les champs selon le focus
-    const inputClass = (field: 'name' | 'email' | 'phone' | 'password') =>
+    const inputClass = (field: 'name' | 'email' | 'phone' | 'password' | 'password_confirmation') =>
         `w-full rounded-xl border bg-white py-2.5 pl-10 pr-3 text-[14px] text-[#191c1e] placeholder:text-[#bbcabf]/70 outline-none transition-all duration-200 ${
             focusedField === field
                 ? 'border-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.15)]'
@@ -137,7 +137,7 @@ function SignUpPage() {
                                     <div className="relative">
                                         <Phone
                                             className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 transition-colors duration-200 ${
-                                                focusedField === 'name' ? 'text-emerald-500' : 'text-[#bbcabf]'
+                                                focusedField === 'phone' ? 'text-emerald-500' : 'text-[#bbcabf]'
                                             }`}
                                             size={16}
                                         />
@@ -147,9 +147,9 @@ function SignUpPage() {
                                             value={data.phone}
                                             onChange={e => setData('phone', e.target.value)}
                                             placeholder="+237 6XX XXX XXX"
-                                            onFocus={() => setFocusedField('name')}
+                                            onFocus={() => setFocusedField('phone')}
                                             onBlur={() => setFocusedField(null)}
-                                            className={inputClass('name')}
+                                            className={inputClass('phone')}
                                             autoComplete="tel"
                                         />
                                     </div>
@@ -199,7 +199,7 @@ function SignUpPage() {
                                     <div className="relative">
                                         <Lock
                                             className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 transition-colors duration-200 ${
-                                                focusedField === 'password' ? 'text-emerald-500' : 'text-[#bbcabf]'
+                                                focusedField === 'password_confirmation' ? 'text-emerald-500' : 'text-[#bbcabf]'
                                             }`}
                                             size={16}
                                         />
@@ -210,9 +210,9 @@ function SignUpPage() {
                                             onChange={e => setData('password_confirmation', e.target.value)}
                                             required
                                             placeholder="Repeat your password"
-                                            onFocus={() => setFocusedField('password')}
+                                            onFocus={() => setFocusedField('password_confirmation')}
                                             onBlur={() => setFocusedField(null)}
-                                            className={inputClass('password')}
+                                            className={inputClass('password_confirmation')}
                                             autoComplete="new-password"
                                         />
                                     </div>

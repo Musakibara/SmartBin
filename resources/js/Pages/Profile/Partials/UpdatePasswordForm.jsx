@@ -2,13 +2,15 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import { Transition } from '@headlessui/react';
+import { Lock } from 'lucide-react';
 import { useForm } from '@inertiajs/react';
 import { useRef } from 'react';
+import { useToast } from '@/Components/Toast';
 
 export default function UpdatePasswordForm({ className = '' }) {
     const passwordInput = useRef();
     const currentPasswordInput = useRef();
+    const { notify } = useToast();
 
     const {
         data,
@@ -17,7 +19,6 @@ export default function UpdatePasswordForm({ className = '' }) {
         put,
         reset,
         processing,
-        recentlySuccessful,
     } = useForm({
         current_password: '',
         password: '',
@@ -29,7 +30,10 @@ export default function UpdatePasswordForm({ className = '' }) {
 
         put(route('password.update'), {
             preserveScroll: true,
-            onSuccess: () => reset(),
+            onSuccess: () => {
+                reset();
+                notify({ message: 'Mot de passe mis à jour', sub: 'Votre mot de passe a été modifié avec succès.', type: 'success' });
+            },
             onError: (errors) => {
                 if (errors.password) {
                     reset('password', 'password_confirmation');
@@ -45,24 +49,27 @@ export default function UpdatePasswordForm({ className = '' }) {
     };
 
     return (
-        <section className={className}>
-            <header>
-                <h2 className="text-lg font-medium text-white">
-                    Update Password
-                </h2>
-
-                <p className="mt-1 text-sm text-gray-400">
-                    Ensure your account is using a long, random password to stay
-                    secure.
-                </p>
+        <section className={`glass rounded-xl p-6 hover:border-emerald-500/30 transition-all duration-300 ${className}`}>
+            <header className="flex items-center gap-2 mb-6">
+                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                    <Lock className="w-4 h-4 text-blue-400" />
+                </div>
+                <div>
+                    <h2 className="text-lg font-bold text-white">
+                        Sécurité
+                    </h2>
+                    <p className="text-sm text-gray-400">
+                        Utilisez un mot de passe long et aléatoire pour sécuriser votre compte.
+                    </p>
+                </div>
             </header>
 
-            <form onSubmit={updatePassword} className="mt-6 space-y-6">
+            <form onSubmit={updatePassword} className="space-y-5">
                 <div>
                     <InputLabel
                         htmlFor="current_password"
-                        value="Current Password"
-                        className="text-gray-300"
+                        value="Mot de passe actuel"
+                        className="text-gray-300 text-xs font-semibold"
                     />
 
                     <TextInput
@@ -84,7 +91,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="password" value="New Password" className="text-gray-300" />
+                    <InputLabel htmlFor="password" value="Nouveau mot de passe" className="text-gray-300 text-xs font-semibold" />
 
                     <TextInput
                         id="password"
@@ -102,8 +109,8 @@ export default function UpdatePasswordForm({ className = '' }) {
                 <div>
                     <InputLabel
                         htmlFor="password_confirmation"
-                        value="Confirm Password"
-                        className="text-gray-300"
+                        value="Confirmer le mot de passe"
+                        className="text-gray-300 text-xs font-semibold"
                     />
 
                     <TextInput
@@ -123,20 +130,10 @@ export default function UpdatePasswordForm({ className = '' }) {
                     />
                 </div>
 
-                <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing} className="bg-emerald-600 hover:bg-emerald-500 focus:ring-emerald-500 active:bg-emerald-700">Save</PrimaryButton>
-
-                    <Transition
-                        show={recentlySuccessful}
-                        enter="transition ease-in-out"
-                        enterFrom="opacity-0"
-                        leave="transition ease-in-out"
-                        leaveTo="opacity-0"
-                    >
-                        <p className="text-sm text-emerald-400">
-                            Saved.
-                        </p>
-                    </Transition>
+                <div className="flex items-center gap-4 pt-2">
+                    <PrimaryButton disabled={processing} className="bg-emerald-600 hover:bg-emerald-500 focus:ring-emerald-500 active:bg-emerald-700">
+                        Enregistrer
+                    </PrimaryButton>
                 </div>
             </form>
         </section>

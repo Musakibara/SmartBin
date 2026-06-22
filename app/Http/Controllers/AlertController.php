@@ -12,7 +12,7 @@ class AlertController extends Controller
 {
     public function index(Request $request): Response
     {
-        $query = Alert::with('bin');
+        $query = Alert::with('bin', 'resolvedBy');
 
         // Filtre par sévérité
         if ($request->filled('severity') && $request->severity !== 'Toutes') {
@@ -71,7 +71,11 @@ class AlertController extends Controller
 
     public function update(Request $request, Alert $alert): RedirectResponse
     {
-        $alert->update(['status' => 'RESOLVED']);
+        $alert->update([
+            'status'      => 'RESOLVED',
+            'resolved_by' => auth()->id(),
+            'resolved_at' => now(),
+        ]);
 
         return back();
     }
@@ -86,13 +90,15 @@ class AlertController extends Controller
     private function mapAlert(Alert $alert): array
     {
         return [
-            'id'       => $alert->id,
-            'bin'      => $alert->bin?->code ?? 'N/A',
-            'binName'  => $alert->bin?->name ?? '',
-            'message'  => $alert->message ?? $alert->type,
-            'severity' => strtolower($alert->severity),
-            'status'   => strtolower($alert->status),
-            'time'     => $alert->created_at?->diffForHumans() ?? 'N/A',
+            'id'          => $alert->id,
+            'bin'         => $alert->bin?->code ?? 'N/A',
+            'binName'     => $alert->bin?->name ?? '',
+            'message'     => $alert->message ?? $alert->type,
+            'severity'    => strtolower($alert->severity),
+            'status'      => strtolower($alert->status),
+            'time'        => $alert->created_at?->diffForHumans() ?? 'N/A',
+            'resolvedBy'  => $alert->resolvedBy?->name ?? null,
+            'resolvedAt'  => $alert->resolved_at?->diffForHumans() ?? null,
         ];
     }
 }

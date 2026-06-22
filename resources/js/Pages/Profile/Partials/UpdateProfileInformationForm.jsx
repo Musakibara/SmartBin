@@ -2,8 +2,9 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import { Transition } from '@headlessui/react';
+import { User } from 'lucide-react';
 import { Link, useForm, usePage } from '@inertiajs/react';
+import { useToast } from '@/Components/Toast';
 
 export default function UpdateProfileInformation({
     mustVerifyEmail,
@@ -11,34 +12,42 @@ export default function UpdateProfileInformation({
     className = '',
 }) {
     const user = usePage().props.auth.user;
+    const { notify } = useToast();
 
     const { data, setData, patch, errors, processing, recentlySuccessful } =
         useForm({
             name: user.name,
             email: user.email,
+            phone: user.phone || '',
         });
 
     const submit = (e) => {
         e.preventDefault();
 
-        patch(route('profile.update'));
+        patch(route('profile.update'), {
+            onSuccess: () => notify({ message: 'Profil mis à jour', sub: 'Vos informations ont été enregistrées.', type: 'success' }),
+        });
     };
 
     return (
-        <section className={className}>
-            <header>
-                <h2 className="text-lg font-medium text-white">
-                    Profile Information
-                </h2>
-
-                <p className="mt-1 text-sm text-gray-400">
-                    Update your account's profile information and email address.
-                </p>
+        <section className={`glass rounded-xl p-6 hover:border-emerald-500/30 transition-all duration-300 ${className}`}>
+            <header className="flex items-center gap-2 mb-6">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                    <User className="w-4 h-4 text-emerald-400" />
+                </div>
+                <div>
+                    <h2 className="text-lg font-bold text-white">
+                        Informations personnelles
+                    </h2>
+                    <p className="text-sm text-gray-400">
+                        Mettez à jour votre nom, email et téléphone.
+                    </p>
+                </div>
             </header>
 
-            <form onSubmit={submit} className="mt-6 space-y-6">
+            <form onSubmit={submit} className="space-y-5">
                 <div>
-                    <InputLabel htmlFor="name" value="Name" className="text-gray-300" />
+                    <InputLabel htmlFor="name" value="Nom" className="text-gray-300 text-xs font-semibold" />
 
                     <TextInput
                         id="name"
@@ -54,7 +63,7 @@ export default function UpdateProfileInformation({
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="email" value="Email" className="text-gray-300" />
+                    <InputLabel htmlFor="email" value="Email" className="text-gray-300 text-xs font-semibold" />
 
                     <TextInput
                         id="email"
@@ -69,43 +78,48 @@ export default function UpdateProfileInformation({
                     <InputError className="mt-2" message={errors.email} />
                 </div>
 
+                <div>
+                    <InputLabel htmlFor="phone" value="Téléphone" className="text-gray-300 text-xs font-semibold" />
+
+                    <TextInput
+                        id="phone"
+                        type="tel"
+                        className="mt-1 block w-full border-[#334155] bg-[#1E293B] text-white placeholder:text-gray-500 focus:border-emerald-500 focus:ring-emerald-500"
+                        value={data.phone}
+                        onChange={(e) => setData('phone', e.target.value)}
+                        autoComplete="tel"
+                        placeholder="+237 XXXXXXXXX"
+                    />
+
+                    <InputError className="mt-2" message={errors.phone} />
+                </div>
+
                 {mustVerifyEmail && user.email_verified_at === null && (
-                    <div>
-                        <p className="mt-2 text-sm text-gray-300">
-                            Your email address is unverified.
+                    <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+                        <p className="text-sm text-amber-400">
+                            Votre adresse email n'est pas vérifiée.
                             <Link
                                 href={route('verification.send')}
                                 method="post"
                                 as="button"
-                                className="rounded-md text-sm text-emerald-400 underline hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                                className="ml-1 rounded-md text-sm text-emerald-400 underline hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                             >
-                                Click here to re-send the verification email.
+                                Renvoyer le lien de vérification.
                             </Link>
                         </p>
 
                         {status === 'verification-link-sent' && (
-                            <div className="mt-2 text-sm font-medium text-emerald-400">
-                                A new verification link has been sent to your
-                                email address.
-                            </div>
+                            <p className="mt-1 text-sm font-medium text-emerald-400">
+                                Un nouveau lien de vérification a été envoyé.
+                            </p>
                         )}
                     </div>
                 )}
 
-                <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing} className="bg-emerald-600 hover:bg-emerald-500 focus:ring-emerald-500 active:bg-emerald-700">Save</PrimaryButton>
-
-                    <Transition
-                        show={recentlySuccessful}
-                        enter="transition ease-in-out"
-                        enterFrom="opacity-0"
-                        leave="transition ease-in-out"
-                        leaveTo="opacity-0"
-                    >
-                        <p className="text-sm text-emerald-400">
-                            Saved.
-                        </p>
-                    </Transition>
+                <div className="flex items-center gap-4 pt-2">
+                    <PrimaryButton disabled={processing} className="bg-emerald-600 hover:bg-emerald-500 focus:ring-emerald-500 active:bg-emerald-700">
+                        Enregistrer
+                    </PrimaryButton>
                 </div>
             </form>
         </section>

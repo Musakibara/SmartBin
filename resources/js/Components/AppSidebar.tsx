@@ -55,8 +55,8 @@ export default function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
         { label: 'Monitoring', icon: Map, href: '/monitoring' },
         { label: 'Alertes', icon: Bell, href: '/alerts' },
         { label: 'IA Prédictions', icon: Brain, href: '/predictions' },
-        ...(userRole === 'ADMIN' ? [{ label: 'Utilisateurs', icon: Users, href: '/users' }] : []),
-        { label: 'Paramètres', icon: Settings, href: '/settings' },
+        ...(userRole === 'ADMIN' || userRole === 'SUPERVISEUR' ? [{ label: 'Utilisateurs', icon: Users, href: '/users' }] : []),
+        ...(userRole === 'ADMIN' || userRole === 'SUPERVISEUR' ? [{ label: 'Paramètres', icon: Settings, href: '/settings' }] : []),
     ]
     const tilt = useTilt()
 
@@ -90,7 +90,7 @@ export default function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
             </div>
 
             <nav className="flex-1 flex flex-col px-4 py-4 overflow-y-auto">
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 flex-1">
                     {navItems.map((item) => {
                         const active = isActive(item.href)
                         return (
@@ -114,7 +114,7 @@ export default function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                         )
                     })}
                 </div>
-                <div className="mt-16">
+                <div className="mt-auto pt-6">
                     <div className="mb-3 border-t border-[#334155]" />
                     <div className="space-y-1.5">
                         <Link

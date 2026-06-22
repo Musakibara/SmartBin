@@ -12,7 +12,8 @@ class SensorReading extends Model
     /** @use HasFactory<\Database\Factories\SensorReadingFactory> */
     use HasFactory, HasUuids;
 
-    public $timestamps = false;
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
 
     protected $fillable = [
         'bin_id',
@@ -20,15 +21,17 @@ class SensorReading extends Model
         'fill_level',
         'detected_presence',
         'created_at',
+        'updated_at',
     ];
 
     protected function casts(): array
     {
         return [
-            'fill_level' => 'float',
-            'distance' => 'float',
+            'fill_level'        => 'float',
+            'distance'          => 'float',
             'detected_presence' => 'boolean',
-            'created_at' => 'datetime',
+            'created_at'        => 'datetime',
+            'updated_at'        => 'datetime',
         ];
     }
 

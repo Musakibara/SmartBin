@@ -25,6 +25,8 @@ type AlertItem = {
     severity: 'critical' | 'high' | 'medium' | 'low'
     status: 'pending' | 'resolved'
     time: string
+    resolvedBy: string | null
+    resolvedAt: string | null
 }
 
 type AlertPaginator = {
@@ -45,6 +47,7 @@ type PageProps = {
 function AlertsPage() {
     const { notify } = useToast()
     const { alerts, filters } = usePage<PageProps>().props
+    const userRole = (usePage().props as { auth?: { user?: { role?: string } } })?.auth?.user?.role
 
     const [search, setSearch] = useState(filters.search ?? '')
     const [sevFilter, setSevFilter] = useState(filters.severity ?? 'Toutes')
@@ -166,6 +169,14 @@ function AlertsPage() {
                                             <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${severityColors[a.severity]}`}>{a.severity}</span>
                                             {a.binName && <span className="text-xs text-gray-500">{a.bin} · {a.binName}</span>}
                                             <span className="text-[10px] text-gray-600 flex items-center gap-1"><Clock className="w-3 h-3" />{a.time}</span>
+                                            {a.status === 'resolved' && (
+                                                <span className="text-[10px] text-gray-500 flex items-center gap-1 flex-wrap">
+                                                    <span className="w-1 h-1 rounded-full bg-emerald-500 shrink-0" />
+                                                    Résolu
+                                                    {a.resolvedBy && <span>par {a.resolvedBy}</span>}
+                                                    {a.resolvedAt && <span>· {a.resolvedAt}</span>}
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-1 shrink-0">
@@ -174,9 +185,11 @@ function AlertsPage() {
                                                 <CheckCircle className="w-3.5 h-3.5" />
                                             </button>
                                         )}
-                                        <button onClick={() => deleteAlert(a.id)} className="p-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all" title="Supprimer">
-                                            <Trash2 className="w-3.5 h-3.5" />
-                                        </button>
+                                        {(userRole === 'ADMIN' || userRole === 'SUPERVISEUR') && (
+                                            <button onClick={() => deleteAlert(a.id)} className="p-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all" title="Supprimer">
+                                                <Trash2 className="w-3.5 h-3.5" />
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>

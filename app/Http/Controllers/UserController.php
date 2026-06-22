@@ -5,27 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class UserController extends Controller implements HasMiddleware
+class UserController extends Controller
 {
-    public static function middleware(): array
-    {
-        return [
-            new Middleware(function ($request, $next) {
-                if (auth()->user()->role !== 'ADMIN') {
-                    abort(403, 'Accès réservé aux administrateurs.');
-                }
-                return $next($request);
-            }),
-        ];
-    }
-
     private const ROLE_LABELS = [
         'ADMIN'       => 'Admin',
         'SUPERVISEUR' => 'Superviseur',

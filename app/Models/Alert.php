@@ -15,24 +15,35 @@ class Alert extends Model
 
     public $timestamps = false;
 
+    const CREATED_AT = 'created_at';
+
     protected $fillable = [
         'bin_id',
         'type',
         'message',
         'severity',
         'status',
+        'resolved_by',
+        'resolved_at',
     ];
 
     protected function casts(): array
     {
         return [
-            'created_at' => 'datetime',
+            'created_at'  => 'datetime',
+            'updated_at'  => 'datetime',
+            'resolved_at' => 'datetime',
         ];
     }
 
     public function bin(): BelongsTo
     {
         return $this->belongsTo(Bin::class, 'bin_id');
+    }
+
+    public function resolvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'resolved_by');
     }
 
     public function notifications(): HasMany

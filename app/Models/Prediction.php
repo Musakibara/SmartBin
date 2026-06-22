@@ -20,6 +20,7 @@ class Prediction extends Model
         'fill_probability',
         'risk_level',
         'recommendation',
+        'created_at',
     ];
 
     protected function casts(): array

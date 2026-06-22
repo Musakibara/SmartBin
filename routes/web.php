@@ -22,47 +22,68 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    // Profil — accessible à tous (modification de son propre compte)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // Bennes
     Route::prefix('/bins')->group(function () {
-        Route::get('/', [BinController::class, 'index'])->name('bins.index');
-        Route::post('/', [BinController::class, 'store'])->name('bins.store');
-        Route::patch('/{code}', [BinController::class, 'update'])->name('bins.update');
-        Route::delete('/{code}', [BinController::class, 'destroy'])->name('bins.destroy');
+        Route::get('/', [BinController::class, 'index'])->name('bins.index');                    // AGENT
+        Route::post('/', [BinController::class, 'store'])->name('bins.store');                   // OPERATEUR
+        Route::patch('/{code}', [BinController::class, 'update'])->name('bins.update');           // OPERATEUR
+        Route::delete('/{code}', [BinController::class, 'destroy'])                               // SUPERVISEUR
+            ->middleware('role:SUPERVISEUR')->name('bins.destroy');
     });
 
-    Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring');
+    // Monitoring
+    Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring');       // AGENT
 
+    // Utilisateurs
     Route::prefix('/users')->group(function () {
-        Route::get('/', [UserController::class, 'index'])->name('users.index');
-        Route::post('/', [UserController::class, 'store'])->name('users.store');
-        Route::patch('/{user}', [UserController::class, 'update'])->name('users.update');
-        Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+        Route::get('/', [UserController::class, 'index'])                                        // SUPERVISEUR
+            ->middleware('role:SUPERVISEUR')->name('users.index');
+        Route::post('/', [UserController::class, 'store'])                                       // ADMIN
+            ->middleware('role:ADMIN')->name('users.store');
+        Route::patch('/{user}', [UserController::class, 'update'])                               // ADMIN
+            ->middleware('role:ADMIN')->name('users.update');
+        Route::delete('/{user}', [UserController::class, 'destroy'])                             // ADMIN
+            ->middleware('role:ADMIN')->name('users.destroy');
     });
 
+    // Alertes
     Route::prefix('/alerts')->group(function () {
-        Route::get('/', [AlertController::class, 'index'])->name('alerts.index');
-        Route::patch('/{alert}', [AlertController::class, 'update'])->name('alerts.update');
-        Route::delete('/{alert}', [AlertController::class, 'destroy'])->name('alerts.destroy');
+        Route::get('/', [AlertController::class, 'index'])->name('alerts.index');                // AGENT
+        Route::patch('/{alert}', [AlertController::class, 'update'])                             // TECHNICIEN
+            ->middleware('role:TECHNICIEN')->name('alerts.update');
+        Route::delete('/{alert}', [AlertController::class, 'destroy'])                           // SUPERVISEUR
+            ->middleware('role:SUPERVISEUR')->name('alerts.destroy');
     });
 
-    Route::get('/settings', function () {
+    // Paramètres
+    Route::get('/settings', function () {                                                        // SUPERVISEUR
         return Inertia::render('Settings/Index');
-    })->name('settings');
+    })->middleware('role:SUPERVISEUR')->name('settings');
 
+    // Prédictions IA
     Route::prefix('/predictions')->group(function () {
-        Route::get('/', [\App\Http\Controllers\PredictionController::class, 'index'])->name('predictions.index');
-        Route::post('/generate', [\App\Http\Controllers\PredictionController::class, 'generate'])->name('predictions.generate');
-        Route::delete('/{prediction}', [\App\Http\Controllers\PredictionController::class, 'destroy'])->name('predictions.destroy');
+        Route::get('/', [\App\Http\Controllers\PredictionController::class, 'index'])            // AGENT
+            ->name('predictions.index');
+        Route::post('/generate', [\App\Http\Controllers\PredictionController::class, 'generate']) // OPERATEUR
+            ->middleware('role:OPERATEUR')->name('predictions.generate');
+        Route::delete('/{prediction}', [\App\Http\Controllers\PredictionController::class, 'destroy']) // SUPERVISEUR
+            ->middleware('role:SUPERVISEUR')->name('predictions.destroy');
     });
 
+    // Capteurs
     Route::prefix('/sensors')->group(function () {
-        Route::get('/', [SensorController::class, 'index'])->name('sensors.index');
-        Route::post('/', [SensorController::class, 'store'])->name('sensors.store');
-        Route::patch('/{id}', [SensorController::class, 'update'])->name('sensors.update');
-        Route::delete('/{id}', [SensorController::class, 'destroy'])->name('sensors.destroy');
+        Route::get('/', [SensorController::class, 'index'])->name('sensors.index');              // AGENT
+        Route::post('/', [SensorController::class, 'store'])                                     // TECHNICIEN
+            ->middleware('role:TECHNICIEN')->name('sensors.store');
+        Route::patch('/{id}', [SensorController::class, 'update'])                               // TECHNICIEN
+            ->middleware('role:TECHNICIEN')->name('sensors.update');
+        Route::delete('/{id}', [SensorController::class, 'destroy'])                             // SUPERVISEUR
+            ->middleware('role:SUPERVISEUR')->name('sensors.destroy');
     });
 });
 

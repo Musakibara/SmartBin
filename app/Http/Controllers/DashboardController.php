@@ -47,15 +47,6 @@ class DashboardController extends Controller
         $notificationsSent = Notification::where('status', 'SENT')->count();
 
         // ============================================================
-        // KPI 7 : Efficacité de la collecte
-        // Calcule le ratio de bennes en état NORMAL sur le total
-        // ============================================================
-        $normalBins = Bin::where('status', 'NORMAL')->count();
-        $collectionEfficiency = $totalBins > 0
-            ? round(($normalBins / $totalBins) * 100)
-            : 0;
-
-        // ============================================================
         // Bennes : transformation des champs
         // La BD stocke en snake_case, le frontend attend du camelCase
         // Les ENUMs sont en UPPERCASE dans la BD, le frontend attend
@@ -179,7 +170,6 @@ class DashboardController extends Controller
             'averageFillLevel'    => $averageFillLevel,
             'predictedOverflows'  => $predictedOverflows,
             'notificationsSent'   => $notificationsSent,
-            'collectionEfficiency'=> $collectionEfficiency,
         ];
 
         // ============================================================

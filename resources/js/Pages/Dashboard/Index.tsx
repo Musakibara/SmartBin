@@ -12,7 +12,6 @@ import {
     TrendingUp,
     Brain,
     Bell,
-    Gauge,
     BatteryCharging,
     Thermometer,
     RefreshCw,
@@ -183,15 +182,14 @@ function DashboardPage() {
             </div>
 
             {/* Rangée 1 — KPI principaux */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <KPICard title="Total Benne" value={kpiData.totalBins} icon={Trash2} />
                 <KPICard title="Capteurs Actifs" value={kpiData.activeSensors} icon={Activity} trend="+2 cette semaine" trendUp />
                 <KPICard title="Niveau Moyen" value={`${kpiData.averageFillLevel}%`} icon={TrendingUp} trend="+5%" />
-                <KPICard title="Efficacité Collecte" value={`${kpiData.collectionEfficiency}%`} icon={Gauge} trend="+3% cette semaine" trendUp />
             </div>
 
             {/* Rangée 2 — KPI alertes et prédictions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <KPICard title="Alertes Critiques" value={kpiData.criticalAlerts} icon={AlertTriangle} trend="+1 aujourd'hui" />
                 <KPICard title="Débordements" value={kpiData.predictedOverflows} icon={Brain} />
                 <KPICard title="Notifications" value={kpiData.notificationsSent} icon={Bell} trend="+12 aujourd'hui" trendUp />
