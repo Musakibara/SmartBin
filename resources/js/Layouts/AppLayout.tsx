@@ -37,7 +37,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 <div className="flex min-h-screen flex-col lg:pl-64">
                     <AppNavbar
                         onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-                        user={user}
+                        user={user ?? undefined}
                     />
                     <main className="min-h-0 flex-1 p-4 pb-4 sm:p-6">
                         {children}

@@ -58,7 +58,7 @@ function UsersPage() {
     const [form, setForm] = useState({ name: '', email: '', phone: '', role: 'OPERATEUR', password: '' })
     const [processing, setProcessing] = useState(false)
     const [deleteTarget, setDeleteTarget] = useState<AppUser | null>(null)
-    const searchTimer = useRef<ReturnType<typeof setTimeout>>()
+    const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
     const modalRef = useRef<HTMLDivElement>(null)
 
     const [onlineIds, setOnlineIds] = useState<Set<string>>(new Set())

@@ -58,7 +58,13 @@ function MapClickPicker({ lat, lng, onLocationChange }: { lat: number; lng: numb
     const [results, setResults] = useState<NominatimResult[]>([])
     const [searching, setSearching] = useState(false)
     const [showResults, setShowResults] = useState(false)
-    const debounceRef = useRef<ReturnType<typeof setTimeout>>()
+    const [searchError, setSearchError] = useState('')
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const pendingQueryRef = useRef('')
+    const editingRef = useRef(false)
+
+    const [coordLat, setCoordLat] = useState(lat.toFixed(6))
+    const [coordLng, setCoordLng] = useState(lng.toFixed(6))
 
     useEffect(() => {
         if (!mapRef.current || instanceRef.current) return
@@ -75,7 +81,10 @@ function MapClickPicker({ lat, lng, onLocationChange }: { lat: number; lng: numb
 
         function handleMove(m: L.Marker) {
             const pos = m.getLatLng()
-            onLocationChange(Math.round(pos.lat * 10000) / 10000, Math.round(pos.lng * 10000) / 10000)
+            editingRef.current = false
+            setCoordLat(pos.lat.toFixed(6))
+            setCoordLng(pos.lng.toFixed(6))
+            onLocationChange(pos.lat, pos.lng)
         }
 
         marker.on('dragend', () => handleMove(marker))
@@ -96,35 +105,70 @@ function MapClickPicker({ lat, lng, onLocationChange }: { lat: number; lng: numb
             markerRef.current.setLatLng([lat, lng])
             instanceRef.current?.setView([lat, lng], instanceRef.current.getZoom())
         }
+        if (!editingRef.current) {
+            setCoordLat(lat.toFixed(6))
+            setCoordLng(lng.toFixed(6))
+        }
     }, [lat, lng])
+
+    useEffect(() => {
+        if (!searching) return
+        const q = pendingQueryRef.current
+        const controller = new AbortController()
+        let rafId: number
+
+        rafId = requestAnimationFrame(() => {
+            fetch(`/api/geocode/search?q=${encodeURIComponent(q)}`, { signal: controller.signal })
+                .then((res) => {
+                    if (!res.ok) throw new Error('Erreur serveur')
+                    return res.json() as Promise<NominatimResult[]>
+                })
+                .then((data) => setResults(data))
+                .catch(() => { if (!controller.signal.aborted) { setResults([]); setSearchError('Erreur de recherche') } })
+                .finally(() => { if (!controller.signal.aborted) setSearching(false) })
+        })
+
+        return () => { controller.abort(); cancelAnimationFrame(rafId) }
+    }, [searching])
 
     function onSearch(value: string) {
         setQuery(value)
         setShowResults(true)
+        setSearchError('')
         if (debounceRef.current) clearTimeout(debounceRef.current)
         if (!value.trim()) { setResults([]); return }
 
-        debounceRef.current = setTimeout(async () => {
+        debounceRef.current = setTimeout(() => {
+            pendingQueryRef.current = value
             setSearching(true)
-            try {
-                const res = await fetch(
-                    `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(value)}&format=json&limit=5&countrycodes=cm`,
-                    { headers: { 'User-Agent': 'SmartBin/1.0' } }
-                )
-                const data: NominatimResult[] = await res.json()
-                setResults(data)
-            } catch { setResults([]) }
-            setSearching(false)
         }, 500)
     }
 
     function selectResult(r: NominatimResult) {
-        const newLat = Math.round(parseFloat(r.lat) * 10000) / 10000
-        const newLng = Math.round(parseFloat(r.lon) * 10000) / 10000
-        onLocationChange(newLat, newLng)
+        onLocationChange(parseFloat(r.lat), parseFloat(r.lon))
+        setCoordLat(r.lat)
+        setCoordLng(r.lon)
         setQuery(r.display_name.split(',')[0])
         setResults([])
         setShowResults(false)
+    }
+
+    function applyCoordInput() {
+        editingRef.current = false
+        const newLat = parseFloat(coordLat)
+        const newLng = parseFloat(coordLng)
+        if (isNaN(newLat) || isNaN(newLng)) {
+            setCoordLat(lat.toFixed(6))
+            setCoordLng(lng.toFixed(6))
+            return
+        }
+        const clampedLat = Math.max(-90, Math.min(90, newLat))
+        const clampedLng = Math.max(-180, Math.min(180, newLng))
+        setCoordLat(clampedLat.toFixed(6))
+        setCoordLng(clampedLng.toFixed(6))
+        if (clampedLat !== lat || clampedLng !== lng) {
+            onLocationChange(clampedLat, clampedLng)
+        }
     }
 
     return (
@@ -141,22 +185,57 @@ function MapClickPicker({ lat, lng, onLocationChange }: { lat: number; lng: numb
                         className="w-full pl-9 pr-3 py-2 bg-[#0F172A]/90 backdrop-blur-md rounded-lg border border-[#334155] focus:border-emerald-500 outline-none text-xs text-white placeholder:text-gray-500 transition-all"
                     />
                     <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                    {searching && <div className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />}
+                    {searching && <span className="absolute right-3 top-1/2 -translate-y-1/2"><span className="block w-3.5 h-3.5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" /></span>}
                 </div>
                 {/* Dropdown résultats */}
                 {showResults && results.length > 0 && (
-                    <div className="mt-1 bg-[#0F172A]/95 backdrop-blur-md rounded-lg border border-[#334155] overflow-hidden shadow-xl">
+                    <div className="mt-1 bg-[#0F172A]/95 backdrop-blur-md rounded-lg border border-[#334155] overflow-hidden shadow-xl max-h-48 overflow-y-auto">
                         {results.map((r, i) => (
                             <button
                                 key={i}
                                 onClick={() => selectResult(r)}
                                 className="w-full text-left px-3 py-2 text-xs text-gray-300 hover:bg-white/5 hover:text-white transition-all border-b border-[#334155]/50 last:border-0"
                             >
-                                <span className="line-clamp-1">{r.display_name}</span>
+                                <span>{r.display_name}</span>
                             </button>
                         ))}
                     </div>
                 )}
+                {showResults && !searching && query && results.length === 0 && (
+                    <div className="mt-1 bg-[#0F172A]/95 backdrop-blur-md rounded-lg border border-[#334155] px-3 py-2 text-xs text-gray-500">
+                        {searchError || 'Aucun résultat'}
+                    </div>
+                )}
+                {/* Coordonnées manuelles */}
+                <div className="mt-2 flex gap-2">
+                    <div className="flex-1">
+                        <label className="block text-[10px] font-medium uppercase tracking-wider text-gray-500 mb-0.5">Latitude</label>
+                        <input
+                            type="text"
+                            value={coordLat}
+                            onFocus={() => { editingRef.current = true; setShowResults(false) }}
+                            onChange={(e) => setCoordLat(e.target.value)}
+                            onBlur={applyCoordInput}
+                            onKeyDown={(e) => { if (e.key === 'Enter') { (e.target as HTMLInputElement).blur() } }}
+                            className="w-full px-2 py-1.5 bg-[#0F172A]/80 backdrop-blur-md rounded border border-[#334155] focus:border-emerald-500 outline-none text-[11px] text-white font-mono transition-all"
+                        />
+                    </div>
+                    <div className="flex-1">
+                        <label className="block text-[10px] font-medium uppercase tracking-wider text-gray-500 mb-0.5">Longitude</label>
+                        <input
+                            type="text"
+                            value={coordLng}
+                            onFocus={() => { editingRef.current = true; setShowResults(false) }}
+                            onChange={(e) => setCoordLng(e.target.value)}
+                            onBlur={applyCoordInput}
+                            onKeyDown={(e) => { if (e.key === 'Enter') { (e.target as HTMLInputElement).blur() } }}
+                            className="w-full px-2 py-1.5 bg-[#0F172A]/80 backdrop-blur-md rounded border border-[#334155] focus:border-emerald-500 outline-none text-[11px] text-white font-mono transition-all"
+                        />
+                    </div>
+                </div>
+                <p className="mt-1 text-[10px] text-gray-600 text-center">
+                    Cliquez sur la carte ou saisissez les coordonnées
+                </p>
             </div>
             {/* Carte */}
             <div ref={mapRef} className="w-full h-full min-h-[300px] sm:min-h-[350px]" />
