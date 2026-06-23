@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendNotification;
 use App\Models\Alert;
 use App\Models\Bin;
 use App\Models\Notification;
@@ -120,23 +121,25 @@ class SensorReadingController extends Controller
 
     private function createNotifications(Alert $alert): void
     {
-        Notification::create([
+        $emailNotif = Notification::create([
             'alert_id'  => $alert->id,
             'channel'   => 'EMAIL',
             'recipient' => config('app.alert_email', 'admin@smartbin.cm'),
             'message'   => $alert->message,
             'status'    => 'PENDING',
         ]);
+        SendNotification::dispatch($emailNotif);
 
         $telegramUsers = User::whereNotNull('telegram_chat_id')->get();
         foreach ($telegramUsers as $user) {
-            Notification::create([
+            $tgNotif = Notification::create([
                 'alert_id'  => $alert->id,
                 'channel'   => 'TELEGRAM',
                 'recipient' => $user->telegram_chat_id,
                 'message'   => $alert->message,
                 'status'    => 'PENDING',
             ]);
+            SendNotification::dispatch($tgNotif);
         }
     }
 }

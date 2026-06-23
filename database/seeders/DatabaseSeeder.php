@@ -67,7 +67,17 @@ class DatabaseSeeder extends Seeder
             'phone' => '+237 690 000 005',
         ]);
 
-        User::factory(10)->create();
+        $systemUser = User::factory()->create([
+            'name' => 'System IoT',
+            'email' => 'system@smartbin.cm',
+            'role' => 'AGENT',
+            'status' => 'ACTIVE',
+            'phone' => null,
+        ]);
+        $iotToken = $systemUser->createToken('arduino-bridge')->plainTextToken;
+        $this->command->info("Token IoT (Arduino) : {$iotToken}");
+
+        User::factory(9)->create();
 
         $bins = Bin::factory(24)->create();
 
