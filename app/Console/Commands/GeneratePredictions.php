@@ -1,5 +1,20 @@
 <?php
 
+/**
+ * Commande Artisan : génération des prédictions IA.
+ *
+ * Exécution : php artisan predictions:generate
+ * Planifié : routes/console.php → hourly()
+ *
+ * Appelle PredictionService::generate() qui :
+ *   1. Récupère les bennes actives (NORMAL / WARNING)
+ *   2. Envoie leurs relevés à l'IA Python (POST /api/predict/v2)
+ *   3. Stocke les résultats en base (table `predictions`)
+ *
+ * Si le service IA est injoignable, les bennes sont ignorées
+ * (log warning) et la commande continue.
+ */
+
 namespace App\Console\Commands;
 
 use App\Services\PredictionService;

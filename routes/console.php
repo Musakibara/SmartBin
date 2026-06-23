@@ -21,3 +21,6 @@ Schedule::command('predictions:cleanup --days=30')->daily();
 
 // Envoi des notifications en attente (EMAIL / TELEGRAM)
 Schedule::command('notifications:send')->everyMinute();
+
+// Entraînement des modèles Prophet (nuit — peu de data entrante)
+Schedule::command('predictions:train-prophet')->dailyAt('02:00');
