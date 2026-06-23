@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SensorController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -93,6 +94,16 @@ Route::middleware('auth')->group(function () {
             ->middleware('role:TECHNICIEN')->name('sensors.update');
         Route::delete('/{id}', [SensorController::class, 'destroy'])                             // SUPERVISEUR
             ->middleware('role:SUPERVISEUR')->name('sensors.destroy');
+    });
+
+    // Rapports
+    Route::prefix('/reports')->group(function () {
+        Route::get('/', [ReportController::class, 'index'])->name('reports.index');              // OPERATEUR
+        Route::post('/', [ReportController::class, 'store'])                                     // OPERATEUR
+            ->middleware('role:OPERATEUR')->name('reports.store');
+        Route::get('/{report}/download', [ReportController::class, 'download'])->name('reports.download');
+        Route::delete('/{report}', [ReportController::class, 'destroy'])                         // SUPERVISEUR
+            ->middleware('role:SUPERVISEUR')->name('reports.destroy');
     });
 });
 

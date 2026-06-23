@@ -15,6 +15,7 @@ class Report extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'name',
         'type',
         'period_start',
         'period_end',

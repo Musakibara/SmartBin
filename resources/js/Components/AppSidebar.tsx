@@ -7,6 +7,7 @@ import {
     Radio,
     Bell,
     Brain,
+    FileText,
     Users,
     Settings,
     User,
@@ -55,6 +56,7 @@ export default function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
         { label: 'Monitoring', icon: Map, href: '/monitoring' },
         { label: 'Alertes', icon: Bell, href: '/alerts' },
         { label: 'IA Prédictions', icon: Brain, href: '/predictions' },
+        { label: 'Rapports', icon: FileText, href: '/reports' },
         ...(userRole === 'ADMIN' || userRole === 'SUPERVISEUR' ? [{ label: 'Utilisateurs', icon: Users, href: '/users' }] : []),
         ...(userRole === 'ADMIN' || userRole === 'SUPERVISEUR' ? [{ label: 'Paramètres', icon: Settings, href: '/settings' }] : []),
     ]
