@@ -485,7 +485,6 @@ function BinsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {paginated.map((bin) => {
                     const styles = fillLevelStyles(bin.fillLevel)
-                    const alertCount = 0
                     return (
                         <div
                             key={bin.id}
@@ -499,12 +498,6 @@ function BinsPage() {
                                     <h3 className="text-base font-bold text-text-primary mt-0.5">{bin.name}</h3>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    {alertCount > 0 && (
-                                        <span className="flex items-center gap-1 text-[10px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">
-                                            <AlertTriangle className="w-3 h-3" />
-                                            {alertCount}
-                                        </span>
-                                    )}
                                     <StatusBadge status={bin.status} />
                                 </div>
                             </div>

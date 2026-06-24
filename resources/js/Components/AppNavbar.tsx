@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, router, usePage } from '@inertiajs/react'
-import { Search, Bell, HelpCircle, Moon, Sun, User, Menu, LogOut, Settings, CheckCheck, AlertTriangle, Info, Mail } from 'lucide-react'
+import { Search, Bell, HelpCircle, Moon, Sun, Menu, LogOut, Settings, CheckCheck, AlertTriangle, Info, Mail } from 'lucide-react'
 import { useTheme } from '@/Components/ThemeProvider'
 import LanguageSwitcher from '@/Components/LanguageSwitcher'
 import { useTranslation } from 'react-i18next'

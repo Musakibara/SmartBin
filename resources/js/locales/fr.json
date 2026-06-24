@@ -224,7 +224,7 @@
   "predictions.timeToOverflow": "Temps avant débordement",
   "predictions.lessThan1h": "< 1h",
   "predictions.filter": "Filtre :",
-  "predictions.sortUrgent": "Urgent",
+  "predictions.sortByTime": "Trier par temps",
   "predictions.emptyTitle": "Aucune prédiction",
   "predictions.emptyDesc": "Cliquez sur <strong>{{action}}</strong> pour générer les prédictions. Le modèle analysera les relevés de toutes les bennes et estimera les risques de débordement.",
   "predictions.deleteConfirm": "Supprimer cette prédiction ?",

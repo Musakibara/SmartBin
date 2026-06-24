@@ -52,11 +52,6 @@ class PredictionService
         // Les bennes FULL sont déjà à 100%, pas besoin de prédiction.
         $bins = Bin::whereIn('status', ['NORMAL', 'WARNING'])->get();
 
-        // ─── Nettoyage préalable ───
-        // Supprime les anciennes prédictions pour les mêmes bennes.
-        // Évite les doublons quand la commande est relancée plusieurs fois.
-        Prediction::whereIn('bin_id', $bins->pluck('id'))->delete();
-
         $generated = 0;
 
         foreach ($bins as $bin) {
@@ -100,6 +95,11 @@ class PredictionService
 
             $data = $response->json();
             $model = $data['model'] ?? 'linear';     // 'prophet' ou 'linear'
+
+            // ─── Supprimer l'ancienne prédiction APRÈS avoir confirmé le succès ───
+            // Si l'appel IA échoue pour cette benne, l'ancienne prédiction est conservée
+            // plutôt que de se retrouver avec une page vide.
+            Prediction::where('bin_id', $bin->id)->delete();
 
             // ─── Sauvegarde en base ───
             // predicted_fill_time = timestamp estimé du débordement

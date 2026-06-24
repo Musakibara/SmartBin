@@ -81,8 +81,8 @@ export default function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
             lg:translate-x-0
         `}>
             <div className="px-6 py-6 flex items-center gap-3 border-b border-border">
-                <div className="w-10 h-10 rounded-lg bg-bg-card overflow-hidden shrink-0">
-                    <img src="/images/logo.png" alt="SmartBin Logo" className="w-full h-full object-cover" />
+                <div className="w-12 h-12 rounded-lg bg-bg-card overflow-hidden shrink-0">
+                    <img src="/images/logo.png" alt="SmartBin Logo" className="w-full h-full object-cover dark:brightness-0 dark:invert" />
                 </div>
                 <div className="flex-1">
                     <h1 className="text-[24px] leading-[32px] font-semibold text-[#10B981]">SmartBin</h1>

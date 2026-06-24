@@ -12,11 +12,12 @@
  * qui appelle le service Python FastAPI sur 127.0.0.1:8001.
  */
 
-import { useState, useMemo } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Brain, AlertTriangle, Search, ChevronLeft, ChevronRight, ArrowUpDown, Target, ShieldCheck, MapPin, RefreshCw, Trash2 } from 'lucide-react'
 import AppLayout from '../../Layouts/AppLayout'
 import { usePage, router } from '@inertiajs/react'
 import { useTranslation, Trans } from 'react-i18next'
+import { useToast } from '../../Components/Toast'
 
 // Couleurs des badges de priorité (rouge = HIGH, ambre = MEDIUM, bleu = LOW)
 const levelColors: Record<string, string> = {
@@ -38,9 +39,6 @@ const levelDot: Record<string, string> = {
     medium: 'bg-amber-400',
     low: 'bg-blue-400',
 }
-
-const priorityOrder: Record<string, number> = { high: 0, medium: 1, low: 2 }
-
 function PredictionsPage() {
     const { t } = useTranslation()
     // Props Inertia venant du PredictionController
@@ -49,7 +47,7 @@ function PredictionsPage() {
             data: Array<{
                 id: string; bin: string; binName: string; binLocation: string
                 fillLevel: number; message: string; priority: string
-                estimatedHours: number; progress: number; confidence: number; riskScore: number
+                estimatedHours: number; urgency: number; confidence: number; riskScore: number
             }>
             current_page: number; last_page: number; total: number
         }
@@ -61,21 +59,38 @@ function PredictionsPage() {
         }
     }
     const userRole = (usePage().props as { auth?: { user?: { role?: string } } })?.auth?.user?.role
+    const { notify } = useToast()
+
+    // Toast sur flash messages (succès/erreur après génération)
+    const flashError = (usePage().props as { error?: string }).error
+    const flashSuccess = (usePage().props as { success?: string }).success
+    useEffect(() => {
+        if (flashError) notify({ message: flashError, type: 'error' })
+        if (flashSuccess) notify({ message: flashSuccess, type: 'success' })
+    }, [flashError, flashSuccess])
+
+    // Synchronise priorityFilter avec l'URL (back/forward)
+    useEffect(() => {
+        setPriorityFilter(filters?.priority ?? 'Toutes')
+    }, [filters?.priority])
 
     // État local
     const [search, setSearch] = useState(filters?.search ?? '')
     const [priorityFilter, setPriorityFilter] = useState(filters?.priority ?? 'Toutes')
-    const [sortAsc, setSortAsc] = useState(true)        // Tri urgent asc/desc (true = HIGH en premier)
+    const [sortTimeAsc, setSortTimeAsc] = useState(true) // Tri cartes par temps (asc = urgent en premier)
     const [generating, setGenerating] = useState(false) // État du bouton IA
     const [showInfo, setShowInfo] = useState(false)     // Détails techniques
+    const [filterLoading, setFilterLoading] = useState(false) // Loading filtre priorité
 
-    // Tri des prédictions par priorité (HIGH > MEDIUM > LOW)
-    // sortAsc = true  → les plus urgentes en premier
-    // sortAsc = false → les moins urgentes en premier
-    const filtered = useMemo(() => {
-        const items = [...predictions.data]
-        return items.sort((a, b) => sortAsc ? priorityOrder[a.priority] - priorityOrder[b.priority] : priorityOrder[b.priority] - priorityOrder[a.priority])
-    }, [predictions.data, sortAsc])
+    // Timeline toujours triée par urgence (temps croissant)
+    const timelineItems = useMemo(() => {
+        return [...predictions.data].sort((a, b) => a.estimatedHours - b.estimatedHours)
+    }, [predictions.data])
+
+    // Cartes triées selon le bouton (client-side seulement)
+    const sortedCards = useMemo(() => {
+        return [...predictions.data].sort((a, b) => sortTimeAsc ? a.estimatedHours - b.estimatedHours : b.estimatedHours - a.estimatedHours)
+    }, [predictions.data, sortTimeAsc])
 
     return (
         <div className="space-y-6">
@@ -182,7 +197,8 @@ function PredictionsPage() {
                             onClick={() => {
                                 const newFilter = isActive ? 'Toutes' : key
                                 setPriorityFilter(newFilter)
-                                router.get('/predictions', { priority: newFilter === 'Toutes' ? '' : newFilter, search }, { preserveState: true, replace: true })
+                                setFilterLoading(true)
+                                router.get('/predictions', { priority: newFilter === 'Toutes' ? '' : newFilter, search }, { preserveState: true, replace: true, onFinish: () => setFilterLoading(false) })
                             }}
                             className={`glass rounded-xl p-4 text-left transition-all cursor-pointer hover:scale-[1.02] ${isActive ? 'ring-2 ring-purple-500/60 shadow-lg shadow-purple-500/20' : ''}`}
                         >
@@ -221,8 +237,8 @@ function PredictionsPage() {
                 </div>
             </div>
 
-            {/* ═══════════ Timeline : temps avant débordement ═══════════ */}
-            {predictions.data.length > 0 && (
+            {/* ═══════════ Timeline : urgence débordement ═══════════ */}
+            {timelineItems.length > 0 && (
                 <div className="glass rounded-xl p-5">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-sm font-bold text-text-primary flex items-center gap-2">
@@ -235,11 +251,10 @@ function PredictionsPage() {
                             <span className="w-2 h-2 rounded-full bg-blue-400" />&gt;12h
                         </div>
                     </div>
-                    {/* Barres horizontales triées par urgence */}
+                    {/* Barres horizontales — largeur = urgence (pleine = débordement imminent) */}
                     <div className="space-y-1.5">
-                        {[...predictions.data].sort((a, b) => a.estimatedHours - b.estimatedHours).map((p) => {
-                            // widthPct : largeur de la barre (proportionnelle à 24h max)
-                            const widthPct = Math.min(100, (p.estimatedHours / 24) * 100)
+                        {timelineItems.map((p) => {
+                            const urgencyPct = Math.min(100, Math.max(4, p.urgency))
                             const barColor = p.priority === 'high' ? 'bg-red-500/80' : p.priority === 'medium' ? 'bg-amber-400/70' : 'bg-blue-400/60'
                             const dotColor = p.priority === 'high' ? 'bg-red-500' : p.priority === 'medium' ? 'bg-amber-400' : 'bg-blue-400'
                             return (
@@ -249,14 +264,13 @@ function PredictionsPage() {
                                         <p className="text-[10px] font-bold text-text-primary truncate" title={p.binName}>{p.binName}</p>
                                         <p className="text-[8px] text-text-muted truncate">{p.binLocation}</p>
                                     </div>
-                                    {/* Barre de progression */}
+                                    {/* Barre d'urgence */}
                                     <div className="flex-1 h-6 bg-bg-card rounded-md overflow-hidden relative">
-                                        <div className={`h-full rounded-md ${barColor} transition-all duration-500`} style={{ width: `${widthPct}%` }} />
+                                        <div className={`h-full rounded-md ${barColor} transition-all duration-500`} style={{ width: `${urgencyPct}%` }} />
                                         <div className="absolute inset-0 flex items-center px-2 justify-between">
-                                            {/* Point indicateur + animation pulse si HIGH */}
                                             <div className={`w-2 h-2 rounded-full ${dotColor} ${p.priority === 'high' ? 'animate-pulse' : ''}`} />
                                             <span className="text-[9px] font-bold text-text-primary drop-shadow-md">
-                                                {p.estimatedHours > 0 ? `~${Math.round(p.estimatedHours)}h` : t('predictions.lessThan1h')}
+                                                {p.fillLevel}% · {p.estimatedHours > 0 ? `~${Math.round(p.estimatedHours)}h` : t('predictions.lessThan1h')}
                                             </span>
                                         </div>
                                     </div>
@@ -277,7 +291,7 @@ function PredictionsPage() {
                     {/* Barre de recherche */}
                     <div className="relative flex-1 max-w-md">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-                        <input value={search} onChange={(e) => { setSearch(e.target.value); router.get('/predictions', { search: e.target.value, priority: priorityFilter === 'Toutes' ? '' : priorityFilter }, { preserveState: true, replace: true }) }} placeholder={t('predictions.search')} className="w-full pl-10 pr-4 py-2.5 bg-input-bg rounded-xl border border-border focus:border-purple-500 outline-none text-sm text-text-primary placeholder:text-text-muted transition-all" />
+                        <input value={search} onChange={(e) => { setSearch(e.target.value); router.get('/predictions', { search: e.target.value }, { preserveState: true, replace: true }) }} placeholder={t('predictions.search')} className="w-full pl-10 pr-4 py-2.5 bg-input-bg rounded-xl border border-border focus:border-purple-500 outline-none text-sm text-text-primary placeholder:text-text-muted transition-all" />
                     </div>
                     {/* Filtre priorité actif + tri */}
                     <div className="flex items-center gap-3 flex-wrap">
@@ -286,12 +300,12 @@ function PredictionsPage() {
                                 {t('predictions.filter')} <span className={`font-semibold ${priorityFilter === 'high' ? 'text-red-400' : priorityFilter === 'medium' ? 'text-amber-400' : 'text-blue-400'}`}>
                                     {priorityFilter === 'high' ? t('predictions.urgent') : priorityFilter === 'medium' ? t('predictions.plan') : t('predictions.routine')}
                                 </span>
-                                <button onClick={() => { setPriorityFilter('Toutes'); router.get('/predictions', { priority: '', search }, { preserveState: true, replace: true }) }} className="ml-1 text-text-muted hover:text-text-primary transition-colors">✕</button>
+                                <button onClick={() => { setPriorityFilter('Toutes'); setFilterLoading(true); router.get('/predictions', { priority: '', search }, { preserveState: true, replace: true, onFinish: () => setFilterLoading(false) }) }} className="ml-1 text-text-muted hover:text-text-primary transition-colors">✕</button>
                             </span>
                         )}
-                        {/* Bouton tri urgent */}
-                        <button onClick={() => setSortAsc(!sortAsc)} className="flex items-center gap-1.5 px-3 py-1.5 bg-input-bg rounded-lg text-xs text-text-muted hover:text-text-primary transition-all">
-                            <ArrowUpDown className="w-3.5 h-3.5" />{t('predictions.sortUrgent')} {sortAsc ? '▲' : '▼'}
+                        {/* Bouton tri par temps */}
+                        <button onClick={() => setSortTimeAsc(!sortTimeAsc)} className="flex items-center gap-1.5 px-3 py-1.5 bg-input-bg rounded-lg text-xs text-text-muted hover:text-text-primary transition-all">
+                            <ArrowUpDown className="w-3.5 h-3.5" />{t('predictions.sortByTime')} {sortTimeAsc ? '▲' : '▼'}
                         </button>
                     </div>
                 </div>
@@ -319,8 +333,17 @@ function PredictionsPage() {
             ) : (
                 <>
                     {/* ═══════════ Cartes prédictions ═══════════ */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {filtered.map((p) => (
+                    <div className="relative">
+                        {filterLoading && (
+                            <div className="absolute inset-0 bg-bg-primary/60 backdrop-blur-sm rounded-xl z-10 flex items-center justify-center">
+                                <div className="flex items-center gap-2 text-sm text-text-muted">
+                                    <RefreshCw className="w-4 h-4 animate-spin" />
+                                    {t('common.loading')}
+                                </div>
+                            </div>
+                        )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {sortedCards.map((p) => (
                             // Bordure gauche colorée selon priorité
                             <div key={p.id} className={`glass rounded-xl p-5 border-l-4 transition-all hover:bg-[rgba(255,255,255,0.04)] ${p.priority === 'high' ? 'border-l-red-500' : p.priority === 'medium' ? 'border-l-amber-400' : 'border-l-blue-400'}`}>
                                 {/* En-tête : nom + badge priorité + bouton supprimer */}
@@ -360,8 +383,8 @@ function PredictionsPage() {
                                         </span>
                                     </div>
                                     <div className="w-full h-2 bg-bg-card rounded-full overflow-hidden">
-                                        {/* 100 - progress = la barre diminue quand le temps approche */}
-                                        <div className={`h-full rounded-full transition-all duration-700 ${p.priority === 'high' ? 'bg-red-500' : p.priority === 'medium' ? 'bg-amber-400' : 'bg-blue-400'}`} style={{ width: `${100 - p.progress}%` }} />
+                                        {/* Barre d'urgence — large = imminent */}
+                                        <div className={`h-full rounded-full transition-all duration-700 ${p.priority === 'high' ? 'bg-red-500' : p.priority === 'medium' ? 'bg-amber-400' : 'bg-blue-400'}`} style={{ width: `${p.urgency}%` }} />
                                     </div>
                                 </div>
 
@@ -391,6 +414,7 @@ function PredictionsPage() {
                                 </div>
                             </div>
                         ))}
+                    </div>
                     </div>
 
                     {/* ═══════════ Pagination ═══════════ */}

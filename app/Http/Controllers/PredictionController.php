@@ -89,8 +89,13 @@ class PredictionController extends Controller
      */
     public function generate(PredictionService $service): RedirectResponse
     {
-        $service->generate();
-        return back();
+        $count = $service->generate();
+
+        if ($count === 0) {
+            return back()->with('error', 'Service IA injoignable sur http://127.0.0.1:8001. Anciennes prédictions conservées.');
+        }
+
+        return back()->with('success', "{$count} prédiction(s) générée(s) avec succès.");
     }
 
     /**
@@ -121,10 +126,10 @@ class PredictionController extends Controller
             ? max(0, now()->diffInHours($p->predicted_fill_time, false))
             : null;
 
-        // Progression : 0% = benne vide, 100% = débordement imminent
-        // Utilisé pour la barre de progression dans la timeline + cartes
-        $progress = $estimatedHours !== null
-            ? min(95, max(5, ($estimatedHours / 24) * 100))
+        // Urgence : 0% = safe, 100% = débordement imminent
+        // Plus le temps restant est court, plus l'urgence est élevée
+        $urgency = $estimatedHours !== null
+            ? min(95, max(5, 100 - ($estimatedHours / 24) * 100))
             : 50;
 
         return [
@@ -136,7 +141,7 @@ class PredictionController extends Controller
             'message'         => $p->recommendation ?? 'Prédiction générée',
             'priority'        => strtolower($p->risk_level),
             'estimatedHours'  => $estimatedHours ?? 0,
-            'progress'        => round($progress),
+            'urgency'          => round($urgency),
             'confidence'      => round($p->fill_probability * 100, 1),
             // Score de risque : HIGH=70-99, MEDIUM=35-69, LOW=5-34
             // Plus le temps restant est court, plus le score est élevé

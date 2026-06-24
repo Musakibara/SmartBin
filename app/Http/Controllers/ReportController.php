@@ -107,14 +107,4 @@ class ReportController extends Controller
         $pow = min($pow, count($units) - 1);
         return round($bytes / (1024 ** $pow), $precision) . ' ' . $units[$pow];
     }
-
-    private function summaryForType(string $type): string
-    {
-        return match ($type) {
-            'OPERATIONAL' => 'Rapport opérationnel — état des bennes, niveaux de remplissage et statut des capteurs.',
-            'PERFORMANCE' => 'Rapport de performance — analyse des tendances de remplissage et indicateurs techniques.',
-            'STRATEGIC' => 'Rapport stratégique — synthèse mensuelle des alertes, prédictions et performance globale.',
-            'ALERT' => 'Rapport des alertes — récapitulatif des alertes par sévérité et statut de résolution.',
-        };
-    }
 }

@@ -1,5 +1,5 @@
 import { Link, router, usePage } from '@inertiajs/react'
-import { Bell, CheckCheck, AlertTriangle, Info, Mail, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { Bell, CheckCheck, AlertTriangle, Info, Mail, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import AppLayout from '../../Layouts/AppLayout'

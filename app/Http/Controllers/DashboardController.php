@@ -9,7 +9,6 @@ use App\Models\Prediction;
 use App\Models\Sensor;
 use App\Models\SensorReading;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class DashboardController extends Controller

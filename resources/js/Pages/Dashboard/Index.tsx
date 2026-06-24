@@ -65,10 +65,10 @@ const markerIconFull = L.divIcon({
 function DashboardPage() {
     const { t } = useTranslation()
     const { kpiData, fillLevelHistory, bins, alerts, period } = usePage().props as unknown as {
-        kpiData: typeof import('../../data/mock-dashboard').kpiData
-        fillLevelHistory: typeof import('../../data/mock-dashboard').fillLevelHistory
-        bins: typeof import('../../data/mock-dashboard').bins
-        alerts: typeof import('../../data/mock-dashboard').alerts
+        kpiData: import('../../data/mock-dashboard').KpiData
+        fillLevelHistory: import('../../data/mock-dashboard').SensorReading[]
+        bins: import('../../data/mock-dashboard').Bin[]
+        alerts: import('../../data/mock-dashboard').Alert[]
         period: string
     }
 

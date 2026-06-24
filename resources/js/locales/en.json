@@ -224,7 +224,7 @@
   "predictions.timeToOverflow": "Time to overflow",
   "predictions.lessThan1h": "< 1h",
   "predictions.filter": "Filter:",
-  "predictions.sortUrgent": "Urgent",
+  "predictions.sortByTime": "Sort by time",
   "predictions.emptyTitle": "No predictions",
   "predictions.emptyDesc": "Click <strong>{{action}}</strong> to generate predictions. The model will analyze readings from all bins and estimate overflow risks.",
   "predictions.deleteConfirm": "Delete this prediction?",

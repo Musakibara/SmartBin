@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Notification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class NotificationController extends Controller
 {
@@ -37,7 +38,7 @@ class NotificationController extends Controller
         return back();
     }
 
-    public function recent(): \Illuminate\Http\JsonResponse
+    public function recent(): JsonResponse
     {
         $notifications = Notification::with('alert.bin')
             ->latest('sent_at')
