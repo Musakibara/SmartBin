@@ -26,7 +26,7 @@ class GenerateIotToken extends Command
         }
 
         $name = $this->option('name');
-        $token = $user->createToken($name)->plainTextToken;
+        $token = $user->createToken($name, ['sensor:create'])->plainTextToken;
 
         $this->info("Token « {$name} » généré pour {$email} :");
         $this->line($token);
