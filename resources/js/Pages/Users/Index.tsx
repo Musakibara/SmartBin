@@ -284,7 +284,7 @@ function UsersPage() {
                                             <p className="text-xs text-text-muted truncate">{u.email}</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                                    <div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:sm:opacity-100 transition-opacity shrink-0">
                                         <button onClick={() => openEdit(u)} disabled={processing} className="p-1.5 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all disabled:opacity-40" title={t('common.edit')}>
                                             <Edit3 className="w-3.5 h-3.5" />
                                         </button>

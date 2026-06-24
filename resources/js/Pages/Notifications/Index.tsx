@@ -124,7 +124,7 @@ function NotificationsPage() {
                                     {!n.read_at && (
                                         <button
                                             onClick={() => handleMarkRead(n.id)}
-                                                className="p-1.5 rounded-lg text-text-muted hover:text-emerald-400 hover:bg-white/5 opacity-0 group-hover:opacity-100 transition-all"
+                                                className="p-1.5 rounded-lg text-emerald-400/70 sm:text-text-muted hover:text-emerald-400 hover:bg-white/5 opacity-100 sm:opacity-0 group-hover:sm:opacity-100 transition-all"
                                             title={t('notifications.markRead')}
                                         >
                                             <CheckCheck className="w-4 h-4" />

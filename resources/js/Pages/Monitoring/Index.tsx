@@ -196,7 +196,7 @@ function MonitoringPage() {
         </div>
 
         {/* Ligne Carte + Panneau */}
-        <div className="flex flex-1 min-h-0 flex-col sm:flex-row min-h-[40vh] sm:min-h-0">
+        <div className="flex flex-1 min-h-0 flex-col sm:flex-row min-h-[70vh] sm:min-h-0">
             {/* Carte */}
             <div className="relative flex-1 min-h-0">
                 {mapReady && (
@@ -247,7 +247,7 @@ function MonitoringPage() {
                     ].map(({ color, label, shadow }) => (
                         <div key={label} className="flex items-center gap-2">
                             <div className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full ${color} shadow-lg ${shadow}`} />
-                            <span className="text-text-secondary">{label}</span>
+                            <span className="text-black">{label}</span>
                         </div>
                     ))}
                 </div>
@@ -280,13 +280,21 @@ function MonitoringPage() {
                 )}
             </div>
 
-            {/* Panneau latéral — mobile: fixed overlay, desktop: slide transition */}
+            {/* Backdrop mobile */}
+            {showPanel && (
+                <div className="fixed inset-0 bg-black/50 z-40 sm:hidden" onClick={() => setShowPanel(false)} />
+            )}
+
+            {/* Panneau latéral — mobile: slide-in droite, desktop: relative */}
             <div className={`
-                fixed sm:relative inset-0 sm:inset-auto z-50 sm:z-auto
-                w-full bg-bg-secondary sm:bg-bg-secondary/90 backdrop-blur-md
-                sm:border-l border-border flex flex-col shrink-0 overflow-hidden
+                fixed sm:relative inset-y-0 right-0 sm:inset-auto z-50 sm:z-auto
+                w-[85vw] sm:w-auto bg-bg-secondary sm:bg-bg-secondary/90 backdrop-blur-md
+                sm:border-l border-border flex flex-col shrink-0 min-w-0 overflow-hidden
                 transition-all duration-300 ease-in-out
-                ${showPanel ? 'sm:w-80 sm:opacity-100' : 'sm:w-0 sm:opacity-0 sm:border-l-0'}
+                ${showPanel
+                    ? 'translate-x-0 sm:translate-x-0 sm:w-80 sm:opacity-100'
+                    : 'translate-x-full sm:translate-x-0 sm:basis-0 sm:opacity-0 sm:border-l-0 sm:overflow-hidden'
+                }
             `}>
                     <div className="flex border-b border-border">
                         {[

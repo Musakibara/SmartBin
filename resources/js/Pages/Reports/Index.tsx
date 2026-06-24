@@ -126,8 +126,8 @@ function ReportsPage() {
     const typeList = ['OPERATIONAL', 'PERFORMANCE', 'STRATEGIC', 'ALERT']
 
     return (
-        <AppLayout>
-            <div className="space-y-6">
+                <AppLayout>
+            <div className="space-y-6 overflow-hidden">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
@@ -158,7 +158,7 @@ function ReportsPage() {
                                     badgeColors[cfg.color]
                                 }`}
                             >
-                                <span>{cfg.icon}</span>
+                                                    <span className="hidden sm:inline">{cfg.icon}</span>
                                 {t(cfg.labelKey)}
                             </button>
                         )
@@ -212,69 +212,68 @@ function ReportsPage() {
                             return (
                                 <div
                                     key={report.id}
-                                    className="group bg-bg-card/70 backdrop-blur-sm border border-border rounded-xl p-6 hover:border-emerald-500/30 hover:shadow-[0_0_20px_-8px_rgba(16,185,129,0.15)] transition-all duration-300"
+                                    className="group bg-bg-card/70 backdrop-blur-sm border border-border rounded-xl p-2.5 sm:p-5 lg:p-6 hover:border-emerald-500/30 hover:shadow-[0_0_20px_-8px_rgba(16,185,129,0.15)] transition-all duration-300 w-full"
                                 >
-                                    <div className="flex items-start gap-4">
-                                        <div className={`w-12 h-12 rounded-xl ${iconBg[cfg.color]} flex items-center justify-center shrink-0`}>
-                                            <span className="text-xl">{cfg.icon}</span>
+                                    <div className="flex items-start gap-2 sm:gap-3 lg:gap-4">
+                                        <div className={`w-7 h-7 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl ${iconBg[cfg.color]} flex items-center justify-center shrink-0`}>
+                                            <span className="text-xs sm:text-lg lg:text-xl">{cfg.icon}</span>
                                         </div>
                                         <div className="min-w-0 flex-1">
                                             <div className="flex items-center gap-2 mb-1">
-                                                <span className={`px-2.5 py-0.5 text-[11px] font-bold rounded-full border uppercase tracking-wider ${badgeColors[cfg.color]}`}>
+                                                <span className={`px-2 py-0.5 text-[10px] sm:text-[11px] font-bold rounded-full border uppercase tracking-wider ${badgeColors[cfg.color]}`}>
                                                     {t(cfg.labelKey)}
                                                 </span>
                                                 {report.fileSize && (
                                                     <span className="text-text-muted text-xs">{report.fileSize}</span>
                                                 )}
                                             </div>
-                                            <h3 className="text-text-primary text-base font-semibold truncate leading-snug">
+                                            <h3 className="text-text-primary text-sm sm:text-base font-semibold leading-snug break-words">
                                                 {report.name}
                                             </h3>
-                                            <p className="text-text-muted text-xs mt-1.5 line-clamp-2 leading-relaxed">
+                                            <p className="text-text-muted text-xs mt-1 leading-relaxed break-words line-clamp-2 sm:line-clamp-2">
                                                 {report.summary}
                                             </p>
-                                            <div className="flex items-center gap-3 mt-3 text-[11px] text-text-muted">
-                                                <span className="flex items-center gap-1">
-                                                    <User className="w-3.5 h-3.5" />
-                                                    {report.generatedBy}
+                                            <div className="flex items-center gap-2 mt-1.5 sm:mt-2.5 text-[10px] sm:text-[11px] text-text-muted">
+                                                <span className="flex items-center gap-1 truncate">
+                                                    <User className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                                                    <span className="truncate">{report.generatedBy}</span>
                                                 </span>
-                                                <span className="flex items-center gap-1">
-                                                    <Clock className="w-3.5 h-3.5" />
+                                                <span className="shrink-0">·</span>
+                                                <span className="flex items-center gap-1 shrink-0">
+                                                    <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                                                     {report.createdAt}
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-1.5 mt-4 pt-3.5 border-t border-border">
+                                    <div className="flex items-center gap-1 mt-2 pt-2 sm:mt-3 sm:pt-3 border-t border-border">
                                         {report.viewUrl && (
                                             <button
                                                 onClick={() => handleView(report.viewUrl!)}
                                                 title={t('reports.view')}
-                                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 text-xs font-semibold transition-all"
+                                                className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 text-[11px] font-semibold transition-all"
                                             >
                                                 <Eye className="w-3.5 h-3.5" />
-                                                {t('reports.view')}
                                             </button>
                                         )}
                                         <button
                                             onClick={() => handleDownload(report.id)}
                                             disabled={!report.file_path}
                                             title={t('reports.download')}
-                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                                            className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
                                                 report.file_path
                                                     ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
                                                     : 'bg-bg-card text-text-muted cursor-not-allowed'
                                             }`}
                                         >
                                             <Download className="w-3.5 h-3.5" />
-                                            {t('reports.download')}
                                         </button>
                                         <div className="flex-1" />
                                         <button
                                             onClick={() => confirmDelete(report.id, report.name)}
                                             title={t('common.delete')}
-                                            className="p-1.5 rounded-lg text-text-muted group-hover:text-red-400 hover:bg-red-500/20 transition-all opacity-0 group-hover:opacity-100"
+                                            className="p-1.5 rounded-lg text-red-400/70 sm:text-text-muted hover:text-red-400 hover:bg-red-500/20 transition-all"
                                         >
                                             <Trash2 className="w-3.5 h-3.5" />
                                         </button>
@@ -287,35 +286,42 @@ function ReportsPage() {
 
                 {/* Pagination */}
                 {reports.last_page > 1 && (
-                    <div className="flex items-center justify-center gap-2 pt-2">
-                        <button
-                            onClick={() => goToPage(reports.current_page - 1)}
-                            disabled={reports.current_page <= 1}
-                            className="p-2 rounded-lg bg-bg-card border border-border text-text-secondary hover:text-text-primary hover:border-[#475569] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-                        >
-                            <ChevronLeft className="w-4 h-4" />
-                        </button>
-                        {Array.from({ length: reports.last_page }, (_, i) => i + 1).map((p) => (
-                            <button
-                                key={p}
-                                onClick={() => goToPage(p)}
-                                className={`w-9 h-9 rounded-lg text-sm font-medium transition-all ${
-                                    p === reports.current_page
-                                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                                        : 'bg-bg-card border border-border text-text-secondary hover:text-text-primary hover:border-[#475569]'
-                                }`}
-                            >
-                                {p}
-                            </button>
-                        ))}
-                        <button
-                            onClick={() => goToPage(reports.current_page + 1)}
-                            disabled={reports.current_page >= reports.last_page}
-                            className="p-2 rounded-lg bg-bg-card border border-border text-text-secondary hover:text-text-primary hover:border-[#475569] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-                        >
-                            <ChevronRight className="w-4 h-4" />
-                        </button>
-                    </div>
+                                    <div className="flex items-center justify-center gap-1.5 sm:gap-2 pt-2 overflow-x-auto">
+                                        <button
+                                            onClick={() => goToPage(reports.current_page - 1)}
+                                            disabled={reports.current_page <= 1}
+                                            className="p-2 rounded-lg bg-bg-card border border-border text-text-secondary hover:text-text-primary hover:border-[#475569] disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0"
+                                        >
+                                            <ChevronLeft className="w-4 h-4" />
+                                        </button>
+                                        {Array.from({ length: Math.min(reports.last_page, 7) }, (_, i) => {
+                                            const start = Math.max(1, Math.min(reports.current_page - 3, reports.last_page - 6))
+                                            const page = start + i
+                                            return (
+                                                <button
+                                                    key={page}
+                                                    onClick={() => goToPage(page)}
+                                                    className={`w-8 sm:w-9 h-8 sm:h-9 rounded-lg text-xs sm:text-sm font-medium transition-all shrink-0 ${
+                                                        page === reports.current_page
+                                                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                                                            : 'bg-bg-card border border-border text-text-secondary hover:text-text-primary hover:border-[#475569]'
+                                                    }`}
+                                                >
+                                                    {page}
+                                                </button>
+                                            )
+                                        })}
+                                        {reports.last_page > 7 && (
+                                            <span className="text-text-muted text-xs shrink-0">...</span>
+                                        )}
+                                        <button
+                                            onClick={() => goToPage(reports.current_page + 1)}
+                                            disabled={reports.current_page >= reports.last_page}
+                                            className="p-2 rounded-lg bg-bg-card border border-border text-text-secondary hover:text-text-primary hover:border-[#475569] disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0"
+                                        >
+                                            <ChevronRight className="w-4 h-4" />
+                                        </button>
+                                    </div>
                 )}
             </div>
 
@@ -348,7 +354,7 @@ function ReportsPage() {
                                     <button
                                         key={type}
                                         onClick={() => setGenerateType(type)}
-                                        className={`w-full flex items-center gap-4 p-3.5 rounded-xl border transition-all ${
+                                        className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all ${
                                             selected
                                                 ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400 shadow-[0_0_12px_-4px_rgba(16,185,129,0.2)]'
                                                 : 'bg-bg-card border-border text-text-secondary hover:border-[#475569] hover:text-text-primary'

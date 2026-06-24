@@ -195,11 +195,11 @@ export default function AppNavbar({ onToggleSidebar, user }: AppNavbarProps) {
                     )}
                 </div>
 
-                <button className="p-2 text-text-secondary hover:text-[#10B981] hover:bg-white/5 rounded-xl transition-all active:scale-95 hidden sm:block">
+                <button className="p-2 text-text-secondary hover:text-[#10B981] hover:bg-white/5 rounded-xl transition-all active:scale-95">
                     <HelpCircle className="w-5 h-5" />
                 </button>
                 <LanguageSwitcher />
-                <button onClick={toggleTheme} className="p-2 text-text-secondary hover:text-[#10B981] hover:bg-white/5 rounded-xl transition-all active:scale-95 hidden sm:block">
+                <button onClick={toggleTheme} className="p-2 text-text-secondary hover:text-[#10B981] hover:bg-white/5 rounded-xl transition-all active:scale-95">
                     {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                 </button>
 

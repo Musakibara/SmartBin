@@ -364,7 +364,7 @@ function PredictionsPage() {
                                         </span>
                                         {/* Bouton supprimer — ADMIN et SUPERVISEUR uniquement */}
                                         {(userRole === 'ADMIN' || userRole === 'SUPERVISEUR') && (
-                                            <button onClick={() => { if (confirm(t('predictions.deleteConfirm'))) router.delete(`/predictions/${p.id}`, { preserveState: true }) }} className="p-1 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-500/10 text-text-muted hover:text-red-400 transition-all" title={t('common.delete')}>
+                                            <button onClick={() => { if (confirm(t('predictions.deleteConfirm'))) router.delete(`/predictions/${p.id}`, { preserveState: true }) }} className="p-1 rounded-lg opacity-100 sm:opacity-0 group-hover:sm:opacity-100 hover:bg-red-500/10 text-red-400/70 sm:text-text-muted hover:text-red-400 transition-all" title={t('common.delete')}>
                                                 <Trash2 className="w-3 h-3" />
                                             </button>
                                         )}

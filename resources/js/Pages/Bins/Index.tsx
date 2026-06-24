@@ -534,23 +534,23 @@ function BinsPage() {
                                 </span>
                                 <span className="text-text-muted">{bin.lastUpdate}</span>
 
-                                <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+                                <div className="ml-auto flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:sm:opacity-100 transition-all duration-300 sm:translate-x-2 group-hover:sm:translate-x-0">
                                     {(userRole === 'ADMIN' || userRole === 'SUPERVISEUR' || userRole === 'OPERATEUR') && (
                                         <button
                                             onClick={(e) => { e.stopPropagation(); openEdit(bin) }}
-                                            className="p-2 rounded-lg bg-blue-500/15 text-blue-400 hover:bg-blue-500/25 hover:text-blue-300 transition-all"
+                                            className="p-1.5 sm:p-2 rounded-lg bg-blue-500/15 text-blue-400 hover:bg-blue-500/25 hover:text-blue-300 transition-all"
                                             title={t('common.edit')}
                                         >
-                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                            <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                         </button>
                                     )}
                                     {(userRole === 'ADMIN' || userRole === 'SUPERVISEUR') && (
                                         <button
                                             onClick={(e) => { e.stopPropagation(); setDeleteTarget(bin) }}
-                                            className="p-2 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 hover:text-red-300 transition-all"
+                                            className="p-1.5 sm:p-2 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 hover:text-red-300 transition-all"
                                             title={t('common.delete')}
                                         >
-                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                            <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                         </button>
                                     )}
                                 </div>
@@ -583,7 +583,7 @@ function BinsPage() {
                                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             />
-                            {localBins.map((bin) => (
+                            {result.map((bin) => (
                                 <Marker
                                     key={bin.id}
                                     position={[bin.lat, bin.lng]}
