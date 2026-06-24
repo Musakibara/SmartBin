@@ -60,19 +60,21 @@ function AlertsPage() {
 
     function navigate(field: string, value: string) {
         const params: Record<string, string> = {}
-        if (field === 'search') { params.search = value; setSearch(value) }
-        else if (field === 'severity') { params.severity = value; setSevFilter(value) }
-        else if (field === 'status') { params.status = value; setStatusFilter(value) }
-        else if (field === 'sort') {
-            const newDir = sortAsc ? 'desc' : 'asc'
-            params.dir = newDir
-            params.sort = 'severity'
-            setSortAsc(!sortAsc)
-        }
-        if (search) params.search = search
-        if (sevFilter !== 'Toutes') params.severity = sevFilter
-        if (statusFilter !== 'all') params.status = statusFilter
-        params.dir = params.dir ?? 'desc'
+
+        const nextSearch = field === 'search' ? value : search
+        const nextSev = field === 'severity' ? value : sevFilter
+        const nextStatus = field === 'status' ? value : statusFilter
+        const nextDir = field === 'sort' ? (sortAsc ? 'desc' : 'asc') : sortAsc ? 'asc' : 'desc'
+
+        if (field === 'search') setSearch(value)
+        else if (field === 'severity') setSevFilter(value)
+        else if (field === 'status') setStatusFilter(value)
+        else if (field === 'sort') { params.sort = 'severity'; setSortAsc(!sortAsc) }
+
+        if (nextSearch) params.search = nextSearch
+        if (nextSev !== 'Toutes') params.severity = nextSev
+        if (nextStatus !== 'all') params.status = nextStatus
+        params.dir = nextDir
 
         router.get('/alerts', params, { preserveScroll: true, preserveState: true, replace: true })
     }

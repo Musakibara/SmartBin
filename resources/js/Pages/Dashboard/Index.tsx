@@ -158,24 +158,24 @@ function DashboardPage() {
     return (
         <div className="space-y-6">
             {/* En-tête du dashboard */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-                    <p className="text-sm text-gray-400 mt-1">Vue d'ensemble du réseau SmartBin</p>
+                    <h1 className="text-xl sm:text-2xl font-bold text-white">Dashboard</h1>
+                    <p className="text-xs sm:text-sm text-gray-400 mt-0.5 sm:mt-1">Vue d'ensemble du réseau SmartBin</p>
                 </div>
-                <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1E293B]/80 border border-[#334155] text-xs">
-                        <span className={`w-2 h-2 rounded-full ${live ? 'bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'bg-gray-500'}`} />
+                <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                    <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-[#1E293B]/80 border border-[#334155] text-[10px] sm:text-xs">
+                        <span className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${live ? 'bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'bg-gray-500'}`} />
                         <span className={`font-semibold ${live ? 'text-emerald-400' : 'text-gray-400'}`}>Live</span>
-                        {live && <span className="text-gray-500">{30 - (secondsSinceRefresh % 30)}s</span>}
+                        {live && <span className="text-gray-500 hidden xs:inline">{30 - (secondsSinceRefresh % 30)}s</span>}
                     </div>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-[10px] sm:text-xs text-gray-500 hidden sm:inline">
                         Mis à jour il y a {secondsSinceRefresh < 60 ? `${secondsSinceRefresh}s` : `${Math.floor(secondsSinceRefresh / 60)}min`}
                     </span>
-                    <button onClick={() => setLive((p) => !p)} className="p-2 rounded-lg bg-[#1E293B]/80 border border-[#334155] text-gray-400 hover:text-white hover:border-emerald-500/40 transition-all" title={live ? 'Pause' : 'Reprendre'}>
+                    <button onClick={() => setLive((p) => !p)} className="p-1.5 sm:p-2 rounded-lg bg-[#1E293B]/80 border border-[#334155] text-gray-400 hover:text-white hover:border-emerald-500/40 transition-all" title={live ? 'Pause' : 'Reprendre'}>
                         {live ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
                     </button>
-                    <button onClick={manualRefresh} className="p-2 rounded-lg bg-[#1E293B]/80 border border-[#334155] text-gray-400 hover:text-white hover:border-emerald-500/40 transition-all" title="Rafraîchir maintenant">
+                    <button onClick={manualRefresh} className="p-1.5 sm:p-2 rounded-lg bg-[#1E293B]/80 border border-[#334155] text-gray-400 hover:text-white hover:border-emerald-500/40 transition-all" title="Rafraîchir maintenant">
                         <RefreshCw className="w-3.5 h-3.5" />
                     </button>
                 </div>
@@ -198,15 +198,15 @@ function DashboardPage() {
             {/* Graphique + Alertes récentes */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Graphique d'évolution du remplissage */}
-                <div className="lg:col-span-2 glass rounded-xl p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-semibold text-white">Évolution du remplissage</h2>
-                        <div className="flex gap-1 bg-white/5 rounded-lg p-1">
+                <div className="lg:col-span-2 glass rounded-xl p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                        <h2 className="text-base sm:text-lg font-semibold text-white">Évolution du remplissage</h2>
+                        <div className="flex gap-1 bg-white/5 rounded-lg p-1 overflow-x-auto no-scrollbar">
                             {periods.map((p) => (
                                 <button
                                     key={p.key}
                                     onClick={() => changePeriod(p.key)}
-                                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                                    className={`px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium rounded-md transition-all whitespace-nowrap ${
                                         period === p.key
                                             ? 'bg-emerald-500 text-white shadow'
                                             : 'text-gray-400 hover:text-white hover:bg-white/10'
@@ -217,7 +217,7 @@ function DashboardPage() {
                             ))}
                         </div>
                     </div>
-                    <ResponsiveContainer width="100%" height={300}>
+                    <ResponsiveContainer width="100%" height={220}>
                         <LineChart data={fillLevelHistory}>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                             <XAxis dataKey="time" stroke="#475569" tick={{ fill: '#475569', fontSize: 12 }} />
@@ -243,10 +243,10 @@ function DashboardPage() {
                 </div>
 
                 {/* Liste des alertes récentes */}
-                <div className="glass rounded-xl p-6">
+                <div className="glass rounded-xl p-4 sm:p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-semibold text-white">Alertes récentes</h2>
-                        <Link href="/alerts" className="text-xs text-emerald-400 cursor-pointer hover:text-emerald-300">Voir tout</Link>
+                        <h2 className="text-base sm:text-lg font-semibold text-white">Alertes récentes</h2>
+                        <Link href="/alerts" className="text-[10px] sm:text-xs text-emerald-400 cursor-pointer hover:text-emerald-300">Voir tout</Link>
                     </div>
                     <div className="space-y-3">
                         {alerts.slice(0, 4).map((alert) => (
@@ -280,7 +280,7 @@ function DashboardPage() {
                 {/* Liste horizontale des bennes en direct */}
                 <div className="col-span-12 space-y-3 sm:space-y-4 animate-fade-in" style={{ animationDelay: '650ms' }}>
                     <div className="flex items-center justify-between">
-                        <h4 className="text-lg sm:text-[24px] sm:leading-[32px] font-semibold text-[#f8fafc]">Live Bin Status</h4>
+                        <h4 className="text-base sm:text-lg md:text-[24px] md:leading-[32px] font-semibold text-[#f8fafc]">Live Bin Status</h4>
                         <div className="flex gap-2">
                             <button onClick={scrollLeft} className="p-1.5 glass rounded hover:bg-white/10 transition-colors">
                                 <span className="material-symbols-outlined text-[20px] text-[#94a3b8]">chevron_left</span>
@@ -342,18 +342,18 @@ function DashboardPage() {
                 </div>
 
                 {/* Carte interactive du réseau — overlay d'information + marqueurs Leaflet */}
-                <div className="col-span-12 glass p-0 rounded-xl overflow-hidden h-[300px] sm:h-[400px] relative">
+                <div className="col-span-12 glass p-0 rounded-xl overflow-hidden h-[280px] sm:h-[350px] md:h-[400px] relative">
                     {/* Overlay d'information en haut à gauche */}
-                    <div className="absolute top-4 left-4 z-[9999] flex flex-col gap-2">
-                        <div className="bg-[#1E293B] p-3 rounded-lg flex flex-col gap-1 shadow-lg border border-white/10 hover:scale-105 transition-transform duration-200 cursor-default">
-                            <h5 className="text-sm font-bold text-white">City-Wide Deployment</h5>
-                            <p className="text-[10px] text-gray-400">Central Hub: Yaoundé, CM</p>
+                    <div className="absolute top-2 sm:top-4 left-2 sm:left-4 z-[9999] flex flex-col gap-1.5 sm:gap-2">
+                        <div className="bg-[#1E293B] p-2 sm:p-3 rounded-lg flex flex-col gap-0.5 sm:gap-1 shadow-lg border border-white/10 hover:scale-105 transition-transform duration-200 cursor-default">
+                            <h5 className="text-[11px] sm:text-sm font-bold text-white">City-Wide Deployment</h5>
+                            <p className="text-[9px] sm:text-[10px] text-gray-400 hidden sm:block">Central Hub: Yaoundé, CM</p>
                         </div>
                         {/* Légende des couleurs */}
-                        <div className="bg-[#1E293B] p-2 rounded-lg flex gap-4 shadow-lg border border-white/10">
-                            <div className="flex items-center gap-1.5 hover:scale-110 transition-transform duration-200 cursor-pointer"><div className="w-2 h-2 rounded-full bg-emerald-500"></div><span className="text-[10px] text-gray-200">Optimal</span></div>
-                            <div className="flex items-center gap-1.5 hover:scale-110 transition-transform duration-200 cursor-pointer"><div className="w-2 h-2 rounded-full bg-orange-400"></div><span className="text-[10px] text-gray-200">Warning</span></div>
-                            <div className="flex items-center gap-1.5 hover:scale-110 transition-transform duration-200 cursor-pointer"><div className="w-2 h-2 rounded-full bg-red-500"></div><span className="text-[10px] text-gray-200">Critical</span></div>
+                        <div className="bg-[#1E293B] p-1.5 sm:p-2 rounded-lg flex gap-2 sm:gap-4 shadow-lg border border-white/10">
+                            <div className="flex items-center gap-1 sm:gap-1.5 hover:scale-110 transition-transform duration-200 cursor-pointer"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500"></div><span className="text-[9px] sm:text-[10px] text-gray-200">Optimal</span></div>
+                            <div className="flex items-center gap-1 sm:gap-1.5 hover:scale-110 transition-transform duration-200 cursor-pointer"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-orange-400"></div><span className="text-[9px] sm:text-[10px] text-gray-200">Warning</span></div>
+                            <div className="flex items-center gap-1 sm:gap-1.5 hover:scale-110 transition-transform duration-200 cursor-pointer"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-500"></div><span className="text-[9px] sm:text-[10px] text-gray-200">Critical</span></div>
                         </div>
                     </div>
                 {/* Carte Leaflet rendue côté client uniquement */}
