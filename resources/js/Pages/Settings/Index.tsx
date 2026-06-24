@@ -1,19 +1,21 @@
 import { useState } from 'react'
 import { Bell, Shield, Globe, Database, Clock, Webhook, Save, RefreshCw, Wifi, Mail, type LucideIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import AppLayout from '../../Layouts/AppLayout'
 import { useToast } from '../../Components/Toast'
 
 interface ToggleItem { key: string; label: string; desc: string; icon: LucideIcon }
 
-const toggles: ToggleItem[] = [
-    { key: 'emailNotif', label: 'Notifications email', desc: 'Alertes et rapports quotidiens', icon: Mail },
-    { key: 'smsNotif', label: 'Notifications SMS', desc: 'Alertes critiques par SMS', icon: Bell },
-    { key: 'autoResolve', label: 'Résolution automatique', desc: 'Marquer les alertes comme résolues après intervention', icon: Shield },
-    { key: 'predictionAI', label: 'Prédictions IA', desc: 'Activer les algorithmes de prédiction des débordements', icon: Database },
-    { key: 'realtimeSync', label: 'Synchronisation temps réel', desc: 'Mettre à jour les données en continu', icon: Wifi },
+const toggleKeys: Array<{ key: string; labelKey: string; descKey: string; icon: LucideIcon }> = [
+    { key: 'emailNotif', labelKey: 'settings.emailNotif', descKey: 'settings.emailNotifDesc', icon: Mail },
+    { key: 'smsNotif', labelKey: 'settings.smsNotif', descKey: 'settings.smsNotifDesc', icon: Bell },
+    { key: 'autoResolve', labelKey: 'settings.autoResolve', descKey: 'settings.autoResolveDesc', icon: Shield },
+    { key: 'predictionAI', labelKey: 'settings.aiEnabled', descKey: 'settings.aiEnabledDesc', icon: Database },
+    { key: 'realtimeSync', labelKey: 'settings.realtimeSync', descKey: 'settings.realtimeSyncDesc', icon: Wifi },
 ]
 
 function SettingsPage() {
+    const { t } = useTranslation()
     const { notify } = useToast()
     const [prefs, setPrefs] = useState<Record<string, boolean>>({
         emailNotif: true, smsNotif: false, autoResolve: true, predictionAI: true, realtimeSync: true,
@@ -23,31 +25,31 @@ function SettingsPage() {
     const [retention, setRetention] = useState('90')
 
     function save() {
-        notify({ message: 'Paramètres sauvegardés', type: 'success' })
+        notify({ message: t('settings.toastSaved'), type: 'success' })
     }
 
     return (
         <div className="max-w-3xl mx-auto space-y-6">
             <div>
-                <h1 className="text-2xl font-bold text-text-primary">Paramètres</h1>
-                <p className="text-sm text-text-secondary mt-1">Configuration générale du système</p>
+                <h1 className="text-2xl font-bold text-text-primary">{t('settings.title')}</h1>
+                <p className="text-sm text-text-secondary mt-1">{t('settings.subtitle')}</p>
             </div>
 
             {/* Notifications */}
             <div className="glass rounded-xl p-5">
                 <h2 className="text-sm font-bold text-text-primary flex items-center gap-2 mb-4">
-                    <Bell className="w-4 h-4 text-emerald-400" />Notifications
+                    <Bell className="w-4 h-4 text-emerald-400" />{t('settings.notifications')}
                 </h2>
                 <div className="space-y-3">
-                    {toggles.map(({ key, label, desc, icon: Icon }) => (
+                    {toggleKeys.map(({ key, labelKey, descKey, icon: Icon }) => (
                         <label key={key} className="flex items-center justify-between cursor-pointer group">
                             <div className="flex items-start gap-3">
                                 <div className="p-2 rounded-lg bg-input-bg">
                                     <Icon className="w-4 h-4 text-text-secondary" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-semibold text-text-primary">{label}</p>
-                                    <p className="text-xs text-text-muted">{desc}</p>
+                                    <p className="text-sm font-semibold text-text-primary">{t(labelKey)}</p>
+                                    <p className="text-xs text-text-muted">{t(descKey)}</p>
                                 </div>
                             </div>
                             <input type="checkbox" checked={prefs[key]} onChange={() => setPrefs({ ...prefs, [key]: !prefs[key] })} className="hidden" />
@@ -63,15 +65,15 @@ function SettingsPage() {
                 {/* Intervalle rafraîchissement */}
                 <div className="glass rounded-xl p-5">
                     <h2 className="text-sm font-bold text-text-primary flex items-center gap-2 mb-4">
-                        <RefreshCw className="w-4 h-4 text-blue-400" />Rafraîchissement
+                        <RefreshCw className="w-4 h-4 text-blue-400" />{t('settings.refresh')}
                     </h2>
                     <div className="space-y-2">
-                        <label className="text-xs text-text-muted">Intervalle (secondes)</label>
+                        <label className="text-xs text-text-muted">{t('settings.intervalSeconds')}</label>
                         <select value={refreshInterval} onChange={(e) => setRefreshInterval(e.target.value)} className="w-full px-3 py-2.5 bg-input-bg rounded-lg border border-border focus:border-blue-500 outline-none text-sm text-text-primary transition-all">
-                            <option value="10">10 secondes</option>
-                            <option value="30">30 secondes</option>
-                            <option value="60">1 minute</option>
-                            <option value="300">5 minutes</option>
+                            <option value="10">{t('settings.10s')}</option>
+                            <option value="30">{t('settings.30s')}</option>
+                            <option value="60">{t('settings.60s')}</option>
+                            <option value="300">{t('settings.300s')}</option>
                         </select>
                     </div>
                 </div>
@@ -79,15 +81,15 @@ function SettingsPage() {
                 {/* Rétention données */}
                 <div className="glass rounded-xl p-5">
                     <h2 className="text-sm font-bold text-text-primary flex items-center gap-2 mb-4">
-                        <Clock className="w-4 h-4 text-purple-400" />Rétention
+                        <Clock className="w-4 h-4 text-purple-400" />{t('settings.retention')}
                     </h2>
                     <div className="space-y-2">
-                        <label className="text-xs text-text-muted">Conserver les données (jours)</label>
+                        <label className="text-xs text-text-muted">{t('settings.retentionLabel')}</label>
                         <select value={retention} onChange={(e) => setRetention(e.target.value)} className="w-full px-3 py-2.5 bg-input-bg rounded-lg border border-border focus:border-purple-500 outline-none text-sm text-text-primary transition-all">
-                            <option value="30">30 jours</option>
-                            <option value="60">60 jours</option>
-                            <option value="90">90 jours</option>
-                            <option value="180">180 jours</option>
+                            <option value="30">{t('settings.retention30')}</option>
+                            <option value="60">{t('settings.retention60')}</option>
+                            <option value="90">{t('settings.retention90')}</option>
+                            <option value="180">{t('settings.retention180')}</option>
                         </select>
                     </div>
                 </div>
@@ -99,7 +101,7 @@ function SettingsPage() {
                         <Webhook className="w-4 h-4 text-cyan-400" />Webhook
                     </h2>
                     <div className="space-y-2">
-                        <label className="text-xs text-text-muted">URL de notification</label>
+                        <label className="text-xs text-text-muted">{t('settings.webhookUrlLabel')}</label>
                         <input value={webhookUrl} onChange={(e) => setWebhookUrl(e.target.value)} className="w-full px-3 py-2.5 bg-input-bg rounded-lg border border-border focus:border-cyan-500 outline-none text-sm text-text-primary transition-all font-mono" />
                 </div>
             </div>
@@ -111,26 +113,26 @@ function SettingsPage() {
                     </h2>
                     <div className="space-y-3">
                         <div>
-                            <label className="text-xs text-text-muted">Statut</label>
+                            <label className="text-xs text-text-muted">{t('settings.apiStatus')}</label>
                         <div className="flex items-center gap-2 mt-1 text-sm">
                             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-lg shadow-emerald-500/50" />
-                            <span className="text-emerald-400 font-semibold">Opérationnel</span>
+                            <span className="text-emerald-400 font-semibold">{t('settings.apiOperational')}</span>
                             <span className="text-text-muted">· v2.4.8</span>
                         </div>
                     </div>
                     <div>
-                            <label className="text-xs text-text-muted">Clé API</label>
+                            <label className="text-xs text-text-muted">{t('settings.apiKey')}</label>
                         <div className="flex items-center gap-2 mt-1">
                             <code className="px-3 py-2 bg-input-bg rounded-lg border border-border text-xs text-text-secondary font-mono">sk-smartbin-••••••••••••••••</code>
-                            <button onClick={() => notify({ message: 'Clé API copiée', type: 'info' })} className="px-3 py-2 bg-input-bg rounded-lg text-xs text-text-muted hover:text-text-primary transition-all">Copier</button>
-                            <button onClick={() => notify({ message: 'Nouvelle clé générée', type: 'success' })} className="px-3 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-lg transition-colors">Régénérer</button>
+                            <button onClick={() => notify({ message: t('settings.apiKeyCopied'), type: 'info' })} className="px-3 py-2 bg-input-bg rounded-lg text-xs text-text-muted hover:text-text-primary transition-all">{t('settings.apiKeyCopy')}</button>
+                            <button onClick={() => notify({ message: t('settings.toastKeyGenerated'), type: 'success' })} className="px-3 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-lg transition-colors">{t('settings.apiKeyRegenerate')}</button>
                         </div>
                     </div>
                 </div>
             </div>
 
             <button onClick={save} className="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl transition-colors shadow-lg shadow-emerald-600/20">
-                <Save className="w-4 h-4" />Sauvegarder les paramètres
+                <Save className="w-4 h-4" />{t('settings.saveButton')}
             </button>
         </div>
     )

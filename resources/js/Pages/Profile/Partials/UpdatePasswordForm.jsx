@@ -5,9 +5,11 @@ import TextInput from '@/Components/TextInput';
 import { Lock } from 'lucide-react';
 import { useForm } from '@inertiajs/react';
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useToast } from '@/Components/Toast';
 
 export default function UpdatePasswordForm({ className = '' }) {
+    const { t } = useTranslation();
     const passwordInput = useRef();
     const currentPasswordInput = useRef();
     const { notify } = useToast();
@@ -32,7 +34,7 @@ export default function UpdatePasswordForm({ className = '' }) {
             preserveScroll: true,
             onSuccess: () => {
                 reset();
-                notify({ message: 'Mot de passe mis à jour', sub: 'Votre mot de passe a été modifié avec succès.', type: 'success' });
+                notify({ message: t('profile.passwordUpdated'), sub: t('profile.passwordUpdatedSub'), type: 'success' });
             },
             onError: (errors) => {
                 if (errors.password) {
@@ -56,10 +58,10 @@ export default function UpdatePasswordForm({ className = '' }) {
                 </div>
                 <div>
                     <h2 className="text-lg font-bold text-text-primary">
-                        Sécurité
+                        {t('profile.security')}
                     </h2>
                     <p className="text-sm text-text-secondary">
-                        Utilisez un mot de passe long et aléatoire pour sécuriser votre compte.
+                        {t('profile.securityDesc')}
                     </p>
                 </div>
             </header>
@@ -68,7 +70,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                 <div>
                     <InputLabel
                         htmlFor="current_password"
-                        value="Mot de passe actuel"
+                        value={t('profile.currentPassword')}
                         className="text-text-primary text-xs font-semibold"
                     />
 
@@ -91,7 +93,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="password" value="Nouveau mot de passe" className="text-text-primary text-xs font-semibold" />
+                    <InputLabel htmlFor="password" value={t('profile.newPassword')} className="text-text-primary text-xs font-semibold" />
 
                     <TextInput
                         id="password"
@@ -109,7 +111,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                 <div>
                     <InputLabel
                         htmlFor="password_confirmation"
-                        value="Confirmer le mot de passe"
+                        value={t('profile.confirmPassword')}
                         className="text-text-primary text-xs font-semibold"
                     />
 
@@ -132,7 +134,7 @@ export default function UpdatePasswordForm({ className = '' }) {
 
                 <div className="flex items-center gap-4 pt-2">
                     <PrimaryButton disabled={processing} className="bg-emerald-600 hover:bg-emerald-500 focus:ring-emerald-500 active:bg-emerald-700">
-                        Enregistrer
+                        {t('common.save')}
                     </PrimaryButton>
                 </div>
             </form>

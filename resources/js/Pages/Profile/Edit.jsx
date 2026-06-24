@@ -1,5 +1,6 @@
 import AppLayout from '@/Layouts/AppLayout';
 import { Head, usePage } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 import { Clock, MessageCircle, Shield, Activity } from 'lucide-react';
 import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
@@ -37,13 +38,22 @@ function initials(name) {
     return (name || '??').slice(0, 2).toUpperCase()
 }
 
+const roleTranslationKeys = {
+    ADMIN: 'users.roleAdmin',
+    SUPERVISEUR: 'users.roleSuperviseur',
+    OPERATEUR: 'users.roleOperateur',
+    TECHNICIEN: 'users.roleTechnicien',
+    AGENT: 'users.roleAgent',
+}
+
 export default function Edit({ mustVerifyEmail, status }) {
+    const { t } = useTranslation();
     const user = usePage().props.auth?.user;
     const role = user?.role || 'AGENT'
 
     return (
         <AppLayout>
-            <Head title="Profile" />
+            <Head title={t('profile.title')} />
 
             <div className="py-8 space-y-6 max-w-4xl mx-auto px-4 sm:px-6">
                 {/* En-tête avec photo/initiales + infos */}
@@ -59,7 +69,7 @@ export default function Edit({ mustVerifyEmail, status }) {
                         <div className="flex items-center gap-3 justify-center sm:justify-start flex-wrap">
                             <h1 className="text-2xl font-bold text-text-primary">{user?.name || 'Admin User'}</h1>
                             <span className={`px-2.5 py-0.5 rounded-full border text-[10px] font-bold tracking-wide ${roleBadgeColors[role] || roleBadgeColors.AGENT}`}>
-                                {roleLabels[role] || role}
+                                {t(roleTranslationKeys[role] || 'users.roleAgent')}
                             </span>
                             {user?.last_active_at && (
                                 <span className="flex items-center gap-1 text-[10px] text-text-muted">
@@ -78,7 +88,7 @@ export default function Edit({ mustVerifyEmail, status }) {
                             )}
                             <span className="flex items-center gap-1">
                                 <Clock className="w-3.5 h-3.5" />
-                                Membre depuis {new Date(user?.created_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
+                                {t('users.memberSince')} {new Date(user?.created_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
                             </span>
                         </div>
                     </div>
@@ -87,18 +97,18 @@ export default function Edit({ mustVerifyEmail, status }) {
                 {/* Mini stats */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {[
-                        { label: 'Rôle', value: roleLabels[role] || role, icon: Shield, color: 'text-purple-400', bg: 'bg-purple-500/10' },
-                        { label: 'Statut', value: user?.status === 'SUSPENDED' ? 'Suspendu' : 'Actif', icon: Activity, color: user?.status === 'SUSPENDED' ? 'text-red-400' : 'text-emerald-400', bg: user?.status === 'SUSPENDED' ? 'bg-red-500/10' : 'bg-emerald-500/10' },
-                        { label: 'Email', value: user?.email_verified_at ? 'Vérifié' : 'Non vérifié', icon: Clock, color: user?.email_verified_at ? 'text-emerald-400' : 'text-amber-400', bg: user?.email_verified_at ? 'bg-emerald-500/10' : 'bg-amber-500/10' },
-                        { label: 'Téléphone', value: user?.phone || 'Non renseigné', icon: Clock, color: user?.phone ? 'text-blue-400' : 'text-text-muted', bg: user?.phone ? 'bg-blue-500/10' : 'bg-gray-500/10' },
-                        { label: 'Telegram', value: user?.telegram_chat_id ? 'Connecté' : 'Non connecté', icon: MessageCircle, color: user?.telegram_chat_id ? 'text-sky-400' : 'text-text-muted', bg: user?.telegram_chat_id ? 'bg-sky-500/10' : 'bg-gray-500/10' },
-                    ].map(({ label, value, icon: Icon, color, bg }) => (
+                        { labelKey: 'profile.role', value: t(roleTranslationKeys[role] || 'users.roleAgent'), icon: Shield, color: 'text-purple-400', bg: 'bg-purple-500/10' },
+                        { labelKey: 'profile.status', value: user?.status === 'SUSPENDED' ? t('profile.suspended') : t('profile.active'), icon: Activity, color: user?.status === 'SUSPENDED' ? 'text-red-400' : 'text-emerald-400', bg: user?.status === 'SUSPENDED' ? 'bg-red-500/10' : 'bg-emerald-500/10' },
+                        { labelKey: 'auth.email', value: user?.email_verified_at ? t('profile.verified') : t('profile.unverified'), icon: Clock, color: user?.email_verified_at ? 'text-emerald-400' : 'text-amber-400', bg: user?.email_verified_at ? 'bg-emerald-500/10' : 'bg-amber-500/10' },
+                        { labelKey: 'profile.phone', value: user?.phone || t('profile.notProvided'), icon: Clock, color: user?.phone ? 'text-blue-400' : 'text-text-muted', bg: user?.phone ? 'bg-blue-500/10' : 'bg-gray-500/10' },
+                        { labelKey: 'profile.telegramId', value: user?.telegram_chat_id ? t('profile.telegramConnected') : t('profile.telegramNotConnected'), icon: MessageCircle, color: user?.telegram_chat_id ? 'text-sky-400' : 'text-text-muted', bg: user?.telegram_chat_id ? 'bg-sky-500/10' : 'bg-gray-500/10' },
+                    ].map(({ labelKey, value, icon: Icon, color, bg }) => (
                         <div key={label} className="glass rounded-xl p-4 flex items-center gap-3 hover:border-emerald-500/30 transition-all duration-300">
                             <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center shrink-0`}>
                                 <Icon className={`w-5 h-5 ${color}`} />
                             </div>
                             <div className="min-w-0">
-                                <p className="text-[10px] text-text-muted font-semibold uppercase tracking-wider">{label}</p>
+                                <p className="text-[10px] text-text-muted font-semibold uppercase tracking-wider">{t(labelKey)}</p>
                                 <p className="text-sm font-bold text-text-primary truncate">{value}</p>
                             </div>
                         </div>

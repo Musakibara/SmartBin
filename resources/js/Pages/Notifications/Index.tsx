@@ -1,6 +1,7 @@
 import { Link, router, usePage } from '@inertiajs/react'
 import { Bell, CheckCheck, AlertTriangle, Info, Mail, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import AppLayout from '../../Layouts/AppLayout'
 import axios from 'axios'
 
@@ -29,13 +30,14 @@ type PageProps = {
 }
 
 const severityConfig: Record<string, { icon: typeof AlertTriangle; color: string; label: string }> = {
-    CRITICAL: { icon: AlertTriangle, color: 'text-red-400 bg-red-500/10 border-red-500/30', label: 'Critique' },
-    HIGH: { icon: AlertTriangle, color: 'text-orange-400 bg-orange-500/10 border-orange-500/30', label: 'Haute' },
-    MEDIUM: { icon: Info, color: 'text-blue-400 bg-blue-500/10 border-blue-500/30', label: 'Moyenne' },
-    LOW: { icon: Info, color: 'text-gray-400 bg-gray-500/10 border-gray-500/30', label: 'Basse' },
+    CRITICAL: { icon: AlertTriangle, color: 'text-red-400 bg-red-500/10 border-red-500/30', label: '' },
+    HIGH: { icon: AlertTriangle, color: 'text-orange-400 bg-orange-500/10 border-orange-500/30', label: '' },
+    MEDIUM: { icon: Info, color: 'text-blue-400 bg-blue-500/10 border-blue-500/30', label: '' },
+    LOW: { icon: Info, color: 'text-gray-400 bg-gray-500/10 border-gray-500/30', label: '' },
 }
 
 function NotificationsPage() {
+    const { t } = useTranslation()
     const { notifications } = usePage<PageProps>().props
 
     const { data, current_page, last_page, total } = notifications
@@ -59,10 +61,10 @@ function NotificationsPage() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-text-primary">Notifications</h1>
+                    <h1 className="text-2xl font-bold text-text-primary">{t('notifications.title')}</h1>
                     <p className="text-sm text-text-secondary mt-1">
-                        {total} notification{total !== 1 ? 's' : ''}
-                        {unread > 0 && <span className="text-emerald-400"> · {unread} non lue{unread !== 1 ? 's' : ''}</span>}
+                        {t('notifications.total', { count: total })}
+                        {unread > 0 && <span className="text-emerald-400"> · {t('notifications.unread', { count: unread })}</span>}
                     </p>
                 </div>
                 {unread > 0 && (
@@ -71,7 +73,7 @@ function NotificationsPage() {
                         className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-xl transition-all"
                     >
                         <CheckCheck className="w-4 h-4" />
-                        Tout marquer comme lu
+                        {t('notifications.markAllRead')}
                     </button>
                 )}
             </div>
@@ -80,8 +82,8 @@ function NotificationsPage() {
                 {data.length === 0 ? (
                     <div className="glass rounded-xl p-12 text-center">
                         <Bell className="w-12 h-12 text-text-muted mx-auto mb-3" />
-                        <p className="text-base font-semibold text-text-primary">Aucune notification</p>
-                        <p className="text-sm text-text-muted mt-1">Les notifications apparaîtront ici quand des alertes seront générées.</p>
+                        <p className="text-base font-semibold text-text-primary">{t('notifications.empty')}</p>
+                        <p className="text-sm text-text-muted mt-1">{t('notifications.emptyHint')}</p>
                     </div>
                 ) : (
                     data.map((n) => {
@@ -111,7 +113,7 @@ function NotificationsPage() {
                                                 {n.channel}
                                             </span>
                                             {n.alert?.bin?.code && (
-                                                <span>Benne {n.alert.bin.code}</span>
+                                                <span>{t('notifications.bin')} {n.alert.bin.code}</span>
                                             )}
                                             <span>{n.sent_at}</span>
                                             {!n.read_at && (
@@ -123,7 +125,7 @@ function NotificationsPage() {
                                         <button
                                             onClick={() => handleMarkRead(n.id)}
                                                 className="p-1.5 rounded-lg text-text-muted hover:text-emerald-400 hover:bg-white/5 opacity-0 group-hover:opacity-100 transition-all"
-                                            title="Marquer comme lu"
+                                            title={t('notifications.markRead')}
                                         >
                                             <CheckCheck className="w-4 h-4" />
                                         </button>
@@ -137,7 +139,7 @@ function NotificationsPage() {
 
             {last_page > 1 && (
                 <div className="flex flex-col items-center gap-3">
-                    <p className="text-xs text-text-muted">Page {current_page} / {last_page}</p>
+                    <p className="text-xs text-text-muted">{t('notifications.pageIndicator', { current: current_page, last: last_page })}</p>
                     <div className="flex items-center gap-2">
                         <button onClick={() => goPage(current_page - 1)} disabled={current_page === 1}
                             className="p-2 rounded-lg bg-input-bg text-text-muted hover:text-text-primary disabled:opacity-30 transition-all shrink-0">

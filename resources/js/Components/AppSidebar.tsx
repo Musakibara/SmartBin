@@ -1,5 +1,6 @@
 import { Link, usePage, router } from '@inertiajs/react'
 import { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
     LayoutDashboard,
     Trash2,
@@ -46,19 +47,20 @@ interface AppSidebarProps {
 }
 
 export default function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
+    const { t } = useTranslation()
     const { url, props } = usePage()
     const userRole = (props.auth as { user?: { role?: string } } | undefined)?.user?.role
 
     const navItems: NavItem[] = [
-        { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-        { label: 'Smart Bins', icon: Trash2, href: '/bins' },
-        { label: 'Capteurs', icon: Radio, href: '/sensors' },
-        { label: 'Monitoring', icon: Map, href: '/monitoring' },
-        { label: 'Alertes', icon: Bell, href: '/alerts' },
-        { label: 'IA Prédictions', icon: Brain, href: '/predictions' },
-        { label: 'Rapports', icon: FileText, href: '/reports' },
-        ...(userRole === 'ADMIN' || userRole === 'SUPERVISEUR' ? [{ label: 'Utilisateurs', icon: Users, href: '/users' }] : []),
-        ...(userRole === 'ADMIN' || userRole === 'SUPERVISEUR' ? [{ label: 'Paramètres', icon: Settings, href: '/settings' }] : []),
+        { label: t('nav.dashboard'), icon: LayoutDashboard, href: '/dashboard' },
+        { label: t('nav.bins'), icon: Trash2, href: '/bins' },
+        { label: t('nav.sensors'), icon: Radio, href: '/sensors' },
+        { label: t('nav.monitoring'), icon: Map, href: '/monitoring' },
+        { label: t('nav.alerts'), icon: Bell, href: '/alerts' },
+        { label: t('nav.predictions'), icon: Brain, href: '/predictions' },
+        { label: t('nav.reports'), icon: FileText, href: '/reports' },
+        ...(userRole === 'ADMIN' || userRole === 'SUPERVISEUR' ? [{ label: t('nav.users'), icon: Users, href: '/users' }] : []),
+        ...(userRole === 'ADMIN' || userRole === 'SUPERVISEUR' ? [{ label: t('nav.settings'), icon: Settings, href: '/settings' }] : []),
     ]
     const tilt = useTilt()
 
@@ -84,7 +86,7 @@ export default function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                 </div>
                 <div className="flex-1">
                     <h1 className="text-[24px] leading-[32px] font-semibold text-[#10B981]">SmartBin</h1>
-                    <p className="text-[12px] leading-[16px] font-semibold text-text-secondary">City Infrastructure</p>
+                    <p className="text-[12px] leading-[16px] font-semibold text-text-secondary">{t('nav.subtitle')}</p>
                 </div>
                 <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/5 text-text-muted hover:text-text-primary transition-all lg:hidden">
                     <X className="w-5 h-5" />
@@ -133,7 +135,7 @@ export default function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                                 <span className="absolute left-0 inset-y-2 w-1 bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-r-full shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
                             )}
                             <User className={`w-5 h-5 transition-transform duration-200 ${isActive('/profile') ? 'scale-110 drop-shadow-[0_0_6px_rgba(16,185,129,0.5)]' : ''}`} />
-                            Profile
+                            {t('nav.profile')}
                         </Link>
                         <button
                             onClick={() => router.post(route('logout'))}
@@ -142,7 +144,7 @@ export default function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                             className="flex w-full items-center gap-3 px-5 py-3.5 rounded-xl text-[14px] leading-[20px] font-semibold tracking-[0.01em] text-text-secondary hover:text-text-primary hover:bg-white/5 transition-colors"
                         >
                             <LogOut className="w-5 h-5" />
-                            Logout
+                            {t('nav.logout')}
                         </button>
                     </div>
                 </div>

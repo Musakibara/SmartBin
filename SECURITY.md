@@ -10,20 +10,22 @@
 
 | Règle | Valeur |
 |---|---|
-| Algorithme de hachage | **Argon2id** (via config hashing Laravel) |
-| Longueur minimale | 8 caractères |
-| Longueur maximale | 256 caractères |
-| Validation | Tous les caractères Unicode autorisés (espaces compris) |
-| Modification | Demander l'ancien mot de passe avant tout changement |
-| Stockage | Salé + hashé (jamais en clair, jamais loggé) |
+| Algorithme de hachage | **Bcrypt** (12 rounds) — ✅ Réel |
+| Longueur minimale | 8 caractères — ✅ Réel |
+| Longueur maximale | 256 caractères — ✅ Réel |
+| Validation | Tous les caractères Unicode autorisés — ✅ Réel |
+| Modification | Demander l'ancien mot de passe avant tout changement — ✅ Réel |
+| Stockage | Salé + hashé (jamais en clair, jamais loggé) — ✅ Réel |
+| 🔜 Cible prod | Migrer vers **Argon2id** si possible (nécessite PHP argon2 ext) |
 
 ### 1.2 Rate Limiting (Login)
 
 | Mesure | Valeur |
 |---|---|
-| Tentatives avant blocage | 10 |
-| Durée de blocage IP | 10 minutes |
-| Verrouillage progressif | Augmenter la durée à chaque nouveau dépassement |
+| Tentatives avant blocage | **5** (config réel : `LoginRequest.php:63`) — ✅ Réel |
+| Durée de blocage IP | Dynamique via `RateLimiter::availableIn()` — ✅ Réel |
+| Verrouillage progressif | Oui (laravel RateLimiter) — ✅ Réel |
+| 🔜 Cible prod | Passer à 10 tentatives, ajouter Captcha après 3 échecs |
 
 ### 1.3 Messages d'erreur
 
@@ -40,16 +42,17 @@ Jamais : "Cet email n'existe pas" ou "Mot de passe incorrect".
 
 | Propriété | Valeur |
 |---|---|
-| Driver | `database` (stocké en BD, pas en fichier) |
-| Lifetime | 120 minutes (renouvelable) |
-| Expire on close | `true` (fermeture navigateur = fin de session) |
-| HttpOnly | `true` (inaccessible en JavaScript) |
-| SameSite | `Lax` |
-| Secure | `true` en production (HTTPS obligatoire) |
-| Rotation | Nouvel ID de session à chaque connexion/rôle changé |
-| Invalidation | Supprimer TOUTES les sessions de l'utilisateur si promotion ADMIN |
+| Driver | `file` (dev) / 🔜 `database` (prod) — ⚠️ Réel: `file` |
+| Lifetime | 120 minutes — ✅ Réel |
+| Expire on close | `false` (dev) / 🔜 `true` (prod) — ⚠️ Réel: `false` |
+| HttpOnly | `true` — ✅ Réel |
+| SameSite | `Lax` — ✅ Réel |
+| Secure | **Non défini** (`SESSION_SECURE_COOKIE` absent du .env) — ❌ Réel |
+| Rotation | Nouvel ID de session à chaque connexion — ✅ Réel |
+| Invalidation | Supprimer TOUTES les sessions de l'utilisateur si promotion ADMIN — 🔜 À faire |
+| 🔜 Cible prod | `SESSION_DRIVER=database`, `SESSION_SECURE_COOKIE=true`, `SESSION_ENCRYPT=true` |
 
-### 1.5 Multi-Factor Authentication (MFA)
+### 1.5 Multi-Factor Authentication (MFA) 🔜
 
 | Règle | Détail |
 |---|---|
@@ -61,28 +64,28 @@ Jamais : "Cet email n'existe pas" ou "Mot de passe incorrect".
 | Recovery codes | 8 codes à usage unique (40 bits chacun, hashés avec SHA-256) |
 | Régénération | Possible si l'utilisateur a accès à son second facteur |
 
+> 🔜 **Pas encore implémenté.** Package recommandé : `pragmarx/google2fa-laravel`
+
 ### 1.6 Vérification Email
 
-- Liens de vérification : token unique (64 bytes aléatoires, hashé SHA-256 en BD)
-- Expiration : 24 heures
-- Single-use : détruit après première utilisation
+- Liens de vérification : **Signed URLs HMAC** (app key Laravel) — ✅ Réel
+- Expiration : Pas d'expiration explicite (standard Laravel) — ⚠️ Réel
+- Single-use : Oui (marque `email_verified_at`) — ✅ Réel
+- Rate limiting : 6 requêtes/minute — ✅ Réel
+- Reset si email changé : Oui (`email_verified_at = null`) — ✅ Réel
+- 🔜 Cible prod : Ajouter expiration 24h sur les signed URLs
 
 ### 1.7 Password Reset
 
-- Token : 64 bytes CSPRNG, hashé SHA-256
-- Expiration : 60 minutes
-- Single-use : détruit après utilisation
-- Rate limiting : 1 tentative / 60 secondes par email
+- Token : **LaravelPasswordBroker** (géré par Laravel) — ✅ Réel
+- Expiration : 60 minutes — ✅ Réel
+- Single-use : Oui — ✅ Réel
+- Rate limiting : 1 tentative / 60 secondes par email — ✅ Réel
 
 ### 1.8 Open Redirect
 
-Toute redirection après login (paramètre `redirect_to`) doit être validée :
-
-```
-Valider que l'URL est relative → pas de domaine externe
-Utiliser url()->isValid() sur le paramètre
-Ne JAMAIS rediriger vers un domaine non listé dans APP_URL
-```
+- `redirect()->intended(route('dashboard'))` — fallback hardcodé, pas de paramètre user — ✅ Réel
+- Aucun open redirect possible dans l'application — ✅ Réel
 
 ---
 
@@ -127,12 +130,18 @@ Ne JAMAIS rediriger vers un domaine non listé dans APP_URL
 
 | Règle | Valeur |
 |---|---|
-| Middleware | `auth:sanctum` sur toutes les routes API |
-| Token expiry | 24 heures |
-| Refresh token | Rotation automatique |
-| Rate limiting | API : 60 req/min ; Auth : 10 req/min |
-| CORS | Domaines strictement listés (pas de `*` en production) |
-| Headers | `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY` |
+| Middleware | `auth:sanctum` sur toutes les routes API — ✅ Réel |
+| Token expiry | **`null` (jamais)** — ❌ Réel |
+| 🔜 Cible prod | `SANCTUM_EXPIRATION=525600` (1 an IoT) |
+| Token abilities | **`['*']` (tous accès)** — ❌ Réel |
+| 🔜 Cible prod | `createToken('arduino-bridge', ['sensor:create'])` |
+| Token prefix | **Vide** — ⚠️ Réel |
+| 🔜 Cible prod | `SANCTUM_TOKEN_PREFIX=sbt_` |
+| Rate limiting API | **Non configuré** — ❌ Réel |
+| 🔜 Cible prod | `RateLimiter::for('api', fn => Limit::perMinute(60))` |
+| CORS config | **`config/cors.php` absent** — ❌ Réel |
+| 🔜 Cible prod | Publier avec `php artisan config:publish cors` |
+| Token storage | SHA-256 hash, 40 chars random (240 bits) — ✅ Réel |
 
 ### 4.1 CORS
 
@@ -149,9 +158,9 @@ En production : liste blanche explicite des origines autorisées. Pas de `Access
 
 ### 5.1 Chiffrement au repos
 
-- Mots de passe : Argon2id (hash, pas encrypté)
-- Secrets MFA : encryptés avec `Crypt::encryptString()`
-- Données sensibles (email, téléphone) : encryptées si stockées en dehors de la table users
+- Mots de passe : **Bcrypt 12 rounds** (hash, pas encrypté) — ✅ Réel
+- 🔜 Cible prod : Migrer vers Argon2id si possible
+- 🔜 Chiffrement des données sensibles (email, téléphone) au repos : `Crypt::encryptString()` — 🔜 À faire
 
 ### 5.2 Chiffrement en transit
 
@@ -171,7 +180,7 @@ En production : liste blanche explicite des origines autorisées. Pas de `Access
 
 ---
 
-## 6. Audit & Logging
+## 6. Audit & Logging 🔜
 
 ### 6.1 Actions auditées
 
@@ -209,6 +218,7 @@ SESSION_EXPIRE_ON_CLOSE=true
 SESSION_SECURE_COOKIE=true
 SESSION_SAME_SITE=lax
 SESSION_HTTP_ONLY=true
+SESSION_ENCRYPT=true
 
 DB_CONNECTION=mysql
 DB_HOST=*** (interne, pas exposé)
@@ -218,10 +228,13 @@ DB_USERNAME=smartbin_app
 DB_PASSWORD=*** (32+ chars, CSPRNG)
 
 SANCTUM_STATEFUL_DOMAINS=smartbin.cm
+SANCTUM_TOKEN_PREFIX=sbt_
+SANCTUM_EXPIRATION=525600
+
 SESSION_DOMAIN=.smartbin.cm
 ```
 
-### 7.2 Headers de sécurité (nginx)
+### 7.2 Headers de sécurité (nginx) 🔜
 
 ```nginx
 add_header X-Content-Type-Options "nosniff" always;
@@ -230,8 +243,11 @@ add_header X-XSS-Protection "0" always;
 add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
 add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
-add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'" always;
+# CSP à adapter : autoriser Leaflet (CDN tiles), Recharts, Vite HMR en dev
+# add_header Content-Security-Policy "default-src 'self'; ..." always;
 ```
+
+> 🔜 **Config nginx à écrire au déploiement.** Attention : CSP doit autoriser les tiles OpenStreetMap (`tile.openstreetmap.org`) et les polices Figtree.
 
 ---
 
@@ -255,82 +271,46 @@ add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style
 
 ---
 
-## 10. Checklist d'audit
+## 10. Checklist de mise en production
 
 Avant chaque mise en production :
 
+### 🔴 Bloquant
+- [ ] `config/cors.php` publié et configuré (`allowed_origins`, `supports_credentials=true`)
+- [ ] Tokens IoT : abilities restreintes (`sensor:create` au lieu de `['*']`)
+- [ ] `SANCTUM_EXPIRATION` défini dans `.env` (> 0)
+- [ ] `SANCTUM_TOKEN_PREFIX` défini (ex: `sbt_`) pour secret scanning
+
+### ⚠️ Important
+- [ ] `SESSION_SECURE_COOKIE=true` (HTTPS obligatoire)
+- [ ] `SESSION_ENCRYPT=true`
 - [ ] `APP_DEBUG=false`
 - [ ] `APP_ENV=production`
-- [ ] HTTPS fonctionnel (certificat valide)
-- [ ] HSTS actif
-- [ ] Headers de sécurité présents
-- [ ] Rate limiting configuré
-- [ ] CSRF actif sur toutes les routes
-- [ ] MFA obligatoire pour ADMIN
-- [ ] Logs en rotation
-- [ ] Backup automatisé
+- [ ] `APP_URL=https://...` (HTTPS)
+- [ ] Rate limiter API global configuré (`RateLimiter::for('api', ...)`)
+- [ ] `SESSION_DRIVER=database` (pas `file`)
+- [ ] `SESSION_EXPIRE_ON_CLOSE=true`
+
+### ✅ Vérification
+- [ ] HTTPS fonctionnel (certificat valide, HSTS actif)
+- [ ] Headers de sécurité nginx présents
+- [ ] CSRF actif sur toutes les routes web
+- [ ] `SESSION_SAME_SITE=lax`
 - [ ] `composer audit` — 0 vulnérabilités
 - [ ] `npm audit` — 0 vulnérabilités critiques
+- [ ] Logs en rotation (canal `daily`)
+- [ ] Backup automatisé DB (quotidien, rétention 30 jours)
+
+### 🔜 Futures itérations
+- [ ] MFA obligatoire pour ADMIN
+- [ ] Audit logging (actions utilisateur centralisées)
+- [ ] Argon2id au lieu de bcrypt
+- [ ] Chiffrement données sensibles au repos
 
 ---
 
-> Document généré le 13/06/2026 — références : [Copenhagen Book](https://thecopenhagenbook.com/), [OWASP Cheat Sheet Series](https://cheatsheetseries.owasp.org/)
+> Document généré le 24/06/2026 — références : [Copenhagen Book](https://thecopenhagenbook.com/), [OWASP Cheat Sheet Series](https://cheatsheetseries.owasp.org/)
 
+---
 
-❌ Pas encore fait
-Backend
-- ❌ Contrôleurs CRUD : BinController, AlertController, PredictionController, MonitoringController, SensorController
-- ❌ Authentification Laravel Breeze/Sanctum : login réel, sessions, tokens API
-- ❌ Routes API sécurisées (manque auth pour /api/sensor-readings)
-Pages frontend (reliées aux données réelles)
-- ❌ Bins (filtres/recherche existent mais données mock)
-- ❌ Alerts, Predictions, Sensors, Monitoring, Users, Settings (tous en mock)
-Infrastructure
-- ❌ Docker / déploiement
-- ❌ Tests (Feature/Unit PHPUnit, peut-être frontend)
-Arduino (le jour J)
-- ❌ Code Arduino à écrire (lecture capteur ultrasons, envoi Serial)
-- ❌ Bridge Python à lancer dans un terminal séparé
-
-
-Bonne question. Voici une analyse des options gratuites pour les deux canaux :
-Email
-Solution	Gratuit ?	Limite
-Log driver (Laravel)	✅ Illimité	Écrit dans storage/logs, pas de vrai envoi
-Mailtrap	✅ 1000/mois	Dev/test uniquement (emails interceptés)
-Brevo (Sendinblue)	✅ 300/jour	SMTP simple, fiable
-SMTP Gmail	✅ 500/jour	Nécessite un mot de passe d'application
-Mailgun	❌ Plus de gratuit (crédit limité)	Payant après
-Recommandation : log en dev, Brevo SMTP en prod (300 emails/jour largement suffisants pour des alertes).
-Telegram
-✅ Entièrement gratuit, sans limite. Via l'API Bot Telegram :
-1. Créer un bot avec @BotFather (https://t.me/BotFather) → obtention d'un TOKEN
-2. Envoyer des messages avec https://api.telegram.org/bot<TOKEN>/sendMessage
-3. Laravel peut le faire avec un simple Http::post() ou le package irazasyed/telegram-bot-sdk
-Plan d'implémentation proposé
-1. NotificationChannel (abstraction)
-Créer une classe App\Services\NotificationService qui centralise l'envoi :
-NotificationService
-  ├── sendEmail($to, $subject, $body)   → via mail.log (dev) / Brevo (prod)
-  └── sendTelegram($chatId, $message)   → via Bot API (gratuit)
-2. Configuration .env
-MAIL_MAILER=log          # Dev
-# MAIL_MAILER=smtp      # Prod (Brevo)
-# MAIL_HOST=smtp-relay.brevo.com
-# MAIL_USERNAME=...
-# MAIL_PASSWORD=...
-
-TELEGRAM_BOT_TOKEN=      # De @BotFather
-TELEGRAM_CHAT_ID=        # Channel/Group ID
-3. Déclencheurs (quand envoyer ?)
-- Niveau capteur critique (benne > 90%) → email ADMIN + Telegram groupe
-- Capteur hors ligne → email TECHnICIEN
-- Prédiction débordement → notification Telegram
-- Rapport hebdomadaire → email récapitulatif
-4. Packages nécessaires
-Aucun (ou optionnel : irazasyed/telegram-bot-sdk). On peut faire avec Illuminate\Support\Facades\Mail + Illuminate\Support\Facades\Http (déjà inclus dans Laravel).
-
-
-
-email:randd981@gmail.com
-pwd:admin123
+> ⚠️ **Note** : Ce document décrit la cible de sécurité pour la production. Les sections marquées 🔜 sont planifiées mais pas encore implémentées. L'état réel du code est documenté à côté de chaque section.

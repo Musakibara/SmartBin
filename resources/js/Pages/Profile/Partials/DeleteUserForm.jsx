@@ -7,8 +7,10 @@ import TextInput from '@/Components/TextInput';
 import { Trash2 } from 'lucide-react';
 import { useForm } from '@inertiajs/react';
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function DeleteUserForm({ className = '' }) {
+    const { t } = useTranslation();
     const [confirmingUserDeletion, setConfirmingUserDeletion] = useState(false);
     const passwordInput = useRef();
 
@@ -54,32 +56,32 @@ export default function DeleteUserForm({ className = '' }) {
                 </div>
                 <div>
                     <h2 className="text-lg font-bold text-text-primary">
-                        Supprimer le compte
+                        {t('profile.delete')}
                     </h2>
                     <p className="text-sm text-text-secondary">
-                        Une fois supprimé, toutes vos données seront définitivement effacées.
+                        {t('profile.deleteDesc')}
                     </p>
                 </div>
             </header>
 
             <DangerButton onClick={confirmUserDeletion} className="bg-red-600 hover:bg-red-500 focus:ring-red-500 active:bg-red-700">
-                Supprimer mon compte
+                {t('profile.deleteButton')}
             </DangerButton>
 
             <Modal show={confirmingUserDeletion} onClose={closeModal}>
                 <form onSubmit={deleteUser} className="p-6">
                     <h2 className="text-lg font-medium text-text-primary">
-                        Êtes-vous sûr de vouloir supprimer votre compte ?
+                        {t('profile.deleteConfirm')}
                     </h2>
 
                     <p className="mt-1 text-sm text-text-secondary">
-                        Cette action est irréversible. Entrez votre mot de passe pour confirmer.
+                        {t('profile.deleteHint')}
                     </p>
 
                     <div className="mt-6">
                         <InputLabel
                             htmlFor="password"
-                            value="Mot de passe"
+                            value={t('profile.passwordPlaceholder')}
                             className="sr-only"
                         />
 
@@ -94,7 +96,7 @@ export default function DeleteUserForm({ className = '' }) {
                             }
                             className="mt-1 block w-3/4 border-border bg-input-bg text-text-primary placeholder:text-text-muted focus:border-emerald-500 focus:ring-emerald-500"
                             isFocused
-                            placeholder="Mot de passe"
+                            placeholder={t('profile.passwordPlaceholder')}
                         />
 
                         <InputError
@@ -105,11 +107,11 @@ export default function DeleteUserForm({ className = '' }) {
 
                     <div className="mt-6 flex justify-end">
                         <SecondaryButton onClick={closeModal} className="bg-input-bg text-text-primary border-border hover:bg-[#334155]">
-                            Annuler
+                            {t('common.cancel')}
                         </SecondaryButton>
 
                         <DangerButton className="ms-3 bg-red-600 hover:bg-red-500 focus:ring-red-500 active:bg-red-700" disabled={processing}>
-                            Supprimer
+                            {t('common.delete')}
                         </DangerButton>
                     </div>
                 </form>

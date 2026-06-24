@@ -8,6 +8,7 @@ import AppLayout from '../../Layouts/AppLayout'
 import StatusBadge from '../../Components/StatusBadge'
 import { useToast } from '../../Components/Toast'
 import { usePage, router } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 
 const markerIcon = L.divIcon({
     className: '',
@@ -51,6 +52,7 @@ interface NominatimResult {
 }
 
 function MapClickPicker({ lat, lng, onLocationChange }: { lat: number; lng: number; onLocationChange: (lat: number, lng: number) => void }) {
+    const { t } = useTranslation()
     const mapRef = useRef<HTMLDivElement>(null)
     const markerRef = useRef<L.Marker | null>(null)
     const instanceRef = useRef<L.Map | null>(null)
@@ -124,7 +126,7 @@ function MapClickPicker({ lat, lng, onLocationChange }: { lat: number; lng: numb
                     return res.json() as Promise<NominatimResult[]>
                 })
                 .then((data) => setResults(data))
-                .catch(() => { if (!controller.signal.aborted) { setResults([]); setSearchError('Erreur de recherche') } })
+                .catch(() => { if (!controller.signal.aborted) { setResults([]); setSearchError(t('bins.searchError')) } })
                 .finally(() => { if (!controller.signal.aborted) setSearching(false) })
         })
 
@@ -178,7 +180,7 @@ function MapClickPicker({ lat, lng, onLocationChange }: { lat: number; lng: numb
                 <div className="relative">
                     <input
                         type="text"
-                        placeholder="Rechercher un lieu (Yaoundé, Bastos...)"
+                        placeholder={t('bins.searchPlace')}
                         value={query}
                         onChange={(e) => onSearch(e.target.value)}
                         onFocus={() => setShowResults(true)}
@@ -203,13 +205,13 @@ function MapClickPicker({ lat, lng, onLocationChange }: { lat: number; lng: numb
                 )}
                 {showResults && !searching && query && results.length === 0 && (
                     <div className="mt-1 bg-bg-secondary/95 backdrop-blur-md rounded-lg border border-border px-3 py-2 text-xs text-text-muted">
-                        {searchError || 'Aucun résultat'}
+                        {searchError || t('common.noResults')}
                     </div>
                 )}
                 {/* Coordonnées manuelles */}
                 <div className="mt-2 flex gap-2">
                     <div className="flex-1">
-                        <label className="block text-[10px] font-medium uppercase tracking-wider text-text-muted mb-0.5">Latitude</label>
+                        <label className="block text-[10px] font-medium uppercase tracking-wider text-text-muted mb-0.5">{t('bins.coordLat')}</label>
                         <input
                             type="text"
                             value={coordLat}
@@ -221,7 +223,7 @@ function MapClickPicker({ lat, lng, onLocationChange }: { lat: number; lng: numb
                         />
                     </div>
                     <div className="flex-1">
-                        <label className="block text-[10px] font-medium uppercase tracking-wider text-text-muted mb-0.5">Longitude</label>
+                        <label className="block text-[10px] font-medium uppercase tracking-wider text-text-muted mb-0.5">{t('bins.coordLng')}</label>
                         <input
                             type="text"
                             value={coordLng}
@@ -234,7 +236,7 @@ function MapClickPicker({ lat, lng, onLocationChange }: { lat: number; lng: numb
                     </div>
                 </div>
                 <p className="mt-1 text-[10px] text-text-muted text-center">
-                    Cliquez sur la carte ou saisissez les coordonnées
+                    {t('bins.coordHint')}
                 </p>
             </div>
             {/* Carte */}
@@ -244,6 +246,7 @@ function MapClickPicker({ lat, lng, onLocationChange }: { lat: number; lng: numb
 }
 
 function BinsPage() {
+    const { t } = useTranslation()
     const { bins: initialBins } = usePage().props as unknown as { bins: Array<{
         id: string; name: string; location: string; fillLevel: number
         status: 'normal' | 'warning' | 'full'; lastUpdate: string
@@ -347,10 +350,10 @@ function BinsPage() {
 
         if (editingBin) {
             router.patch(`/bins/${editingBin.id}`, { name: form.name, location: form.location }, { preserveScroll: true })
-            notify({ message: 'Benne modifiée', sub: `${form.name} — ${form.location}`, type: 'info' })
+            notify({ message: t('bins.toastModified'), sub: `${form.name} — ${form.location}`, type: 'info' })
         } else {
             router.post('/bins', { name: form.name, location: form.location, latitude: form.lat, longitude: form.lng }, { preserveScroll: true })
-            notify({ message: 'Nouvelle benne ajoutée', sub: `${form.name} — ${form.location}`, type: 'success' })
+            notify({ message: t('bins.toastAdded'), sub: `${form.name} — ${form.location}`, type: 'success' })
         }
 
         setForm({ name: '', location: '', lat: 3.848, lng: 11.502 })
@@ -362,7 +365,7 @@ function BinsPage() {
         if (!deleteTarget) return
         router.delete(`/bins/${deleteTarget.id}`, { preserveScroll: true })
         setLocalBins((prev) => prev.filter((b) => b.id !== deleteTarget.id))
-        notify({ message: 'Benne supprimée', sub: `${deleteTarget.name} — ${deleteTarget.location}`, type: 'success' })
+        notify({ message: t('bins.toastDeleted'), sub: `${deleteTarget.name} — ${deleteTarget.location}`, type: 'success' })
         setDeleteTarget(null)
     }
 
@@ -377,13 +380,13 @@ function BinsPage() {
                                 <svg className="w-4 h-4 text-text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                             </div>
                             <div>
-                                <p className="text-sm font-semibold text-text-primary">Supprimer la benne</p>
+                                <p className="text-sm font-semibold text-text-primary">{t('bins.deleteConfirm')}</p>
                                 <p className="text-xs text-red-200/80">{deleteTarget.name} — {deleteTarget.location}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
-                            <button onClick={confirmDelete} className="px-4 py-1.5 bg-white text-red-700 text-xs font-bold rounded-lg hover:bg-red-50 transition-all shadow-lg">Confirmer</button>
-                            <button onClick={() => setDeleteTarget(null)} className="px-4 py-1.5 bg-white/10 text-text-primary text-xs font-semibold rounded-lg hover:bg-white/20 transition-all">Annuler</button>
+                            <button onClick={confirmDelete} className="px-4 py-1.5 bg-white text-red-700 text-xs font-bold rounded-lg hover:bg-red-50 transition-all shadow-lg">{t('common.confirm')}</button>
+                            <button onClick={() => setDeleteTarget(null)} className="px-4 py-1.5 bg-white/10 text-text-primary text-xs font-semibold rounded-lg hover:bg-white/20 transition-all">{t('common.cancel')}</button>
                         </div>
                     </div>
                 </div>
@@ -393,15 +396,15 @@ function BinsPage() {
             <div className="flex items-center justify-between">
                 <div>
                     <div className="flex items-center gap-3">
-                        <h1 className="text-2xl font-bold text-text-primary">Smart Bins</h1>
-                        <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{localBins.length} total</span>
+                        <h1 className="text-2xl font-bold text-text-primary">{t('bins.title')}</h1>
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{localBins.length} {t('common.total')}</span>
                     </div>
-                    <p className="text-sm text-text-secondary mt-1">Gestion du réseau de bennes connectées</p>
+                    <p className="text-sm text-text-secondary mt-1">{t('bins.subtitle')}</p>
                 </div>
                 {(userRole === 'ADMIN' || userRole === 'SUPERVISEUR' || userRole === 'OPERATEUR') && (
                     <button onClick={openAdd} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-text-primary text-sm font-semibold rounded-xl transition-colors">
                         <Trash2 className="w-4 h-4" />
-                        Ajouter une benne
+                        {t('bins.add')}
                     </button>
                 )}
             </div>
@@ -413,7 +416,7 @@ function BinsPage() {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                         <input
                             type="text"
-                            placeholder="Rechercher par ID, nom ou emplacement..."
+                            placeholder={t('bins.search')}
                             value={search}
                             onChange={(e) => { setSearch(e.target.value); setPage(1) }}
                             className="w-full pl-10 pr-4 py-2.5 bg-input-bg rounded-xl border border-border focus:border-[#10B981] focus:ring-1 focus:ring-[#10B981] text-sm text-text-primary placeholder:text-text-secondary outline-none transition-all"
@@ -431,14 +434,14 @@ function BinsPage() {
                                         : 'text-text-secondary border border-transparent hover:text-text-primary hover:bg-white/5'
                                 }`}
                             >
-                                {filter}
+                                {filter === 'Tous' ? t('bins.filterAll') : filter === 'Normal' ? t('bins.filterNormal') : filter === 'Attention' ? t('bins.filterWarning') : t('bins.filterFull')}
                             </button>
                         ))}
                     </div>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-text-secondary flex-wrap">
                     <ArrowUpDown className="w-3.5 h-3.5" />
-                    <span>Trier par :</span>
+                    <span>{t('bins.sortBy')}</span>
                     {sortOptions.map((opt) => (
                         <button
                             key={opt.value}
@@ -453,7 +456,7 @@ function BinsPage() {
                                     : 'hover:text-text-primary hover:bg-white/5'
                             }`}
                         >
-                            {opt.label} {sortBy === opt.value && (sortAsc ? '↑' : '↓')}
+                            {opt.value === 'name' ? t('bins.sortName') : opt.value === 'fillLevel' ? t('bins.sortFill') : opt.value === 'battery' ? t('bins.sortBattery') : t('bins.sortTemp')} {sortBy === opt.value && (sortAsc ? '↑' : '↓')}
                         </button>
                     ))}
                     <div className="sm:ml-auto flex items-center gap-1 bg-bg-card/60 rounded-lg p-0.5 border border-border">
@@ -463,7 +466,7 @@ function BinsPage() {
                                 viewMode === 'grid' ? 'bg-emerald-500/20 text-emerald-400' : 'text-text-muted hover:text-text-primary'
                             }`}
                         >
-                            <Grid3X3 className="w-3 h-3" /> Grille
+                            <Grid3X3 className="w-3 h-3" /> {t('bins.viewGrid')}
                         </button>
                         <button
                             onClick={() => setViewMode('map')}
@@ -471,7 +474,7 @@ function BinsPage() {
                                 viewMode === 'map' ? 'bg-emerald-500/20 text-emerald-400' : 'text-text-muted hover:text-text-primary'
                             }`}
                         >
-                            <MapIcon className="w-3 h-3" /> Carte
+                            <MapIcon className="w-3 h-3" /> {t('bins.viewMap')}
                         </button>
                     </div>
                 </div>
@@ -515,7 +518,7 @@ function BinsPage() {
                             {/* Barre de remplissage */}
                             <div className="space-y-1.5 mb-4">
                                 <div className="flex justify-between text-xs">
-                                    <span className="text-text-muted">Remplissage</span>
+                                    <span className="text-text-muted">{t('bins.fillLevel')}</span>
                                     <span className={`font-semibold ${styles.text}`}>{bin.fillLevel}%</span>
                                 </div>
                                 <div className="w-full h-2 bg-bg-card rounded-full overflow-hidden">
@@ -543,7 +546,7 @@ function BinsPage() {
                                         <button
                                             onClick={(e) => { e.stopPropagation(); openEdit(bin) }}
                                             className="p-2 rounded-lg bg-blue-500/15 text-blue-400 hover:bg-blue-500/25 hover:text-blue-300 transition-all"
-                                            title="Modifier"
+                                            title={t('common.edit')}
                                         >
                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                         </button>
@@ -552,7 +555,7 @@ function BinsPage() {
                                         <button
                                             onClick={(e) => { e.stopPropagation(); setDeleteTarget(bin) }}
                                             className="p-2 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 hover:text-red-300 transition-all"
-                                            title="Supprimer"
+                                            title={t('common.delete')}
                                         >
                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                         </button>
@@ -571,9 +574,9 @@ function BinsPage() {
                     {/* Légende */}
                     <div className="absolute top-4 left-4 z-[9999] flex flex-col gap-2">
                         <div className="bg-bg-card p-2 rounded-lg flex gap-3 shadow-lg border border-white/10">
-                            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500"></div><span className="text-[10px] text-text-primary">Normal</span></div>
-                            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-orange-400"></div><span className="text-[10px] text-text-primary">Attention</span></div>
-                            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500"></div><span className="text-[10px] text-text-primary">Pleine</span></div>
+                            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500"></div><span className="text-[10px] text-text-primary">{t('bins.filterNormal')}</span></div>
+                            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-orange-400"></div><span className="text-[10px] text-text-primary">{t('bins.filterWarning')}</span></div>
+                            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500"></div><span className="text-[10px] text-text-primary">{t('bins.filterFull')}</span></div>
                         </div>
                     </div>
                     {mapReady && (
@@ -598,9 +601,9 @@ function BinsPage() {
                                             <p className="font-semibold">{bin.id} - {bin.name}</p>
                                             <p className="text-text-muted text-xs mt-1">{bin.location}</p>
                                             <p className="mt-1">
-                                                Remplissage : <span className={`font-medium ${bin.fillLevel > 80 ? 'text-red-500' : bin.fillLevel > 50 ? 'text-amber-500' : 'text-emerald-500'}`}>{bin.fillLevel}%</span>
+                                                {t('bins.fillLevel')} : <span className={`font-medium ${bin.fillLevel > 80 ? 'text-red-500' : bin.fillLevel > 50 ? 'text-amber-500' : 'text-emerald-500'}`}>{bin.fillLevel}%</span>
                                             </p>
-                                            <p className="text-xs text-text-muted mt-1">Dernière mise à jour : {bin.lastUpdate}</p>
+                                            <p className="text-xs text-text-muted mt-1">{t('bins.lastUpdate')} : {bin.lastUpdate}</p>
                                         </div>
                                     </Popup>
                                 </Marker>
@@ -618,7 +621,7 @@ function BinsPage() {
                         disabled={page <= 1}
                         className="flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg text-text-secondary hover:text-text-primary hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all shrink-0"
                     >
-                        <ChevronLeft className="w-4 h-4" /> <span className="hidden sm:inline">Prev</span>
+                        <ChevronLeft className="w-4 h-4" /> <span className="hidden sm:inline">{t('common.prev')}</span>
                     </button>
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                         <button
@@ -638,7 +641,7 @@ function BinsPage() {
                         disabled={page >= totalPages}
                         className="flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg text-text-secondary hover:text-text-primary hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all shrink-0"
                     >
-                        <span className="hidden sm:inline">Next</span> <ChevronRight className="w-4 h-4" />
+                        <span className="hidden sm:inline">{t('common.next')}</span> <ChevronRight className="w-4 h-4" />
                     </button>
                 </div>
             )}
@@ -668,15 +671,15 @@ function BinsPage() {
                         {/* Métriques principales */}
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                             {[
-                                { label: 'Remplissage', value: `${selectedBin.fillLevel}%`, color: fillLevelStyles(selectedBin.fillLevel).text },
-                                { label: 'Batterie', value: `${selectedBin.battery}%`, icon: BatteryCharging, color: selectedBin.battery > 20 ? 'text-emerald-400' : 'text-red-400' },
-                                { label: 'Température', value: `${selectedBin.temperature}°C`, icon: Thermometer, color: 'text-orange-400' },
-                                { label: 'Localisation', value: selectedBin.location, icon: MapPin, color: 'text-blue-400' },
+                                { key: 'fillLevel' as const, value: `${selectedBin.fillLevel}%`, color: fillLevelStyles(selectedBin.fillLevel).text },
+                                { key: 'battery' as const, value: `${selectedBin.battery}%`, icon: BatteryCharging, color: selectedBin.battery > 20 ? 'text-emerald-400' : 'text-red-400' },
+                                { key: 'temperature' as const, value: `${selectedBin.temperature}°C`, icon: Thermometer, color: 'text-orange-400' },
+                                { key: 'location' as const, value: selectedBin.location, icon: MapPin, color: 'text-blue-400' },
                             ].map((m) => (
-                                <div key={m.label} className="bg-bg-card/60 rounded-xl p-3">
+                                <div key={m.key} className="bg-bg-card/60 rounded-xl p-3">
                                     <div className="flex items-center gap-1.5 text-[10px] text-text-muted mb-1">
                                         {m.icon && <m.icon className="w-3 h-3" />}
-                                        {m.label}
+                                        {m.key === 'fillLevel' ? t('bins.fillLevel') : m.key === 'battery' ? t('common.battery') : m.key === 'temperature' ? t('bins.temperature') : t('bins.locationLabel')}
                                     </div>
                                     <p className={`text-sm font-bold ${m.color}`}>{m.value}</p>
                                 </div>
@@ -687,7 +690,7 @@ function BinsPage() {
                         <div className="mb-6">
                             <h3 className="flex items-center gap-1.5 text-xs font-semibold text-text-secondary mb-3">
                                 <Activity className="w-3.5 h-3.5" />
-                                Évolution du remplissage (24h)
+                                {t('bins.detailTitle')}
                             </h3>
                             <div className="bg-bg-card/40 rounded-xl p-4">
                                 <ResponsiveContainer width="100%" height={180}>
@@ -697,7 +700,7 @@ function BinsPage() {
                                         <Tooltip
                                             contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }}
                                             labelStyle={{ color: 'var(--text-secondary)' }}
-                                            formatter={(value) => [`${Math.round(Number(value))}%`, 'Remplissage']}
+                                            formatter={(value) => [`${Math.round(Number(value))}%`, t('bins.fillLevel')]}
                                         />
                                         <Line type="monotone" dataKey="value" stroke="#10B981" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: '#10B981' }} />
                                     </LineChart>
@@ -710,11 +713,11 @@ function BinsPage() {
                             <div>
                                 <h3 className="flex items-center gap-1.5 text-xs font-semibold text-text-secondary mb-2">
                                     <AlertTriangle className="w-3.5 h-3.5" />
-                                    Alertes ({binDetailAlerts.length})
+                                    {t('bins.detailAlerts')} ({binDetailAlerts.length})
                                 </h3>
                                 <div className="space-y-1.5">
                                     {binDetailAlerts.length === 0 ? (
-                                        <p className="text-xs text-text-muted italic">Aucune alerte</p>
+                                        <p className="text-xs text-text-muted italic">{t('bins.noAlerts')}</p>
                                     ) : binDetailAlerts.map((a) => (
                                         <div key={a.id} className="flex items-start gap-2 bg-bg-card/40 rounded-lg p-2.5">
                                             <div className={`mt-0.5 w-1.5 h-1.5 rounded-full shrink-0 ${
@@ -733,11 +736,11 @@ function BinsPage() {
                             <div>
                                 <h3 className="flex items-center gap-1.5 text-xs font-semibold text-text-secondary mb-2">
                                     <Brain className="w-3.5 h-3.5" />
-                                    Prédictions ({binPredictions.length})
+                                    {t('bins.detailPredictions')} ({binPredictions.length})
                                 </h3>
                                 <div className="space-y-1.5">
                                     {binPredictions.length === 0 ? (
-                                        <p className="text-xs text-text-muted italic">Aucune prédiction</p>
+                                        <p className="text-xs text-text-muted italic">{t('bins.noPredictions')}</p>
                                     ) : binPredictions.map((p) => (
                                         <div key={p.id} className="bg-bg-card/40 rounded-lg p-2.5">
                                             <div className="flex items-center gap-1.5 text-xs text-text-primary">
@@ -750,7 +753,7 @@ function BinsPage() {
                                                     p.priority === 'medium' ? 'bg-amber-500/20 text-amber-400' :
                                                     'bg-yellow-500/20 text-yellow-400'
                                                 }`}>{p.priority}</span>
-                                                <span className="text-[10px] text-text-muted">Estimé dans {p.estimatedHours}h</span>
+                                                <span className="text-[10px] text-text-muted">{t('bins.estimated', { hours: p.estimatedHours })}</span>
                                             </div>
                                         </div>
                                     ))}
@@ -759,7 +762,7 @@ function BinsPage() {
                         </div>
 
                         {/* Dernière mise à jour */}
-                        <p className="text-[10px] text-text-muted text-center mt-6">Dernière mise à jour : {selectedBin.lastUpdate}</p>
+                        <p className="text-[10px] text-text-muted text-center mt-6">{t('bins.lastUpdate')} : {selectedBin.lastUpdate}</p>
                     </div>
                 </div>
             )}
@@ -771,7 +774,7 @@ function BinsPage() {
                     <div className="relative w-full max-w-3xl glass rounded-2xl border border-border shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
                         {/* Header */}
                         <div className="flex items-center justify-between px-6 pt-6 pb-3">
-                            <h2 className="text-lg font-bold text-text-primary">{editingBin ? 'Modifier' : 'Nouvelle'} benne</h2>
+                            <h2 className="text-lg font-bold text-text-primary">{editingBin ? t('bins.edit') : t('bins.newBin')}</h2>
                             <button onClick={() => { setShowAddModal(false); setEditingBin(null) }} className="p-1 rounded-lg hover:bg-white/5 text-text-muted hover:text-text-primary transition-all">
                                 <X className="w-4 h-4" />
                             </button>
@@ -781,13 +784,13 @@ function BinsPage() {
                             {/* Colonne gauche : formulaire */}
                             <div className="sm:w-72 space-y-4 shrink-0">
                                 <div>
-                                    <label className="text-[12px] font-medium text-text-secondary mb-1.5 block">Quartier</label>
-                                    <input type="text" placeholder="Ex: Mfoundi, Bastos, Mokolo..." value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
+                                    <label className="text-[12px] font-medium text-text-secondary mb-1.5 block">{t('bins.district')}</label>
+                                    <input type="text" placeholder={t('bins.districtPlaceholder')} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
                                         className="w-full px-3 py-2.5 bg-input-bg rounded-lg border border-border focus:border-emerald-500 outline-none text-sm text-text-primary placeholder:text-text-muted transition-all" />
                                 </div>
                                 <div>
-                                    <label className="text-[12px] font-medium text-text-secondary mb-1.5 block">Adresse</label>
-                                    <input type="text" placeholder="Ex: Avenue Kennedy, Rue de la Paix..." value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })}
+                                    <label className="text-[12px] font-medium text-text-secondary mb-1.5 block">{t('bins.address')}</label>
+                                    <input type="text" placeholder={t('bins.addressPlaceholder')} value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })}
                                         className="w-full px-3 py-2.5 bg-input-bg rounded-lg border border-border focus:border-emerald-500 outline-none text-sm text-text-primary placeholder:text-text-muted transition-all" />
                                 </div>
                                 <div className="flex items-center gap-2 py-2 px-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
@@ -798,7 +801,7 @@ function BinsPage() {
                                 </div>
                                 <button onClick={saveBin}
                                     className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-text-primary text-sm font-semibold rounded-xl transition-colors">
-                                    {editingBin ? 'Enregistrer' : 'Ajouter'}
+                                    {editingBin ? t('common.save') : t('common.add')}
                                 </button>
                             </div>
 
@@ -815,8 +818,8 @@ function BinsPage() {
             {viewMode === 'grid' && paginated.length === 0 && (
                 <div className="text-center py-16">
                     <Trash2 className="w-12 h-12 text-text-muted mx-auto mb-4" />
-                    <p className="text-text-secondary text-sm">Aucune benne trouvée</p>
-                    <p className="text-text-muted text-xs mt-1">Essayez de modifier vos filtres</p>
+                    <p className="text-text-secondary text-sm">{t('bins.noBins')}</p>
+                    <p className="text-text-muted text-xs mt-1">{t('bins.noBinsHint')}</p>
                 </div>
             )}
         </div>

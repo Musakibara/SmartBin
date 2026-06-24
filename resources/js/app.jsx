@@ -5,6 +5,7 @@ import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { ThemeProvider } from '@/Components/ThemeProvider';
+import I18nProvider from '@/Components/I18nProvider';
 
 const appName = import.meta.env.VITE_APP_NAME || 'SmartBin';
 
@@ -20,9 +21,11 @@ createInertiaApp({
     setup({ el, App, props }) {
         const root = createRoot(el);
         root.render(
-            <ThemeProvider>
-                <App {...props} />
-            </ThemeProvider>
+            <I18nProvider>
+                <ThemeProvider>
+                    <App {...props} />
+                </ThemeProvider>
+            </I18nProvider>
         );
     },
     progress: {

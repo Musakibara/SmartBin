@@ -4,6 +4,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { MessageCircle, User } from 'lucide-react';
 import { Link, useForm, usePage } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 import { useToast } from '@/Components/Toast';
 
 export default function UpdateProfileInformation({
@@ -11,6 +12,7 @@ export default function UpdateProfileInformation({
     status,
     className = '',
 }) {
+    const { t } = useTranslation();
     const user = usePage().props.auth.user;
     const { notify } = useToast();
 
@@ -26,7 +28,7 @@ export default function UpdateProfileInformation({
         e.preventDefault();
 
         patch(route('profile.update'), {
-            onSuccess: () => notify({ message: 'Profil mis à jour', sub: 'Vos informations ont été enregistrées.', type: 'success' }),
+            onSuccess: () => notify({ message: t('profile.saved'), sub: t('profile.savedSub'), type: 'success' }),
         });
     };
 
@@ -38,17 +40,17 @@ export default function UpdateProfileInformation({
                 </div>
                 <div>
                     <h2 className="text-lg font-bold text-text-primary">
-                        Informations personnelles
+                        {t('profile.personalInfo')}
                     </h2>
                     <p className="text-sm text-text-secondary">
-                        Mettez à jour votre nom, email, téléphone et Telegram.
+                        {t('profile.personalInfoDesc')}
                     </p>
                 </div>
             </header>
 
             <form onSubmit={submit} className="space-y-5">
                 <div>
-                    <InputLabel htmlFor="name" value="Nom" className="text-text-primary text-xs font-semibold" />
+                    <InputLabel htmlFor="name" value={t('profile.name')} className="text-text-primary text-xs font-semibold" />
 
                     <TextInput
                         id="name"
@@ -64,7 +66,7 @@ export default function UpdateProfileInformation({
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="email" value="Email" className="text-text-primary text-xs font-semibold" />
+                    <InputLabel htmlFor="email" value={t('auth.email')} className="text-text-primary text-xs font-semibold" />
 
                     <TextInput
                         id="email"
@@ -80,7 +82,7 @@ export default function UpdateProfileInformation({
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="phone" value="Téléphone" className="text-text-primary text-xs font-semibold" />
+                    <InputLabel htmlFor="phone" value={t('profile.phone')} className="text-text-primary text-xs font-semibold" />
 
                     <TextInput
                         id="phone"
@@ -96,7 +98,7 @@ export default function UpdateProfileInformation({
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="telegram_chat_id" value="Telegram Chat ID" className="text-text-primary text-xs font-semibold" />
+                    <InputLabel htmlFor="telegram_chat_id" value={t('profile.telegramId')} className="text-text-primary text-xs font-semibold" />
 
                     <TextInput
                         id="telegram_chat_id"
@@ -110,7 +112,7 @@ export default function UpdateProfileInformation({
                     <div className="mt-1.5 flex items-center gap-1.5">
                         <MessageCircle className="w-3 h-3 text-sky-400" />
                         <p className="text-[11px] text-text-muted">
-                            ID numérique récupéré depuis <a href="https://t.me/BotFather" target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:underline">@BotFather</a>
+                            {t('profile.telegramHint')} <a href="https://t.me/BotFather" target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:underline">@BotFather</a>
                         </p>
                     </div>
 
@@ -120,20 +122,20 @@ export default function UpdateProfileInformation({
                 {mustVerifyEmail && user.email_verified_at === null && (
                     <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
                         <p className="text-sm text-amber-400">
-                            Votre adresse email n'est pas vérifiée.
+                            {t('profile.emailVerified')}
                             <Link
                                 href={route('verification.send')}
                                 method="post"
                                 as="button"
                                 className="ml-1 rounded-md text-sm text-emerald-400 underline hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                             >
-                                Renvoyer le lien de vérification.
+                                {t('profile.emailVerifyLink')}
                             </Link>
                         </p>
 
                         {status === 'verification-link-sent' && (
                             <p className="mt-1 text-sm font-medium text-emerald-400">
-                                Un nouveau lien de vérification a été envoyé.
+                                {t('profile.emailVerifySent')}
                             </p>
                         )}
                     </div>
@@ -141,7 +143,7 @@ export default function UpdateProfileInformation({
 
                 <div className="flex items-center gap-4 pt-2">
                     <PrimaryButton disabled={processing} className="bg-emerald-600 hover:bg-emerald-500 focus:ring-emerald-500 active:bg-emerald-700">
-                        Enregistrer
+                        {t('common.save')}
                     </PrimaryButton>
                 </div>
             </form>

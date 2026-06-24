@@ -1,4 +1,5 @@
 import { clsx } from 'clsx'
+import { useTranslation } from 'react-i18next'
 
 // Statuts possibles d'une benne ou d'une alerte
 interface StatusBadgeProps {
@@ -7,17 +8,18 @@ interface StatusBadgeProps {
 
 /** Configuration visuelle pour chaque statut */
 const statusConfig = {
-    normal: { label: 'Normal', class: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
-    warning: { label: 'Attention', class: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
-    full: { label: 'Pleine', class: 'bg-red-500/10 text-red-400 border-red-500/20' },
-    pending: { label: 'En attente', class: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
-    resolved: { label: 'Résolue', class: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
+    normal: { class: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
+    warning: { class: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
+    full: { class: 'bg-red-500/10 text-red-400 border-red-500/20' },
+    pending: { class: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
+    resolved: { class: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
 }
 
 /**
  * Badge coloré indiquant l'état d'une benne ou d'une alerte
  */
 export default function StatusBadge({ status }: StatusBadgeProps) {
+    const { t } = useTranslation()
     const config = statusConfig[status]
     return (
         <span className={clsx(
@@ -29,7 +31,7 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
                 'bg-amber-400': status === 'warning' || status === 'pending',
                 'bg-red-400': status === 'full',
             })} />
-            {config.label}
+            {t(`statusBadge.${status}`)}
         </span>
     )
 }

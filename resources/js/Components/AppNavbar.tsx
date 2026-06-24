@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react'
 import { Link, router, usePage } from '@inertiajs/react'
 import { Search, Bell, HelpCircle, Moon, Sun, User, Menu, LogOut, Settings, CheckCheck, AlertTriangle, Info, Mail } from 'lucide-react'
 import { useTheme } from '@/Components/ThemeProvider'
+import LanguageSwitcher from '@/Components/LanguageSwitcher'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 
 interface RecentNotification {
@@ -38,6 +40,7 @@ const severityColors: Record<string, string> = {
 }
 
 export default function AppNavbar({ onToggleSidebar, user }: AppNavbarProps) {
+    const { t } = useTranslation()
     const { notifications: notifData } = usePage<{ notifications: { unread_count: number } | null }>().props
     const { theme, toggleTheme } = useTheme()
     const [dropdownOpen, setDropdownOpen] = useState(false)
@@ -107,7 +110,7 @@ export default function AppNavbar({ onToggleSidebar, user }: AppNavbarProps) {
                     </span>
                     <input
                         type="text"
-                        placeholder="Search systems..."
+                        placeholder={t('search.systems')}
                         className="w-full pl-10 pr-4 py-2 bg-input-bg rounded-xl border border-border focus:border-[#10B981] focus:ring-1 focus:ring-[#10B981] text-[14px] leading-[20px] font-medium transition-all text-text-primary placeholder:text-text-muted outline-none"
                     />
                 </div>
@@ -130,7 +133,7 @@ export default function AppNavbar({ onToggleSidebar, user }: AppNavbarProps) {
                     {notifOpen && (
                         <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-xl border border-border bg-bg-secondary shadow-xl backdrop-blur-xl overflow-hidden">
                             <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-                                <h3 className="text-[13px] font-bold text-text-primary">Notifications</h3>
+                                <h3 className="text-[13px] font-bold text-text-primary">{t('notifications.title')}</h3>
                                 <div className="flex items-center gap-2">
                                     {unreadCount > 0 && (
                                         <button
@@ -138,7 +141,7 @@ export default function AppNavbar({ onToggleSidebar, user }: AppNavbarProps) {
                                             className="flex items-center gap-1 text-[11px] text-[#10B981] hover:text-emerald-400 transition-colors"
                                         >
                                             <CheckCheck className="w-3 h-3" />
-                                            Tout lire
+                                            {t('notifications.markAllRead')}
                                         </button>
                                     )}
                                 </div>
@@ -148,7 +151,7 @@ export default function AppNavbar({ onToggleSidebar, user }: AppNavbarProps) {
                                 {notifications.length === 0 ? (
                                     <div className="px-4 py-8 text-center">
                                         <Bell className="w-8 h-8 text-border mx-auto mb-2" />
-                                        <p className="text-[13px] text-text-muted">Aucune notification</p>
+                                        <p className="text-[13px] text-text-muted">{t('notifications.empty')}</p>
                                     </div>
                                 ) : (
                                     notifications.map((n) => {
@@ -186,7 +189,7 @@ export default function AppNavbar({ onToggleSidebar, user }: AppNavbarProps) {
                                 className="block px-4 py-3 text-center text-[12px] font-medium text-[#10B981] hover:text-emerald-400 border-t border-border transition-colors"
                                 onClick={() => setNotifOpen(false)}
                             >
-                                Voir toutes les notifications →
+                                {t('notifications.seeAll')} →
                             </Link>
                         </div>
                     )}
@@ -195,6 +198,7 @@ export default function AppNavbar({ onToggleSidebar, user }: AppNavbarProps) {
                 <button className="p-2 text-text-secondary hover:text-[#10B981] hover:bg-white/5 rounded-xl transition-all active:scale-95 hidden sm:block">
                     <HelpCircle className="w-5 h-5" />
                 </button>
+                <LanguageSwitcher />
                 <button onClick={toggleTheme} className="p-2 text-text-secondary hover:text-[#10B981] hover:bg-white/5 rounded-xl transition-all active:scale-95 hidden sm:block">
                     {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                 </button>
@@ -208,7 +212,7 @@ export default function AppNavbar({ onToggleSidebar, user }: AppNavbarProps) {
                     >
                         <div className="text-right hidden sm:block">
                             <p className="text-[14px] leading-[20px] font-bold text-text-primary">{user?.name || 'Admin User'}</p>
-                            <p className="text-[10px] text-text-secondary">System Overseer</p>
+                            <p className="text-[10px] text-text-secondary">{t('nav.roleOverseer')}</p>
                         </div>
                         <div className="w-8 h-8 rounded-full border border-[#10B981]/50 overflow-hidden">
                             <img src="/images/Profile.png" alt="Profile" className="w-full h-full object-cover" />
@@ -228,14 +232,14 @@ export default function AppNavbar({ onToggleSidebar, user }: AppNavbarProps) {
                                     onClick={() => setDropdownOpen(false)}
                                 >
                                     <Settings className="w-4 h-4" />
-                                    Profile
+                                    {t('nav.profile')}
                                 </Link>
                                 <button
                                     onClick={handleLogout}
                                     className="flex items-center gap-2 w-full px-4 py-2 text-[13px] text-text-secondary hover:text-text-primary hover:bg-white/5 transition-colors"
                                 >
                                     <LogOut className="w-4 h-4" />
-                                    Log Out
+                                    {t('nav.logout')}
                                 </button>
                             </div>
                         </div>

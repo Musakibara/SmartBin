@@ -8,6 +8,7 @@ import AppLayout from '../../Layouts/AppLayout'
 import StatusBadge from '../../Components/StatusBadge'
 import { useToast } from '../../Components/Toast'
 import { usePage } from '@inertiajs/react'
+import { useTranslation, Trans } from 'react-i18next'
 
 interface Bin {
     id: string; name: string; location: string; fillLevel: number
@@ -67,6 +68,7 @@ function MonitoringPage() {
         activity: ActivityItem[]; fillLevelHistory: { time: string; value: number }[]
     }
     const { bins, alerts, predictions, activity, fillLevelHistory } = props
+    const { t } = useTranslation()
     const { notify } = useToast()
     const [mapReady, setMapReady] = useState(false)
     const [filter, setFilter] = useState<'all' | 'normal' | 'warning' | 'full'>('all')
@@ -81,7 +83,7 @@ function MonitoringPage() {
         setRefreshing(true)
         setTimeout(() => {
             setRefreshing(false)
-            notify({ message: 'Données mises à jour', type: 'success' })
+            notify({ message: t('monitoring.dataUpdated'), type: 'success' })
         }, 1200)
     }
 
@@ -99,13 +101,13 @@ function MonitoringPage() {
     const panelContent = () => {
         if (panel === 'alerts') return (
             <div className="space-y-2">
-                <h3 className="text-xs font-bold text-text-primary flex items-center gap-1.5"><AlertTriangle className="w-3.5 h-3.5 text-amber-400" />Alertes en direct</h3>
+                <h3 className="text-xs font-bold text-text-primary flex items-center gap-1.5"><AlertTriangle className="w-3.5 h-3.5 text-amber-400" />{t('monitoring.filterAlertsLive')}</h3>
                 {alerts.filter((a) => a.status === 'pending').map((a) => {
                     const bin = bins.find((b) => b.id === a.bin)
                     return (
                         <div key={a.id} className={`p-2.5 rounded-lg border ${severityColors[a.severity]} text-xs space-y-1`}>
                             <div className="flex items-center justify-between">
-                                <span className="font-bold">{a.severity.toUpperCase()}</span>
+                                <span className="font-bold">{t(`alerts.severity${a.severity.charAt(0).toUpperCase() + a.severity.slice(1)}`).toUpperCase()}</span>
                                 <span className="text-[10px] opacity-60">{a.time}</span>
                             </div>
                             <p>{a.message}</p>
@@ -117,7 +119,7 @@ function MonitoringPage() {
         )
         if (panel === 'predictions') return (
             <div className="space-y-2">
-                <h3 className="text-xs font-bold text-text-primary flex items-center gap-1.5"><Brain className="w-3.5 h-3.5 text-purple-400" />Prédictions IA</h3>
+                <h3 className="text-xs font-bold text-text-primary flex items-center gap-1.5"><Brain className="w-3.5 h-3.5 text-purple-400" />{t('predictions.title')}</h3>
                 {predictions.map((p) => {
                     const bin = bins.find((b) => b.id === p.bin)
                     return (
@@ -135,9 +137,9 @@ function MonitoringPage() {
         )
         return (
             <div className="space-y-2">
-                <h3 className="text-xs font-bold text-text-primary flex items-center gap-1.5"><Activity className="w-3.5 h-3.5 text-cyan-400" />Activité récente</h3>
+                <h3 className="text-xs font-bold text-text-primary flex items-center gap-1.5"><Activity className="w-3.5 h-3.5 text-cyan-400" />{t('monitoring.activitiesRecent')}</h3>
                 {activity.length === 0 ? (
-                    <p className="text-xs text-text-muted italic">Aucune activité récente</p>
+                    <p className="text-xs text-text-muted italic">{t('monitoring.noRecentActivity')}</p>
                 ) : activity.map((item, i) => (
                     <div key={i} className="flex items-start gap-2.5 text-xs">
                         <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 mt-1.5 shrink-0" />
@@ -161,13 +163,13 @@ function MonitoringPage() {
         {/* Barre supérieure KPIs + contrôles */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3 sm:px-6 py-3 bg-bg-secondary/80 backdrop-blur-md border-b border-border shrink-0 gap-3 rounded-t-xl">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
-                <h1 className="text-sm sm:text-base font-bold text-text-primary">Monitoring</h1>
+                <h1 className="text-sm sm:text-base font-bold text-text-primary">{t('monitoring.title')}</h1>
                 <div className="flex items-center gap-2 flex-wrap">
                     {[
-                        { label: `${bins.length}`, sub: 'Total', color: 'text-text-primary' },
-                        { label: String(nbNormal), sub: 'Normal', color: 'text-emerald-400' },
-                        { label: String(nbWarning), sub: 'Attention', color: 'text-amber-400' },
-                        { label: String(nbFull), sub: 'Pleine', color: 'text-red-400' },
+                        { label: `${bins.length}`, sub: t('common.total'), color: 'text-text-primary' },
+                        { label: String(nbNormal), sub: t('monitoring.filterNormal'), color: 'text-emerald-400' },
+                        { label: String(nbWarning), sub: t('monitoring.filterWarning'), color: 'text-amber-400' },
+                        { label: String(nbFull), sub: t('monitoring.filterFull'), color: 'text-red-400' },
                     ].map(({ label, sub, color }) => (
                         <div key={sub} className="flex items-center gap-1 text-[10px] sm:text-xs bg-input-bg px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg">
                             <span className={`font-bold ${color}`}>{label}</span>
@@ -181,13 +183,13 @@ function MonitoringPage() {
                     {(['all', 'normal', 'warning', 'full'] as const).map((f) => (
                         <button key={f} onClick={() => setFilter(f)}
                             className={`px-2 sm:px-2.5 py-1 rounded-md text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider transition-all ${filter === f ? 'bg-emerald-600 text-text-primary shadow-lg shadow-emerald-600/20' : 'text-text-muted hover:text-text-primary'}`}
-                        >{f === 'all' ? 'Tous' : f}</button>
+                        >{f === 'all' ? t('monitoring.filterAll') : t('bins.filter' + f.charAt(0).toUpperCase() + f.slice(1))}</button>
                     ))}
                 </div>
-                <button onClick={() => setShowPanel(!showPanel)} className={`p-2 rounded-lg transition-all ${showPanel ? 'bg-emerald-500/10 text-emerald-400' : 'bg-input-bg text-text-muted hover:text-text-primary'}`} title="Panneau">
+                <button onClick={() => setShowPanel(!showPanel)} className={`p-2 rounded-lg transition-all ${showPanel ? 'bg-emerald-500/10 text-emerald-400' : 'bg-input-bg text-text-muted hover:text-text-primary'}`} title={t('monitoring.panel')}>
                     <ChevronRight className={`w-4 h-4 transition-transform ${showPanel ? 'rotate-180' : ''}`} />
                 </button>
-                <button onClick={simulateRefresh} disabled={refreshing} className="p-2 rounded-lg bg-input-bg text-text-muted hover:text-text-primary transition-all" title="Rafraîchir">
+                <button onClick={simulateRefresh} disabled={refreshing} className="p-2 rounded-lg bg-input-bg text-text-muted hover:text-text-primary transition-all" title={t('monitoring.refresh')}>
                     <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin text-emerald-400' : ''}`} />
                 </button>
             </div>
@@ -221,7 +223,7 @@ function MonitoringPage() {
                                             <p className="flex items-center gap-1.5"><BatteryCharging className="w-3 h-3" />{bin.battery}%</p>
                                             <div className="mt-2">
                                                 <div className="flex justify-between text-[10px] mb-1">
-                                                    <span className="text-text-muted">Remplissage</span><span className="font-bold text-text-primary">{bin.fillLevel}%</span>
+                                                    <span className="text-text-muted">{t('monitoring.fillLevel')}</span><span className="font-bold text-text-primary">{bin.fillLevel}%</span>
                                                 </div>
                                                 <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
                                                     <div className={`h-full rounded-full ${bin.fillLevel > 80 ? 'bg-red-500' : bin.fillLevel > 50 ? 'bg-orange-400' : 'bg-emerald-500'}`} style={{ width: `${bin.fillLevel}%` }} />
@@ -239,9 +241,9 @@ function MonitoringPage() {
                 {/* Légende superposée */}
                 <div className="absolute top-4 left-4 z-[999] bg-bg-secondary/90 backdrop-blur-md border border-border rounded-xl p-2 sm:p-3 text-[10px] sm:text-xs space-y-1 sm:space-y-1.5 shadow-xl">
                     {[
-                        { color: 'bg-emerald-500', label: 'Normal', shadow: 'shadow-emerald-500/30' },
-                        { color: 'bg-amber-400', label: 'Attention', shadow: 'shadow-amber-400/30' },
-                        { color: 'bg-red-500', label: 'Pleine', shadow: 'shadow-red-500/30' },
+                        { color: 'bg-emerald-500', label: t('monitoring.legendNormal'), shadow: 'shadow-emerald-500/30' },
+                        { color: 'bg-amber-400', label: t('monitoring.legendWarning'), shadow: 'shadow-amber-400/30' },
+                        { color: 'bg-red-500', label: t('monitoring.legendFull'), shadow: 'shadow-red-500/30' },
                     ].map(({ color, label, shadow }) => (
                         <div key={label} className="flex items-center gap-2">
                             <div className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full ${color} shadow-lg ${shadow}`} />
@@ -263,15 +265,15 @@ function MonitoringPage() {
                         <div className="grid grid-cols-3 gap-3 text-xs">
                             <div className="bg-input-bg rounded-lg p-2 text-center">
                                 <p className="text-emerald-400 font-bold">{selectedBin.fillLevel}%</p>
-                                <p className="text-text-muted">Remplissage</p>
+                                <p className="text-text-muted">{t('monitoring.fillLevel')}</p>
                             </div>
                             <div className="bg-input-bg rounded-lg p-2 text-center">
                                 <p className="text-blue-400 font-bold">{selectedBin.battery}%</p>
-                                <p className="text-text-muted">Batterie</p>
+                                <p className="text-text-muted">{t('monitoring.battery')}</p>
                             </div>
                             <div className="bg-input-bg rounded-lg p-2 text-center">
                                 <p className="text-orange-400 font-bold">{selectedBin.temperature}°C</p>
-                                <p className="text-text-muted">Temp.</p>
+                                <p className="text-text-muted">{t('monitoring.temperature')}</p>
                             </div>
                         </div>
                     </div>
@@ -288,9 +290,9 @@ function MonitoringPage() {
             `}>
                     <div className="flex border-b border-border">
                         {[
-                            { key: 'alerts' as const, icon: AlertTriangle, label: 'Alertes', count: alerts.filter((a) => a.status === 'pending').length },
-                            { key: 'predictions' as const, icon: Brain, label: 'IA', count: predictions.length },
-                            { key: 'activity' as const, icon: Activity, label: 'Activité' },
+                            { key: 'alerts' as const, icon: AlertTriangle, label: t('monitoring.filterAlerts'), count: alerts.filter((a) => a.status === 'pending').length },
+                            { key: 'predictions' as const, icon: Brain, label: t('monitoring.filterAI'), count: predictions.length },
+                            { key: 'activity' as const, icon: Activity, label: t('monitoring.filterActivity') },
                         ].map(({ key, icon: Icon, label, count }) => (
                             <button key={key} onClick={() => setPanel(key)}
                                 className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-[11px] font-semibold uppercase tracking-wider transition-all ${panel === key ? 'text-emerald-400 border-b-2 border-emerald-400 bg-emerald-500/5' : 'text-text-muted hover:text-text-primary'}`}
@@ -309,7 +311,7 @@ function MonitoringPage() {
                         {panelContent()}
 
                         <div className="pt-3 border-t border-border">
-                            <h3 className="text-xs font-bold text-text-primary flex items-center gap-1.5 mb-2"><Activity className="w-3.5 h-3.5 text-cyan-400" />Évolution 24h</h3>
+                            <h3 className="text-xs font-bold text-text-primary flex items-center gap-1.5 mb-2"><Activity className="w-3.5 h-3.5 text-cyan-400" />{t('monitoring.evolution24h')}</h3>
                             <div className="h-24">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <LineChart data={fillLevelHistory}>
@@ -325,7 +327,7 @@ function MonitoringPage() {
 
                     <div className="px-4 py-3 border-t border-border flex items-center gap-2 text-xs text-text-muted">
                         <Wifi className="w-3 h-3 text-emerald-400" />
-                        <span>Connecté — <span className="text-emerald-400">24 capteurs actifs</span></span>
+                        <Trans i18nKey="monitoring.connectedWith" values={{ count: 24 }} components={{ span: <span className="text-emerald-400" /> }} />
                     </div>
             </div>
         </div>

@@ -28,6 +28,7 @@ import {
     ResponsiveContainer,
 } from 'recharts'
 import { usePage, router, Link } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 
 // ============================================================
 // Icônes de marqueurs Leaflet pour la carte
@@ -62,6 +63,7 @@ const markerIconFull = L.divIcon({
  * Affiche les KPI, graphiques, cartes bennes et carte interactive
  */
 function DashboardPage() {
+    const { t } = useTranslation()
     const { kpiData, fillLevelHistory, bins, alerts, period } = usePage().props as unknown as {
         kpiData: typeof import('../../data/mock-dashboard').kpiData
         fillLevelHistory: typeof import('../../data/mock-dashboard').fillLevelHistory
@@ -71,10 +73,10 @@ function DashboardPage() {
     }
 
     const periods = [
-        { key: '24h', label: '24h' },
-        { key: '7d', label: '7 jours' },
-        { key: '30d', label: '30 jours' },
-        { key: '12m', label: '12 mois' },
+        { key: '24h', label: t('dashboard.period24h') },
+        { key: '7d', label: t('dashboard.period7d') },
+        { key: '30d', label: t('dashboard.period30d') },
+        { key: '12m', label: t('dashboard.period12m') },
     ] as const
 
     function changePeriod(key: string) {
@@ -160,22 +162,24 @@ function DashboardPage() {
             {/* En-tête du dashboard */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                    <h1 className="text-xl sm:text-2xl font-bold text-text-primary">Dashboard</h1>
-                    <p className="text-xs sm:text-sm text-text-secondary mt-0.5 sm:mt-1">Vue d'ensemble du réseau SmartBin</p>
+                    <h1 className="text-xl sm:text-2xl font-bold text-text-primary">{t('dashboard.title')}</h1>
+                    <p className="text-xs sm:text-sm text-text-secondary mt-0.5 sm:mt-1">{t('dashboard.overviewSubtitle')}</p>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                     <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-bg-card/80 border border-border text-[10px] sm:text-xs">
                         <span className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${live ? 'bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'bg-text-muted'}`} />
-                        <span className={`font-semibold ${live ? 'text-emerald-400' : 'text-text-secondary'}`}>Live</span>
+                        <span className={`font-semibold ${live ? 'text-emerald-400' : 'text-text-secondary'}`}>{t('dashboard.live')}</span>
                         {live && <span className="text-text-muted hidden xs:inline">{30 - (secondsSinceRefresh % 30)}s</span>}
                     </div>
                     <span className="text-[10px] sm:text-xs text-text-muted hidden sm:inline">
-                        Mis à jour il y a {secondsSinceRefresh < 60 ? `${secondsSinceRefresh}s` : `${Math.floor(secondsSinceRefresh / 60)}min`}
+                        {secondsSinceRefresh < 60
+                            ? t('dashboard.updatedAgoSeconds', { count: secondsSinceRefresh })
+                            : t('dashboard.updatedAgoMinutes', { count: Math.floor(secondsSinceRefresh / 60) })}
                     </span>
-                    <button onClick={() => setLive((p) => !p)} className="p-1.5 sm:p-2 rounded-lg bg-bg-card/80 border border-border text-text-secondary hover:text-text-primary hover:border-emerald-500/40 transition-all" title={live ? 'Pause' : 'Reprendre'}>
+                    <button onClick={() => setLive((p) => !p)} className="p-1.5 sm:p-2 rounded-lg bg-bg-card/80 border border-border text-text-secondary hover:text-text-primary hover:border-emerald-500/40 transition-all" title={live ? t('dashboard.pause') : t('dashboard.resume')}>
                         {live ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
                     </button>
-                    <button onClick={manualRefresh} className="p-1.5 sm:p-2 rounded-lg bg-bg-card/80 border border-border text-text-secondary hover:text-text-primary hover:border-emerald-500/40 transition-all" title="Rafraîchir maintenant">
+                    <button onClick={manualRefresh} className="p-1.5 sm:p-2 rounded-lg bg-bg-card/80 border border-border text-text-secondary hover:text-text-primary hover:border-emerald-500/40 transition-all" title={t('dashboard.refreshNow')}>
                         <RefreshCw className="w-3.5 h-3.5" />
                     </button>
                 </div>
@@ -183,16 +187,16 @@ function DashboardPage() {
 
             {/* Rangée 1 — KPI principaux */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <KPICard title="Total Benne" value={kpiData.totalBins} icon={Trash2} />
-                <KPICard title="Capteurs Actifs" value={kpiData.activeSensors} icon={Activity} trend="+2 cette semaine" trendUp />
-                <KPICard title="Niveau Moyen" value={`${kpiData.averageFillLevel}%`} icon={TrendingUp} trend="+5%" />
+                <KPICard title={t('dashboard.totalBins')} value={kpiData.totalBins} icon={Trash2} />
+                <KPICard title={t('dashboard.activeSensors')} value={kpiData.activeSensors} icon={Activity} trend={t('dashboard.trendThisWeek')} trendUp />
+                <KPICard title={t('dashboard.avgFill')} value={`${kpiData.averageFillLevel}%`} icon={TrendingUp} trend="+5%" />
             </div>
 
             {/* Rangée 2 — KPI alertes et prédictions */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <KPICard title="Alertes Critiques" value={kpiData.criticalAlerts} icon={AlertTriangle} trend="+1 aujourd'hui" />
-                <KPICard title="Débordements" value={kpiData.predictedOverflows} icon={Brain} />
-                <KPICard title="Notifications" value={kpiData.notificationsSent} icon={Bell} trend="+12 aujourd'hui" trendUp />
+                <KPICard title={t('dashboard.criticalAlerts')} value={kpiData.criticalAlerts} icon={AlertTriangle} trend={t('dashboard.trendToday')} />
+                <KPICard title={t('dashboard.overflows')} value={kpiData.predictedOverflows} icon={Brain} />
+                <KPICard title={t('dashboard.notifications')} value={kpiData.notificationsSent} icon={Bell} trend={t('dashboard.trendNotifsToday')} trendUp />
             </div>
 
             {/* Graphique + Alertes récentes */}
@@ -200,7 +204,7 @@ function DashboardPage() {
                 {/* Graphique d'évolution du remplissage */}
                 <div className="lg:col-span-2 glass rounded-xl p-4 sm:p-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-                        <h2 className="text-base sm:text-lg font-semibold text-text-primary">Évolution du remplissage</h2>
+                        <h2 className="text-base sm:text-lg font-semibold text-text-primary">{t('dashboard.fillEvolution')}</h2>
                         <div className="flex gap-1 bg-white/5 rounded-lg p-1 overflow-x-auto no-scrollbar">
                             {periods.map((p) => (
                                 <button
@@ -245,8 +249,8 @@ function DashboardPage() {
                 {/* Liste des alertes récentes */}
                 <div className="glass rounded-xl p-4 sm:p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-base sm:text-lg font-semibold text-text-primary">Alertes récentes</h2>
-                        <Link href="/alerts" className="text-[10px] sm:text-xs text-emerald-400 cursor-pointer hover:text-emerald-300">Voir tout</Link>
+                        <h2 className="text-base sm:text-lg font-semibold text-text-primary">{t('dashboard.recentAlerts')}</h2>
+                        <Link href="/alerts" className="text-[10px] sm:text-xs text-emerald-400 cursor-pointer hover:text-emerald-300">{t('common.seeAll')}</Link>
                     </div>
                     <div className="space-y-3">
                         {alerts.slice(0, 4).map((alert) => (
@@ -280,7 +284,7 @@ function DashboardPage() {
                 {/* Liste horizontale des bennes en direct */}
                 <div className="col-span-12 space-y-3 sm:space-y-4 animate-fade-in" style={{ animationDelay: '650ms' }}>
                     <div className="flex items-center justify-between">
-                        <h4 className="text-base sm:text-lg md:text-[24px] md:leading-[32px] font-semibold text-text-primary">Live Bin Status</h4>
+                        <h4 className="text-base sm:text-lg md:text-[24px] md:leading-[32px] font-semibold text-text-primary">{t('dashboard.liveStatus')}</h4>
                         <div className="flex gap-2">
                             <button onClick={scrollLeft} className="p-1.5 glass rounded hover:bg-white/10 transition-colors">
                                 <span className="material-symbols-outlined text-[20px] text-text-secondary">chevron_left</span>
@@ -318,7 +322,7 @@ function DashboardPage() {
                                     {/* Barre de remplissage + batterie + température */}
                                     <div className="space-y-2">
                                         <div className="flex justify-between text-[12px] leading-[16px] font-semibold">
-                                            <span className="text-text-secondary">Fill Level</span>
+                                            <span className="text-text-secondary">{t('bins.fillLevel')}</span>
                                             <span className={`font-bold ${fillColor}`}>{bin.fillLevel}%</span>
                                         </div>
                                         <div className="w-full h-1.5 bg-bg-card rounded-full overflow-hidden">
@@ -346,14 +350,14 @@ function DashboardPage() {
                     {/* Overlay d'information en haut à gauche */}
                     <div className="absolute top-2 sm:top-4 left-2 sm:left-4 z-[9999] flex flex-col gap-1.5 sm:gap-2">
                         <div className="bg-bg-card p-2 sm:p-3 rounded-lg flex flex-col gap-0.5 sm:gap-1 shadow-lg border border-white/10 hover:scale-105 transition-transform duration-200 cursor-default">
-                            <h5 className="text-[11px] sm:text-sm font-bold text-text-primary">City-Wide Deployment</h5>
-                            <p className="text-[9px] sm:text-[10px] text-text-secondary hidden sm:block">Central Hub: Yaoundé, CM</p>
+                            <h5 className="text-[11px] sm:text-sm font-bold text-text-primary">{t('dashboard.cityDeployment')}</h5>
+                            <p className="text-[9px] sm:text-[10px] text-text-secondary hidden sm:block">{t('dashboard.centralHub')}</p>
                         </div>
                         {/* Légende des couleurs */}
                         <div className="bg-bg-card p-1.5 sm:p-2 rounded-lg flex gap-2 sm:gap-4 shadow-lg border border-white/10">
-                            <div className="flex items-center gap-1 sm:gap-1.5 hover:scale-110 transition-transform duration-200 cursor-pointer"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500"></div><span className="text-[9px] sm:text-[10px] text-text-primary">Optimal</span></div>
-                            <div className="flex items-center gap-1 sm:gap-1.5 hover:scale-110 transition-transform duration-200 cursor-pointer"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-orange-400"></div><span className="text-[9px] sm:text-[10px] text-text-primary">Warning</span></div>
-                            <div className="flex items-center gap-1 sm:gap-1.5 hover:scale-110 transition-transform duration-200 cursor-pointer"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-500"></div><span className="text-[9px] sm:text-[10px] text-text-primary">Critical</span></div>
+                            <div className="flex items-center gap-1 sm:gap-1.5 hover:scale-110 transition-transform duration-200 cursor-pointer"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500"></div><span className="text-[9px] sm:text-[10px] text-text-primary">{t('dashboard.legendOptimal')}</span></div>
+                            <div className="flex items-center gap-1 sm:gap-1.5 hover:scale-110 transition-transform duration-200 cursor-pointer"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-orange-400"></div><span className="text-[9px] sm:text-[10px] text-text-primary">{t('dashboard.legendWarning')}</span></div>
+                            <div className="flex items-center gap-1 sm:gap-1.5 hover:scale-110 transition-transform duration-200 cursor-pointer"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-500"></div><span className="text-[9px] sm:text-[10px] text-text-primary">{t('dashboard.legendCritical')}</span></div>
                         </div>
                     </div>
                 {/* Carte Leaflet rendue côté client uniquement */}
@@ -380,9 +384,9 @@ function DashboardPage() {
                                             <p className="font-semibold">{bin.id} - {bin.name}</p>
                                             <p className="text-gray-600 text-xs mt-1">{bin.location}</p>
                                             <p className="mt-1">
-                                                Remplissage : <span className={`font-medium ${bin.fillLevel > 80 ? 'text-red-500' : bin.fillLevel > 50 ? 'text-amber-500' : 'text-emerald-500'}`}>{bin.fillLevel}%</span>
+                                                {t('bins.fillLevel')} : <span className={`font-medium ${bin.fillLevel > 80 ? 'text-red-500' : bin.fillLevel > 50 ? 'text-amber-500' : 'text-emerald-500'}`}>{bin.fillLevel}%</span>
                                             </p>
-                                            <p className="text-xs text-gray-500 mt-1">Dernière mise à jour : {bin.lastUpdate}</p>
+                                            <p className="text-xs text-gray-500 mt-1">{t('bins.lastUpdate')} : {bin.lastUpdate}</p>
                                         </div>
                                     </Popup>
                                 </Marker>

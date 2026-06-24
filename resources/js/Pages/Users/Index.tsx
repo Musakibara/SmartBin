@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Search, User, Clock, CheckCircle, XCircle, Ban, Edit3, Trash2, UserPlus, ChevronLeft, ChevronRight, X, Loader2, AlertTriangle, type LucideIcon } from 'lucide-react'
 import { usePage, router } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 import AppLayout from '../../Layouts/AppLayout'
 import { useToast } from '../../Components/Toast'
 import '@/echo'
@@ -40,16 +41,26 @@ const roleColors: Record<string, string> = {
 }
 const statusIcons: Record<string, LucideIcon> = { online: CheckCircle, offline: XCircle, suspendu: Ban }
 const statusColors: Record<string, string> = { online: 'text-emerald-400', offline: 'text-text-muted', suspendu: 'text-red-400' }
-const statusLabels: Record<string, string> = { online: 'En ligne', offline: 'Hors ligne', suspendu: 'Suspendu' }
-const roleOptions = ['Tous', 'Admin', 'Superviseur', 'Opérateur', 'Technicien', 'Agent']
 
 const roleToDb: Record<string, string> = {
     Admin: 'ADMIN', Superviseur: 'SUPERVISEUR', 'Opérateur': 'OPERATEUR', Technicien: 'TECHNICIEN', Agent: 'AGENT',
 }
 
+const roleTranslationKeys: Record<string, string> = {
+    Tous: 'users.filterAll',
+    Admin: 'users.roleAdmin',
+    Superviseur: 'users.roleSuperviseur',
+    Opérateur: 'users.roleOperateur',
+    Technicien: 'users.roleTechnicien',
+    Agent: 'users.roleAgent',
+}
+
 function UsersPage() {
+    const { t } = useTranslation()
     const { notify } = useToast()
     const { users, filters, errors: inertiaErrors } = usePage<PageProps & { errors: Record<string, string> }>().props
+
+    const statusLabels: Record<string, string> = { online: t('users.online'), offline: t('users.offline'), suspendu: t('users.suspended') }
 
     const [search, setSearch] = useState(filters.search ?? '')
     const [roleFilter, setRoleFilter] = useState(filters.role ?? 'Tous')
@@ -153,7 +164,7 @@ function UsersPage() {
         const onSuccess = () => {
             setShowModal(false)
             setProcessing(false)
-            notify({ message: editingUser ? 'Utilisateur modifié' : 'Utilisateur ajouté', type: 'success' })
+            notify({ message: editingUser ? t('users.toastModified') : t('users.toastAdded'), type: 'success' })
         }
 
         if (editingUser) {
@@ -179,7 +190,7 @@ function UsersPage() {
         router.patch(`/users/${u.id}`, { status: newStatus }, {
             preserveScroll: true,
             onSuccess: () => {
-                notify({ message: newStatus === 'SUSPENDED' ? `${u.name} suspendu` : `${u.name} réactivé`, type: 'info' })
+                notify({ message: newStatus === 'SUSPENDED' ? t('users.toastSuspended', { name: u.name }) : t('users.toastReactivated', { name: u.name }), type: 'info' })
                 setProcessing(false)
             },
             onFinish: () => setProcessing(false),
@@ -196,7 +207,7 @@ function UsersPage() {
         router.delete(`/users/${deleteTarget.id}`, {
             preserveScroll: true,
             onSuccess: () => {
-                notify({ message: `${deleteTarget.name} supprimé`, type: 'info' })
+                notify({ message: t('users.toastDeleted', { name: deleteTarget.name }), type: 'info' })
                 setDeleteTarget(null)
                 setProcessing(false)
             },
@@ -212,14 +223,14 @@ function UsersPage() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-text-primary">Utilisateurs</h1>
+                    <h1 className="text-2xl font-bold text-text-primary">{t('users.title')}</h1>
                     <p className="text-sm text-text-secondary mt-1">
-                        {total} membre{total !== 1 ? 's' : ''}
-                        {onlineCount > 0 && <span className="text-emerald-400"> · {onlineCount} en ligne</span>}
+                        {t('users.memberCount', { count: total })}
+                        {onlineCount > 0 && <span className="text-emerald-400"> {t('users.onlineCount', { count: onlineCount })}</span>}
                     </p>
                 </div>
                 <button onClick={openAdd} className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.97] text-text-primary text-sm font-semibold rounded-xl transition-all shadow-lg shadow-emerald-600/20">
-                    <UserPlus className="w-4 h-4" />Ajouter
+                    <UserPlus className="w-4 h-4" />{t('common.add')}
                 </button>
             </div>
 
@@ -229,13 +240,13 @@ function UsersPage() {
                     <input
                         value={search}
                         onChange={(e) => onSearchChange(e.target.value)}
-                        placeholder="Rechercher par nom ou email..."
+                        placeholder={t('users.search')}
                         className="w-full pl-10 pr-4 py-2.5 bg-input-bg rounded-xl border border-border focus:border-emerald-500 outline-none text-sm text-text-primary placeholder:text-text-muted transition-all"
                     />
                 </div>
                 <div className="flex items-center gap-1 bg-input-bg rounded-lg p-0.5 overflow-x-auto no-scrollbar">
-                    {roleOptions.map((r) => (
-                        <button key={r} onClick={() => onRoleChange(r)} className={`shrink-0 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${roleFilter === r ? 'bg-emerald-600 text-text-primary shadow-lg' : 'text-text-muted hover:text-text-primary'}`}>{r}</button>
+                    {Object.keys(roleTranslationKeys).map((r) => (
+                        <button key={r} onClick={() => onRoleChange(r)} className={`shrink-0 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${roleFilter === r ? 'bg-emerald-600 text-text-primary shadow-lg' : 'text-text-muted hover:text-text-primary'}`}>{t(roleTranslationKeys[r])}</button>
                     ))}
                 </div>
             </div>
@@ -244,9 +255,9 @@ function UsersPage() {
                 {data.length === 0 ? (
                     <div className="col-span-full glass rounded-xl p-12 text-center">
                         <User className="w-12 h-12 text-text-muted mx-auto mb-3" />
-                        <p className="text-base font-semibold text-text-primary">Aucun utilisateur trouvé</p>
+                        <p className="text-base font-semibold text-text-primary">{t('users.noUsers')}</p>
                         <p className="text-sm text-text-muted mt-1">
-                            {search ? 'Essayez d\'autres termes de recherche' : 'Aucun membre pour ce rôle'}
+                            {search ? t('users.noUsersHint') : t('users.noUsersRole')}
                         </p>
                     </div>
                 ) : data.map((u, i) => {
@@ -274,19 +285,19 @@ function UsersPage() {
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                                        <button onClick={() => openEdit(u)} disabled={processing} className="p-1.5 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all disabled:opacity-40" title="Modifier">
+                                        <button onClick={() => openEdit(u)} disabled={processing} className="p-1.5 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all disabled:opacity-40" title={t('common.edit')}>
                                             <Edit3 className="w-3.5 h-3.5" />
                                         </button>
-                                        <button onClick={() => toggleSuspend(u)} disabled={processing} className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition-all disabled:opacity-40" title={u.status === 'suspendu' ? 'Réactiver' : 'Suspendre'}>
+                                        <button onClick={() => toggleSuspend(u)} disabled={processing} className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition-all disabled:opacity-40" title={u.status === 'suspendu' ? t('users.reactivate') : t('users.suspend')}>
                                             <Ban className="w-3.5 h-3.5" />
                                         </button>
-                                        <button onClick={() => confirmDelete(u)} disabled={processing} className="p-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all disabled:opacity-40" title="Supprimer">
+                                        <button onClick={() => confirmDelete(u)} disabled={processing} className="p-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all disabled:opacity-40" title={t('common.delete')}>
                                             <Trash2 className="w-3.5 h-3.5" />
                                         </button>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2.5 text-xs pt-3 border-t border-border/50">
-                                    <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold tracking-wide ${roleColors[u.role] ?? roleColors.Agent}`}>{u.role}</span>
+                                    <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold tracking-wide ${roleColors[u.role] ?? roleColors.Agent}`}>{t(roleTranslationKeys[u.role] ?? 'users.roleAgent')}</span>
                                     <span className={`flex items-center gap-1 ${statusColors[displayStatus]}`}>
                                         <StatusIcon className={`w-3 h-3 ${isOnline ? 'animate-pulse' : ''}`} />
                                         {statusLabels[displayStatus]}
@@ -303,7 +314,7 @@ function UsersPage() {
 
             {last_page > 1 && (
                 <div className="flex flex-col items-center gap-3">
-                    <p className="text-xs text-text-muted">Page {current_page} / {last_page}</p>
+                    <p className="text-xs text-text-muted">{t('common.pageXofY', { current: current_page, last: last_page })}</p>
                     <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
                         <button onClick={() => goPage(current_page - 1)} disabled={current_page === 1} className="p-2 rounded-lg bg-input-bg text-text-muted hover:text-text-primary disabled:opacity-30 transition-all shrink-0"><ChevronLeft className="w-4 h-4" /></button>
                         {Array.from({ length: last_page }, (_, i) => (
@@ -318,17 +329,17 @@ function UsersPage() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => !processing && setShowModal(false)}>
                     <div ref={modalRef} className="glass rounded-xl p-6 w-full max-w-md mx-4 shadow-2xl scale-in" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between mb-5">
-                            <h2 className="text-lg font-bold text-text-primary">{editingUser ? 'Modifier' : 'Nouvel utilisateur'}</h2>
+                            <h2 className="text-lg font-bold text-text-primary">{editingUser ? t('users.edit') : t('users.newUser')}</h2>
                             <button onClick={() => !processing && setShowModal(false)} className="p-1 rounded-lg text-text-muted hover:text-text-primary transition-all"><X className="w-5 h-5" /></button>
                         </div>
                         <div className="space-y-4">
                             {[
-                                { field: 'name', label: 'Nom complet', type: 'text', placeholder: 'Jean Dupont' },
-                                { field: 'email', label: 'Email', type: 'email', placeholder: 'jean@smartbin.cm' },
-                                { field: 'phone', label: 'Téléphone', type: 'text', placeholder: '+237 6XX XXX XXX' },
+                                { field: 'name', label: 'auth.fullName', type: 'text', placeholder: 'Jean Dupont' },
+                                { field: 'email', label: 'auth.email', type: 'email', placeholder: 'jean@smartbin.cm' },
+                                { field: 'phone', label: 'profile.phone', type: 'text', placeholder: '+237 6XX XXX XXX' },
                             ].map(({ field, label, type, placeholder }) => (
                                 <div key={field}>
-                                    <label className="text-xs text-text-muted font-semibold mb-1.5 block">{label}</label>
+                                    <label className="text-xs text-text-muted font-semibold mb-1.5 block">{t(label)}</label>
                                     <input type={type} value={(form as any)[field]} onChange={(e) => setForm({ ...form, [field]: e.target.value })} disabled={processing}
                                         className={`w-full px-4 py-2.5 bg-input-bg rounded-xl border ${getError(field) ? 'border-red-500/50' : 'border-border'} focus:border-emerald-500 outline-none text-sm text-text-primary placeholder:text-text-muted transition-all disabled:opacity-50`}
                                         placeholder={placeholder} />
@@ -336,17 +347,17 @@ function UsersPage() {
                                 </div>
                             ))}
                             <div>
-                                <label className="text-xs text-text-muted font-semibold mb-1.5 block">Rôle</label>
+                                <label className="text-xs text-text-muted font-semibold mb-1.5 block">{t('common.role')}</label>
                                 <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} disabled={processing}
                                     className={`w-full px-4 py-2.5 bg-input-bg rounded-xl border ${getError('role') ? 'border-red-500/50' : 'border-border'} focus:border-emerald-500 outline-none text-sm text-text-primary transition-all disabled:opacity-50`}>
-                                    {roleOptions.filter((r) => r !== 'Tous').map((r) => (
-                                        <option key={r} value={roleToDb[r]}>{r}</option>
+                                    {Object.keys(roleTranslationKeys).filter((r) => r !== 'Tous').map((r) => (
+                                        <option key={r} value={roleToDb[r]}>{t(roleTranslationKeys[r])}</option>
                                     ))}
                                 </select>
                                 {getError('role') && <p className="text-xs text-red-400 mt-1">{getError('role')}</p>}
                             </div>
                             <div>
-                                <label className="text-xs text-text-muted font-semibold mb-1.5 block">{editingUser ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe'}</label>
+                                <label className="text-xs text-text-muted font-semibold mb-1.5 block">{editingUser ? t('users.newPasswordOptional') : t('profile.passwordPlaceholder')}</label>
                                 <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} disabled={processing}
                                     className={`w-full px-4 py-2.5 bg-input-bg rounded-xl border ${getError('password') ? 'border-red-500/50' : 'border-border'} focus:border-emerald-500 outline-none text-sm text-text-primary placeholder:text-text-muted transition-all disabled:opacity-50`} />
                                 {getError('password') && <p className="text-xs text-red-400 mt-1">{getError('password')}</p>}
@@ -354,7 +365,7 @@ function UsersPage() {
                             <button onClick={submitForm} disabled={processing}
                                 className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-text-primary text-sm font-bold rounded-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
                                 {processing && <Loader2 className="w-4 h-4 animate-spin" />}
-                                {editingUser ? 'Enregistrer' : 'Créer'}
+                                {editingUser ? t('common.save') : t('common.create')}
                             </button>
                         </div>
                     </div>
@@ -369,22 +380,22 @@ function UsersPage() {
                                 <AlertTriangle className="w-5 h-5 text-red-400" />
                             </div>
                             <div>
-                                <h2 className="text-base font-bold text-text-primary">Confirmer la suppression</h2>
-                                <p className="text-sm text-text-secondary">Cette action est irréversible.</p>
+                                <h2 className="text-base font-bold text-text-primary">{t('users.deleteConfirm')}</h2>
+                                <p className="text-sm text-text-secondary">{t('users.deleteHint')}</p>
                             </div>
                         </div>
                         <p className="text-sm text-text-primary mb-6">
-                            Êtes-vous sûr de vouloir supprimer <span className="font-bold text-text-primary">{deleteTarget.name}</span> ?
+                            {t('users.deleteConfirmMessage', { name: deleteTarget.name })}
                         </p>
                         <div className="flex items-center gap-3">
                             <button onClick={() => setDeleteTarget(null)} disabled={processing}
                                 className="flex-1 py-2.5 bg-bg-card hover:bg-input-bg text-text-primary text-sm font-semibold rounded-xl transition-all disabled:opacity-50">
-                                Annuler
+                                {t('common.cancel')}
                             </button>
                             <button onClick={executeDelete} disabled={processing}
                                 className="flex-1 py-2.5 bg-red-600 hover:bg-red-500 active:scale-[0.98] text-text-primary text-sm font-bold rounded-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
                                 {processing && <Loader2 className="w-4 h-4 animate-spin" />}
-                                Supprimer
+                                {t('common.delete')}
                             </button>
                         </div>
                     </div>

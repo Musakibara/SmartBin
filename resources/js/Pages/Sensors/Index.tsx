@@ -4,6 +4,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 import AppLayout from '../../Layouts/AppLayout'
 import { useToast } from '../../Components/Toast'
 import { usePage, router } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 
 interface Sensor {
     id: string
@@ -36,6 +37,7 @@ const dbToType: Record<string, string> = { ULTRASONIC: 'Ultrason', WEIGHT: 'Poid
 const modelByType: Record<string, string> = { Ultrason: 'HC-SR04', Poids: 'HX711', Température: 'DS18B20', Batterie: 'MAX17048' }
 
 function SensorsPage() {
+    const { t } = useTranslation()
     const { sensors: initialSensors, bins } = usePage().props as unknown as { sensors: Sensor[]; bins?: Array<{ id: string; name: string; code: string }> }
     const userRole = (usePage().props as { auth?: { user?: { role?: string } } })?.auth?.user?.role
 
@@ -86,10 +88,10 @@ function SensorsPage() {
     function saveSensor() {
         if (editingSensor) {
             router.patch(`/sensors/${editingSensor.id}`, { type: typeToDb[form.type], model: form.model, status: form.status }, { preserveScroll: true })
-            notify({ message: 'Capteur modifié', sub: `${form.type} — ${editingSensor.binName}`, type: 'info' })
+            notify({ message: t('sensors.toastModified'), sub: `${form.type} — ${editingSensor.binName}`, type: 'info' })
         } else {
             router.post('/sensors', { bin_id: form.binId, type: typeToDb[form.type], model: form.model, status: form.status }, { preserveScroll: true })
-            notify({ message: 'Capteur ajouté', sub: `${form.type}`, type: 'success' })
+            notify({ message: t('sensors.toastAdded'), sub: `${form.type}`, type: 'success' })
         }
         setShowModal(false)
         setEditingSensor(null)
@@ -99,7 +101,7 @@ function SensorsPage() {
         if (!deleteTarget) return
         router.delete(`/sensors/${deleteTarget.id}`, { preserveScroll: true })
         setSensors((prev) => prev.filter((s) => s.id !== deleteTarget.id))
-        notify({ message: 'Capteur supprimé', sub: `${deleteTarget.type} — ${deleteTarget.binName}`, type: 'success' })
+        notify({ message: t('sensors.toastDeleted'), sub: `${deleteTarget.type} — ${deleteTarget.binName}`, type: 'success' })
         setDeleteTarget(null)
     }
 
@@ -114,13 +116,13 @@ function SensorsPage() {
                                 <svg className="w-4 h-4 text-text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                             </div>
                             <div>
-                                <p className="text-sm font-semibold text-text-primary">Supprimer le capteur</p>
+                                <p className="text-sm font-semibold text-text-primary">{t('sensors.deleteConfirm')}</p>
                                 <p className="text-xs text-red-200/80">{deleteTarget.type} — {deleteTarget.binName}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
-                            <button onClick={confirmDelete} className="px-4 py-1.5 bg-white text-red-700 text-xs font-bold rounded-lg hover:bg-red-50 transition-all shadow-lg">Confirmer</button>
-                            <button onClick={() => setDeleteTarget(null)} className="px-4 py-1.5 bg-white/10 text-text-primary text-xs font-semibold rounded-lg hover:bg-white/20 transition-all">Annuler</button>
+                            <button onClick={confirmDelete} className="px-4 py-1.5 bg-white text-red-700 text-xs font-bold rounded-lg hover:bg-red-50 transition-all shadow-lg">{t('common.confirm')}</button>
+                            <button onClick={() => setDeleteTarget(null)} className="px-4 py-1.5 bg-white/10 text-text-primary text-xs font-semibold rounded-lg hover:bg-white/20 transition-all">{t('common.cancel')}</button>
                         </div>
                     </div>
                 </div>
@@ -130,13 +132,13 @@ function SensorsPage() {
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold text-text-primary flex items-center gap-2">
-                        <Radio className="w-6 h-6 text-cyan-400" />Capteurs
+                        <Radio className="w-6 h-6 text-cyan-400" />{t('sensors.title')}
                     </h1>
-                    <p className="text-sm text-text-secondary mt-1">{sensors.length} capteurs · {onlineCount} en ligne · {errorCount} en erreur</p>
+                    <p className="text-sm text-text-secondary mt-1">{t('sensors.statusSummary', { count: sensors.length, online: onlineCount, error: errorCount })}</p>
                 </div>
                 {(userRole === 'ADMIN' || userRole === 'SUPERVISEUR' || userRole === 'OPERATEUR' || userRole === 'TECHNICIEN') && (
                     <button onClick={openAdd} className="flex items-center gap-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-text-primary text-sm font-semibold rounded-xl transition-colors">
-                        <Plus className="w-4 h-4" /> Ajouter un capteur
+                        <Plus className="w-4 h-4" /> {t('sensors.add')}
                     </button>
                 )}
             </div>
@@ -144,15 +146,15 @@ function SensorsPage() {
             {/* KPIs */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
-                    { label: 'Total capteurs', value: sensors.length, icon: Radio, color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
-                    { label: 'En ligne', value: onlineCount, icon: Wifi, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-                    { label: 'Hors ligne', value: sensors.filter((s) => s.status === 'offline').length, icon: WifiOff, color: 'text-text-muted', bg: 'bg-gray-500/10' },
-                    { label: 'Erreurs', value: errorCount, icon: AlertTriangle, color: 'text-red-400', bg: 'bg-red-500/10' },
-                ].map(({ label, value, icon: Icon, color, bg }) => (
-                    <div key={label} className="glass rounded-xl p-4 flex items-center gap-3">
+                    { key: 'total' as const, value: sensors.length, icon: Radio, color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
+                    { key: 'online' as const, value: onlineCount, icon: Wifi, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+                    { key: 'offline' as const, value: sensors.filter((s) => s.status === 'offline').length, icon: WifiOff, color: 'text-text-muted', bg: 'bg-gray-500/10' },
+                    { key: 'error' as const, value: errorCount, icon: AlertTriangle, color: 'text-red-400', bg: 'bg-red-500/10' },
+                ].map(({ key, value, icon: Icon, color, bg }) => (
+                    <div key={key} className="glass rounded-xl p-4 flex items-center gap-3">
                         <div className={`p-2.5 rounded-xl ${bg}`}><Icon className={`w-5 h-5 ${color}`} /></div>
                         <div>
-                            <p className="text-xs text-text-muted">{label}</p>
+                            <p className="text-xs text-text-muted">{key === 'total' ? t('sensors.total') : key === 'online' ? t('sensors.online') : key === 'offline' ? t('sensors.offline') : t('sensors.error')}</p>
                             <p className={`text-lg font-bold ${color}`}>{value}</p>
                         </div>
                     </div>
@@ -163,17 +165,17 @@ function SensorsPage() {
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                 <div className="relative flex-1 max-w-md">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-                    <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} placeholder="Rechercher un capteur..." className="w-full pl-10 pr-4 py-2.5 bg-input-bg rounded-xl border border-border focus:border-cyan-500 outline-none text-sm text-text-primary placeholder:text-text-muted transition-all" />
+                    <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} placeholder={t('sensors.search')} className="w-full pl-10 pr-4 py-2.5 bg-input-bg rounded-xl border border-border focus:border-cyan-500 outline-none text-sm text-text-primary placeholder:text-text-muted transition-all" />
                 </div>
                 <div className="flex items-center gap-3 flex-wrap">
                     <div className="flex items-center gap-1 bg-input-bg rounded-lg p-0.5 overflow-x-auto no-scrollbar">
                         {['Tous', 'online', 'offline', 'error'].map((s) => (
-                            <button key={s} onClick={() => { setStatusFilter(s); setPage(1) }} className={`shrink-0 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${statusFilter === s ? 'bg-cyan-600 text-text-primary shadow-lg' : 'text-text-muted hover:text-gray-300'}`}>{s === 'Tous' ? 'Tous' : s === 'online' ? 'En ligne' : s === 'offline' ? 'Hors ligne' : 'Erreur'}</button>
+                            <button key={s} onClick={() => { setStatusFilter(s); setPage(1) }} className={`shrink-0 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${statusFilter === s ? 'bg-cyan-600 text-text-primary shadow-lg' : 'text-text-muted hover:text-gray-300'}`}>{s === 'Tous' ? t('common.all') : s === 'online' ? t('sensors.filterOnline') : s === 'offline' ? t('sensors.filterOffline') : t('sensors.filterError')}</button>
                         ))}
                     </div>
                     <div className="flex items-center gap-1 bg-input-bg rounded-lg p-0.5 overflow-x-auto no-scrollbar">
-                        {['Tous', ...sensorTypes].map((t) => (
-                            <button key={t} onClick={() => { setTypeFilter(t); setPage(1) }} className={`shrink-0 px-2.5 py-1.5 rounded-md text-[10px] font-semibold transition-all ${typeFilter === t ? 'bg-cyan-600 text-text-primary shadow-lg' : 'text-text-muted hover:text-gray-300'}`}>{t}</button>
+                        {['Tous', ...sensorTypes].map((type) => (
+                            <button key={type} onClick={() => { setTypeFilter(type); setPage(1) }} className={`shrink-0 px-2.5 py-1.5 rounded-md text-[10px] font-semibold transition-all ${typeFilter === type ? 'bg-cyan-600 text-text-primary shadow-lg' : 'text-text-muted hover:text-gray-300'}`}>{type === 'Tous' ? t('common.all') : type === 'Ultrason' ? t('sensors.typeUltrason') : type === 'Poids' ? t('sensors.typeWeight') : type === 'Température' ? t('sensors.typeTemperature') : t('sensors.typeBattery')}</button>
                         ))}
                     </div>
                 </div>
@@ -202,7 +204,7 @@ function SensorsPage() {
                                     </div>
                                 </div>
                                 <span className={`flex items-center gap-1 text-[10px] font-semibold ${st.color}`}>
-                                    <st.icon className="w-3 h-3" />{st.label}
+                                    <st.icon className="w-3 h-3" />{sensor.status === 'online' ? t('sensors.filterOnline') : sensor.status === 'offline' ? t('sensors.filterOffline') : t('sensors.filterError')}
                                 </span>
                             </div>
 
@@ -278,7 +280,7 @@ function SensorsPage() {
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
                     <div className="relative w-full max-w-md glass rounded-2xl p-6 border border-border shadow-2xl" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-lg font-bold text-text-primary">{editingSensor ? 'Modifier' : 'Nouveau'} capteur</h2>
+                            <h2 className="text-lg font-bold text-text-primary">{editingSensor ? t('sensors.edit') : t('sensors.newSensor')}</h2>
                             <button onClick={() => { setShowModal(false); setEditingSensor(null) }} className="p-1 rounded-lg hover:bg-white/5 text-text-muted hover:text-text-primary transition-all">
                                 <X className="w-4 h-4" />
                             </button>
@@ -286,7 +288,7 @@ function SensorsPage() {
                         <div className="space-y-4">
                             {!editingSensor && (
                                 <div>
-                                    <label className="text-[12px] font-medium text-text-secondary mb-1.5 block">Benne</label>
+                                    <label className="text-[12px] font-medium text-text-secondary mb-1.5 block">{t('sensors.bin')}</label>
                                     <select value={form.binId} onChange={(e) => setForm({ ...form, binId: e.target.value })}
                                         className="w-full px-3 py-2.5 bg-input-bg rounded-lg border border-border focus:border-cyan-500 outline-none text-sm text-text-primary transition-all">
                                         {(bins as Array<{ id: string; name: string; code: string }>)?.map((b) => (
@@ -296,7 +298,7 @@ function SensorsPage() {
                                 </div>
                             )}
                             <div>
-                                <label className="text-[12px] font-medium text-text-secondary mb-1.5 block">Type</label>
+                                <label className="text-[12px] font-medium text-text-secondary mb-1.5 block">{t('common.type')}</label>
                                 <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value, model: modelByType[e.target.value] ?? 'HC-SR04' })}
                                     className="w-full px-3 py-2.5 bg-input-bg rounded-lg border border-border focus:border-cyan-500 outline-none text-sm text-text-primary transition-all">
                                     {sensorTypes.map((t) => (
@@ -305,21 +307,21 @@ function SensorsPage() {
                                 </select>
                             </div>
                             <div>
-                                <label className="text-[12px] font-medium text-text-secondary mb-1.5 block">Modèle</label>
+                                <label className="text-[12px] font-medium text-text-secondary mb-1.5 block">{t('sensors.model')}</label>
                                 <input type="text" value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })}
                                     className="w-full px-3 py-2.5 bg-input-bg rounded-lg border border-border focus:border-cyan-500 outline-none text-sm text-text-primary placeholder:text-text-muted transition-all" />
                             </div>
                             <div>
-                                <label className="text-[12px] font-medium text-text-secondary mb-1.5 block">Statut</label>
+                                <label className="text-[12px] font-medium text-text-secondary mb-1.5 block">{t('common.status')}</label>
                                 <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}
                                     className="w-full px-3 py-2.5 bg-input-bg rounded-lg border border-border focus:border-cyan-500 outline-none text-sm text-text-primary transition-all">
-                                    <option value="ACTIVE" className="bg-input-bg">Actif</option>
-                                    <option value="INACTIVE" className="bg-input-bg">Inactif</option>
+                                    <option value="ACTIVE" className="bg-input-bg">{t('sensors.statusActive')}</option>
+                                    <option value="INACTIVE" className="bg-input-bg">{t('sensors.statusInactive')}</option>
                                 </select>
                             </div>
                             <button onClick={saveSensor}
                                 className="w-full py-2.5 bg-cyan-600 hover:bg-cyan-700 text-text-primary text-sm font-semibold rounded-xl transition-colors">
-                                {editingSensor ? 'Enregistrer' : 'Ajouter'}
+                                {editingSensor ? t('common.save') : t('common.add')}
                             </button>
                         </div>
                     </div>
@@ -330,8 +332,8 @@ function SensorsPage() {
             {paginated.length === 0 && (
                 <div className="text-center py-16">
                     <Radio className="w-12 h-12 text-text-muted mx-auto mb-4" />
-                    <p className="text-text-secondary text-sm">Aucun capteur trouvé</p>
-                    <p className="text-text-muted text-xs mt-1">Essayez de modifier vos filtres</p>
+                    <p className="text-text-secondary text-sm">{t('sensors.noSensors')}</p>
+                    <p className="text-text-muted text-xs mt-1">{t('sensors.noSensorsHint')}</p>
                 </div>
             )}
         </div>

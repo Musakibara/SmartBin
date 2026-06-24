@@ -16,6 +16,7 @@ import { useState, useMemo } from 'react'
 import { Brain, AlertTriangle, Search, ChevronLeft, ChevronRight, ArrowUpDown, Target, ShieldCheck, MapPin, RefreshCw, Trash2 } from 'lucide-react'
 import AppLayout from '../../Layouts/AppLayout'
 import { usePage, router } from '@inertiajs/react'
+import { useTranslation, Trans } from 'react-i18next'
 
 // Couleurs des badges de priorité (rouge = HIGH, ambre = MEDIUM, bleu = LOW)
 const levelColors: Record<string, string> = {
@@ -41,6 +42,7 @@ const levelDot: Record<string, string> = {
 const priorityOrder: Record<string, number> = { high: 0, medium: 1, low: 2 }
 
 function PredictionsPage() {
+    const { t } = useTranslation()
     // Props Inertia venant du PredictionController
     const { predictions, bins, filters, stats } = usePage().props as unknown as {
         predictions: {
@@ -81,10 +83,10 @@ function PredictionsPage() {
             <div className="flex items-center justify-between flex-wrap gap-3">
                 <div>
                     <h1 className="text-2xl font-bold text-text-primary flex items-center gap-2">
-                        <Brain className="w-6 h-6 text-purple-400" />Prédictions IA
+                        <Brain className="w-6 h-6 text-purple-400" />{t('predictions.title')}
                     </h1>
                     <p className="text-sm text-text-secondary mt-1">
-                        Anticipation des débordements par régression linéaire
+                        {t('predictions.pageDesc')}
                     </p>
                 </div>
                 {/* Bouton "Lancer l'IA" — visible ADMIN, SUPERVISEUR, OPERATEUR */}
@@ -95,7 +97,7 @@ function PredictionsPage() {
                         className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-text-primary text-sm font-semibold transition-all disabled:opacity-50"
                     >
                         <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
-                        {generating ? 'Génération...' : "Lancer l'IA"}
+                        {generating ? t('predictions.generating') : t('predictions.launch')}
                     </button>
                 )}
             </div>
@@ -105,24 +107,22 @@ function PredictionsPage() {
                 <div className="flex items-start gap-3">
                     <div className="p-2 rounded-xl bg-purple-500/10 shrink-0"><Brain className="w-5 h-5 text-purple-400" /></div>
                     <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-text-primary">Comment ça marche ?</p>
+                        <p className="text-sm font-semibold text-text-primary">{t('predictions.howItWorks')}</p>
                         <p className="text-xs text-text-secondary mt-1 leading-relaxed">
-                            Le modèle analyse les <strong className="text-purple-400">24 derniers relevés</strong> de chaque benne (espacés de ~30 min)
-                            et calcule une <strong className="text-purple-400">droite de tendance</strong> par régression linéaire.
-                            En prolongeant cette droite, il estime le moment où la benne atteindra <strong className="text-purple-400">100% de remplissage</strong>.
+                            <Trans i18nKey="predictions.howItWorksDesc" components={{ strong: <strong className="text-purple-400" /> }} />
                             {stats.high > 0 && (
-                                <span className="text-red-400"> {stats.high} benne{stats.high > 1 ? 's' : ''} à risque élevé détectée{stats.high > 1 ? 's' : ''}.</span>
+                                <Trans i18nKey="predictions.howItWorksRisk" values={{ count: stats.high }} components={{ strong: <strong className="text-red-400" /> }} />
                             )}
                         </p>
                         <button onClick={() => setShowInfo(!showInfo)} className="text-[10px] text-text-muted hover:text-text-secondary mt-1 underline underline-offset-2">
-                            {showInfo ? 'Masquer les détails' : 'Voir les détails techniques'}
+                            {showInfo ? t('predictions.hideDetails') : t('predictions.showDetails')}
                         </button>
                         {showInfo && (
                             <div className="mt-2 text-[10px] text-text-muted space-y-0.5 pl-2 border-l border-purple-500/30">
-                                <p>📊 <strong className="text-text-secondary">Algorithme :</strong> Régression linéaire (numpy.polyfit)</p>
-                                <p>📐 <strong className="text-text-secondary">Équation :</strong> y = a·x + b (a = pente de remplissage en %/h)</p>
-                                <p>📈 <strong className="text-text-secondary">Confiance :</strong> Coefficient R² (qualité de l'alignement des points)</p>
-                                <p>⏱️ <strong className="text-text-secondary">Données :</strong> 24 relevés × {predictions.total} prédictions</p>
+                                <p>📊 <strong className="text-text-secondary">{t('predictions.algoLabel')}</strong> {t('predictions.algoValue')}</p>
+                                <p>📐 <strong className="text-text-secondary">{t('predictions.equationLabel')}</strong> {t('predictions.equationValue')}</p>
+                                <p>📈 <strong className="text-text-secondary">{t('predictions.confidenceLabel')}</strong> {t('predictions.confidenceValue')}</p>
+                                <p>⏱️ <strong className="text-text-secondary">{t('predictions.dataLabel')}</strong> {t('predictions.dataValue', { count: 24, total: predictions.total })}</p>
                             </div>
                         )}
                     </div>
@@ -136,7 +136,7 @@ function PredictionsPage() {
                     <div className="flex items-center gap-3 mb-2">
                         <div className="p-2.5 rounded-xl bg-purple-500/10"><Brain className="w-5 h-5 text-purple-400" /></div>
                         <div>
-                            <p className="text-xs text-text-muted">Prédictions</p>
+                            <p className="text-xs text-text-muted">{t('predictions.title')}</p>
                             <p className="text-lg font-bold text-purple-400">{stats.total}</p>
                         </div>
                     </div>
@@ -144,12 +144,12 @@ function PredictionsPage() {
                     {stats.total > 0 && (
                         <div className="flex h-1.5 rounded-full overflow-hidden bg-bg-card">
                             {[
-                                { count: stats.high, color: 'bg-red-500', label: 'Urgent' },
-                                { count: stats.medium, color: 'bg-amber-400', label: 'Planifier' },
-                                { count: stats.low, color: 'bg-blue-400', label: 'Routine' },
-                            ].map(({ count, color, label }) =>
+                                { count: stats.high, color: 'bg-red-500', labelKey: 'predictions.urgent' },
+                                { count: stats.medium, color: 'bg-amber-400', labelKey: 'predictions.plan' },
+                                { count: stats.low, color: 'bg-blue-400', labelKey: 'predictions.routine' },
+                            ].map(({ count, color, labelKey }) =>
                                 count > 0 && (
-                                    <div key={label} className={`${color} h-full transition-all`} style={{ width: `${(count / stats.total) * 100}%` }} title={`${label}: ${count}`} />
+                                    <div key={labelKey} className={`${color} h-full transition-all`} style={{ width: `${(count / stats.total) * 100}%` }} title={`${t(labelKey)}: ${count}`} />
                                 )
                             )}
                         </div>
@@ -157,13 +157,13 @@ function PredictionsPage() {
                     {/* Légende */}
                     <div className="flex items-center gap-3 mt-2 text-[9px] text-text-muted">
                         {[
-                            { count: stats.high, color: 'bg-red-500', label: 'Urgent' },
-                            { count: stats.medium, color: 'bg-amber-400', label: 'Planifier' },
-                            { count: stats.low, color: 'bg-blue-400', label: 'Routine' },
-                        ].map(({ count, color, label }) => (
-                            <span key={label} className="flex items-center gap-1">
+                            { count: stats.high, color: 'bg-red-500', labelKey: 'predictions.urgent' },
+                            { count: stats.medium, color: 'bg-amber-400', labelKey: 'predictions.plan' },
+                            { count: stats.low, color: 'bg-blue-400', labelKey: 'predictions.routine' },
+                        ].map(({ count, color, labelKey }) => (
+                            <span key={labelKey} className="flex items-center gap-1">
                                 <span className={`w-1.5 h-1.5 rounded-full ${color}`} />
-                                {count} {label}
+                                {count} {t(labelKey)}
                             </span>
                         ))}
                     </div>
@@ -171,10 +171,10 @@ function PredictionsPage() {
 
                 {/* Cartes 2-4 : Niveaux de priorité — cliquables pour filtrer */}
                 {[
-                    { key: 'high', label: 'Haute priorité', value: stats.high, color: 'text-red-400', icon: AlertTriangle, desc: 'Intervention immédiate' },
-                    { key: 'medium', label: 'Planification', value: stats.medium, color: 'text-amber-400', icon: AlertTriangle, desc: 'Collecte à programmer' },
-                    { key: 'low', label: 'Surveillance', value: stats.low, color: 'text-blue-400', icon: ShieldCheck, desc: 'Routine' },
-                ].map(({ key, label, value, color, icon: Icon, desc }) => {
+                    { key: 'high', labelKey: 'predictions.highPriority', value: stats.high, color: 'text-red-400', icon: AlertTriangle, descKey: 'predictions.highDesc' },
+                    { key: 'medium', labelKey: 'predictions.mediumPriority', value: stats.medium, color: 'text-amber-400', icon: AlertTriangle, descKey: 'predictions.mediumDesc' },
+                    { key: 'low', labelKey: 'predictions.lowPriority', value: stats.low, color: 'text-blue-400', icon: ShieldCheck, descKey: 'predictions.lowDesc' },
+                ].map(({ key, labelKey, value, color, icon: Icon, descKey }) => {
                     const isActive = priorityFilter === key
                     return (
                         <button
@@ -189,13 +189,13 @@ function PredictionsPage() {
                             <div className="flex items-center gap-3">
                                 <div className={`p-2.5 rounded-xl ${levelBg[key]}`}><Icon className={`w-5 h-5 ${color}`} /></div>
                                 <div>
-                                    <p className="text-xs text-text-muted">{label}</p>
+                                    <p className="text-xs text-text-muted">{t(labelKey)}</p>
                                     <p className={`text-lg font-bold ${color}`}>{value}</p>
                                 </div>
                             </div>
                             <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50 text-[10px] text-text-muted">
-                                <span>{desc}</span>
-                                {isActive && <span className="text-purple-400 font-semibold text-[9px]">● Filtre actif</span>}
+                                <span>{t(descKey)}</span>
+                                {isActive && <span className="text-purple-400 font-semibold text-[9px]">● {t('predictions.filterActive')}</span>}
                             </div>
                         </button>
                     )
@@ -206,17 +206,17 @@ function PredictionsPage() {
                     <div className="flex items-center gap-3 mb-2">
                         <div className="p-2.5 rounded-xl bg-emerald-500/10"><ShieldCheck className="w-5 h-5 text-emerald-400" /></div>
                         <div>
-                            <p className="text-xs text-text-muted">Confiance R²</p>
+                            <p className="text-xs text-text-muted">{t('predictions.confidenceR2')}</p>
                             <p className="text-lg font-bold text-emerald-400">{stats.avgConfidence}%</p>
                         </div>
                     </div>
                     <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50 text-[10px] text-text-muted">
-                        <span>Bennes suivies</span>
-                        <span className="text-cyan-400 font-semibold">{bins.length} bennes</span>
+                        <span>{t('predictions.binsTracked')}</span>
+                        <span className="text-cyan-400 font-semibold">{t('predictions.binsCount', { count: bins.length })}</span>
                     </div>
                     <div className="flex items-center justify-between text-[10px] text-text-muted">
-                        <span>Dernière exécution</span>
-                        <span className="text-text-muted font-semibold">À la demande</span>
+                        <span>{t('predictions.lastExecution')}</span>
+                        <span className="text-text-muted font-semibold">{t('predictions.onDemand')}</span>
                     </div>
                 </div>
             </div>
@@ -226,7 +226,7 @@ function PredictionsPage() {
                 <div className="glass rounded-xl p-5">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-sm font-bold text-text-primary flex items-center gap-2">
-                            <Brain className="w-4 h-4 text-purple-400" />Temps avant débordement
+                            <Brain className="w-4 h-4 text-purple-400" />{t('predictions.timeToOverflow')}
                         </h2>
                         {/* Légende des seuils */}
                         <div className="flex items-center gap-2 text-[10px] text-text-muted">
@@ -256,13 +256,13 @@ function PredictionsPage() {
                                             {/* Point indicateur + animation pulse si HIGH */}
                                             <div className={`w-2 h-2 rounded-full ${dotColor} ${p.priority === 'high' ? 'animate-pulse' : ''}`} />
                                             <span className="text-[9px] font-bold text-text-primary drop-shadow-md">
-                                                {p.estimatedHours > 0 ? `~${Math.round(p.estimatedHours)}h` : '< 1h'}
+                                                {p.estimatedHours > 0 ? `~${Math.round(p.estimatedHours)}h` : t('predictions.lessThan1h')}
                                             </span>
                                         </div>
                                     </div>
                                     {/* Label priorité */}
                                     <span className={`text-[9px] font-semibold w-10 shrink-0 hidden sm:block text-center ${p.priority === 'high' ? 'text-red-400' : p.priority === 'medium' ? 'text-amber-400' : 'text-blue-400'}`}>
-                                        {p.priority === 'high' ? 'Urgent' : p.priority === 'medium' ? 'Planifier' : 'Routine'}
+                                        {p.priority === 'high' ? t('predictions.urgent') : p.priority === 'medium' ? t('predictions.plan') : t('predictions.routine')}
                                     </span>
                                 </div>
                             )
@@ -277,21 +277,21 @@ function PredictionsPage() {
                     {/* Barre de recherche */}
                     <div className="relative flex-1 max-w-md">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-                        <input value={search} onChange={(e) => { setSearch(e.target.value); router.get('/predictions', { search: e.target.value, priority: priorityFilter === 'Toutes' ? '' : priorityFilter }, { preserveState: true, replace: true }) }} placeholder="Rechercher par benne, lieu..." className="w-full pl-10 pr-4 py-2.5 bg-input-bg rounded-xl border border-border focus:border-purple-500 outline-none text-sm text-text-primary placeholder:text-text-muted transition-all" />
+                        <input value={search} onChange={(e) => { setSearch(e.target.value); router.get('/predictions', { search: e.target.value, priority: priorityFilter === 'Toutes' ? '' : priorityFilter }, { preserveState: true, replace: true }) }} placeholder={t('predictions.search')} className="w-full pl-10 pr-4 py-2.5 bg-input-bg rounded-xl border border-border focus:border-purple-500 outline-none text-sm text-text-primary placeholder:text-text-muted transition-all" />
                     </div>
                     {/* Filtre priorité actif + tri */}
                     <div className="flex items-center gap-3 flex-wrap">
                         {priorityFilter !== 'Toutes' && (
                             <span className="text-[10px] text-text-muted flex items-center gap-1">
-                                Filtre : <span className={`font-semibold ${priorityFilter === 'high' ? 'text-red-400' : priorityFilter === 'medium' ? 'text-amber-400' : 'text-blue-400'}`}>
-                                    {priorityFilter === 'high' ? 'Urgent' : priorityFilter === 'medium' ? 'Planifier' : 'Routine'}
+                                {t('predictions.filter')} <span className={`font-semibold ${priorityFilter === 'high' ? 'text-red-400' : priorityFilter === 'medium' ? 'text-amber-400' : 'text-blue-400'}`}>
+                                    {priorityFilter === 'high' ? t('predictions.urgent') : priorityFilter === 'medium' ? t('predictions.plan') : t('predictions.routine')}
                                 </span>
                                 <button onClick={() => { setPriorityFilter('Toutes'); router.get('/predictions', { priority: '', search }, { preserveState: true, replace: true }) }} className="ml-1 text-text-muted hover:text-text-primary transition-colors">✕</button>
                             </span>
                         )}
                         {/* Bouton tri urgent */}
                         <button onClick={() => setSortAsc(!sortAsc)} className="flex items-center gap-1.5 px-3 py-1.5 bg-input-bg rounded-lg text-xs text-text-muted hover:text-text-primary transition-all">
-                            <ArrowUpDown className="w-3.5 h-3.5" />{sortAsc ? 'Urgent ▲' : 'Urgent ▼'}
+                            <ArrowUpDown className="w-3.5 h-3.5" />{t('predictions.sortUrgent')} {sortAsc ? '▲' : '▼'}
                         </button>
                     </div>
                 </div>
@@ -301,10 +301,9 @@ function PredictionsPage() {
             {predictions.total === 0 ? (
                 <div className="glass rounded-xl p-10 text-center">
                     <Brain className="w-12 h-12 text-text-muted mx-auto mb-4" />
-                    <p className="text-lg font-bold text-text-primary">Aucune prédiction</p>
+                    <p className="text-lg font-bold text-text-primary">{t('predictions.emptyTitle')}</p>
                     <p className="text-sm text-text-secondary mt-1 max-w-md mx-auto">
-                        Cliquez sur <strong className="text-purple-400">"Lancer l'IA"</strong> pour générer les prédictions. 
-                        Le modèle analysera les relevés de toutes les bennes et estimera les risques de débordement.
+                        <Trans i18nKey="predictions.emptyDesc" values={{ action: t('predictions.launch') }} components={{ strong: <strong className="text-purple-400" /> }} />
                     </p>
                     {(userRole === 'ADMIN' || userRole === 'SUPERVISEUR' || userRole === 'OPERATEUR') && (
                         <button
@@ -313,7 +312,7 @@ function PredictionsPage() {
                             className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-text-primary text-sm font-semibold transition-all disabled:opacity-50"
                         >
                             <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
-                            {generating ? 'Génération...' : "Lancer l'IA"}
+                        {generating ? t('predictions.generating') : t('predictions.launch')}
                         </button>
                     )}
                 </div>
@@ -338,11 +337,11 @@ function PredictionsPage() {
                                     <div className="flex items-center gap-1">
                                         {/* Badge de priorité */}
                                         <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${levelColors[p.priority]}`}>
-                                            {p.priority === 'high' ? 'Urgent' : p.priority === 'medium' ? 'Planifier' : 'Routine'}
+                                            {p.priority === 'high' ? t('predictions.urgent') : p.priority === 'medium' ? t('predictions.plan') : t('predictions.routine')}
                                         </span>
                                         {/* Bouton supprimer — ADMIN et SUPERVISEUR uniquement */}
                                         {(userRole === 'ADMIN' || userRole === 'SUPERVISEUR') && (
-                                            <button onClick={() => { if (confirm('Supprimer cette prédiction ?')) router.delete(`/predictions/${p.id}`, { preserveState: true }) }} className="p-1 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-500/10 text-text-muted hover:text-red-400 transition-all" title="Supprimer">
+                                            <button onClick={() => { if (confirm(t('predictions.deleteConfirm'))) router.delete(`/predictions/${p.id}`, { preserveState: true }) }} className="p-1 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-500/10 text-text-muted hover:text-red-400 transition-all" title={t('common.delete')}>
                                                 <Trash2 className="w-3 h-3" />
                                             </button>
                                         )}
@@ -355,9 +354,9 @@ function PredictionsPage() {
                                 {/* Barre de progression temps restant */}
                                 <div className="space-y-1.5 mb-3">
                                     <div className="flex justify-between text-xs">
-                                        <span className="text-text-muted">Temps avant débordement</span>
+                                        <span className="text-text-muted">{t('predictions.timeToOverflow')}</span>
                                         <span className="font-semibold text-text-primary">
-                                            {p.estimatedHours > 0 ? `~${Math.round(p.estimatedHours)}h` : '< 1h'}
+                                            {p.estimatedHours > 0 ? `~${Math.round(p.estimatedHours)}h` : t('predictions.lessThan1h')}
                                         </span>
                                     </div>
                                     <div className="w-full h-2 bg-bg-card rounded-full overflow-hidden">
@@ -373,21 +372,21 @@ function PredictionsPage() {
                                             <ShieldCheck className="w-3 h-3 text-emerald-400" />
                                             <span className="text-xs font-bold text-emerald-400">{p.confidence}%</span>
                                         </div>
-                                        <p className="text-[9px] text-text-muted mt-0.5">Confiance R²</p>
+                                        <p className="text-[9px] text-text-muted mt-0.5">{t('predictions.confidenceR2')}</p>
                                     </div>
                                     <div className="text-center">
                                         <div className="flex items-center justify-center gap-1">
                                             <AlertTriangle className={`w-3 h-3 ${p.priority === 'high' ? 'text-red-400' : p.priority === 'medium' ? 'text-amber-400' : 'text-blue-400'}`} />
                                             <span className={`text-xs font-bold ${p.priority === 'high' ? 'text-red-400' : p.priority === 'medium' ? 'text-amber-400' : 'text-blue-400'}`}>{p.riskScore}</span>
                                         </div>
-                                        <p className="text-[9px] text-text-muted mt-0.5">Score de risque</p>
+                                        <p className="text-[9px] text-text-muted mt-0.5">{t('predictions.riskScore')}</p>
                                     </div>
                                     <div className="text-center">
                                         <div className="flex items-center justify-center gap-1">
                                             <MapPin className="w-3 h-3 text-cyan-400" />
                                             <span className="text-xs font-bold text-text-primary truncate max-w-[80px] block" title={p.binLocation}>{p.binLocation}</span>
                                         </div>
-                                        <p className="text-[9px] text-text-muted mt-0.5">Localisation</p>
+                                        <p className="text-[9px] text-text-muted mt-0.5">{t('predictions.location')}</p>
                                     </div>
                                 </div>
                             </div>
@@ -410,11 +409,11 @@ function PredictionsPage() {
             {/* ═══════════ Info bas de page ═══════════ */}
             <div className="glass rounded-xl p-4 flex items-center justify-between text-xs text-text-muted">
                 <div className="flex items-center gap-4 flex-wrap">
-                    <span className="flex items-center gap-1.5"><Brain className="w-3.5 h-3.5 text-purple-400" />Régression linéaire (numpy)</span>
-                    <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />R² = confiance</span>
-                    <span className="flex items-center gap-1.5"><Target className="w-3.5 h-3.5 text-cyan-400" />{predictions.total} prédictions sur {bins.length} bennes</span>
+                    <span className="flex items-center gap-1.5"><Brain className="w-3.5 h-3.5 text-purple-400" />{t('predictions.footerAlgo')}</span>
+                    <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />{t('predictions.footerR2')}</span>
+                    <span className="flex items-center gap-1.5"><Target className="w-3.5 h-3.5 text-cyan-400" />{t('predictions.footerCount', { total: predictions.total, bins: bins.length })}</span>
                 </div>
-                <span>Analyse à la demande</span>
+                <span>{t('predictions.footerAnalyze')}</span>
             </div>
         </div>
     )
