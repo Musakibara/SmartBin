@@ -37,10 +37,10 @@ export default function UpdateProfileInformation({
                     <User className="w-4 h-4 text-emerald-400" />
                 </div>
                 <div>
-                    <h2 className="text-lg font-bold text-white">
+                    <h2 className="text-lg font-bold text-text-primary">
                         Informations personnelles
                     </h2>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-text-secondary">
                         Mettez à jour votre nom, email, téléphone et Telegram.
                     </p>
                 </div>
@@ -48,11 +48,11 @@ export default function UpdateProfileInformation({
 
             <form onSubmit={submit} className="space-y-5">
                 <div>
-                    <InputLabel htmlFor="name" value="Nom" className="text-gray-300 text-xs font-semibold" />
+                    <InputLabel htmlFor="name" value="Nom" className="text-text-primary text-xs font-semibold" />
 
                     <TextInput
                         id="name"
-                        className="mt-1 block w-full border-[#334155] bg-[#1E293B] text-white placeholder:text-gray-500 focus:border-emerald-500 focus:ring-emerald-500"
+                        className="mt-1 block w-full border-border bg-input-bg text-text-primary placeholder:text-text-muted focus:border-emerald-500 focus:ring-emerald-500"
                         value={data.name}
                         onChange={(e) => setData('name', e.target.value)}
                         required
@@ -64,12 +64,12 @@ export default function UpdateProfileInformation({
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="email" value="Email" className="text-gray-300 text-xs font-semibold" />
+                    <InputLabel htmlFor="email" value="Email" className="text-text-primary text-xs font-semibold" />
 
                     <TextInput
                         id="email"
                         type="email"
-                        className="mt-1 block w-full border-[#334155] bg-[#1E293B] text-white placeholder:text-gray-500 focus:border-emerald-500 focus:ring-emerald-500"
+                        className="mt-1 block w-full border-border bg-input-bg text-text-primary placeholder:text-text-muted focus:border-emerald-500 focus:ring-emerald-500"
                         value={data.email}
                         onChange={(e) => setData('email', e.target.value)}
                         required
@@ -80,12 +80,12 @@ export default function UpdateProfileInformation({
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="phone" value="Téléphone" className="text-gray-300 text-xs font-semibold" />
+                    <InputLabel htmlFor="phone" value="Téléphone" className="text-text-primary text-xs font-semibold" />
 
                     <TextInput
                         id="phone"
                         type="tel"
-                        className="mt-1 block w-full border-[#334155] bg-[#1E293B] text-white placeholder:text-gray-500 focus:border-emerald-500 focus:ring-emerald-500"
+                        className="mt-1 block w-full border-border bg-input-bg text-text-primary placeholder:text-text-muted focus:border-emerald-500 focus:ring-emerald-500"
                         value={data.phone}
                         onChange={(e) => setData('phone', e.target.value)}
                         autoComplete="tel"
@@ -96,12 +96,12 @@ export default function UpdateProfileInformation({
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="telegram_chat_id" value="Telegram Chat ID" className="text-gray-300 text-xs font-semibold" />
+                    <InputLabel htmlFor="telegram_chat_id" value="Telegram Chat ID" className="text-text-primary text-xs font-semibold" />
 
                     <TextInput
                         id="telegram_chat_id"
                         type="text"
-                        className="mt-1 block w-full border-[#334155] bg-[#1E293B] text-white placeholder:text-gray-500 focus:border-emerald-500 focus:ring-emerald-500"
+                        className="mt-1 block w-full border-border bg-input-bg text-text-primary placeholder:text-text-muted focus:border-emerald-500 focus:ring-emerald-500"
                         value={data.telegram_chat_id}
                         onChange={(e) => setData('telegram_chat_id', e.target.value)}
                         placeholder="1739774375"
@@ -109,7 +109,7 @@ export default function UpdateProfileInformation({
 
                     <div className="mt-1.5 flex items-center gap-1.5">
                         <MessageCircle className="w-3 h-3 text-sky-400" />
-                        <p className="text-[11px] text-gray-500">
+                        <p className="text-[11px] text-text-muted">
                             ID numérique récupéré depuis <a href="https://t.me/BotFather" target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:underline">@BotFather</a>
                         </p>
                     </div>

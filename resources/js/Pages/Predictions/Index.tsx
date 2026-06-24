@@ -80,10 +80,10 @@ function PredictionsPage() {
             {/* ═══════════ En-tête ═══════════ */}
             <div className="flex items-center justify-between flex-wrap gap-3">
                 <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                    <h1 className="text-2xl font-bold text-text-primary flex items-center gap-2">
                         <Brain className="w-6 h-6 text-purple-400" />Prédictions IA
                     </h1>
-                    <p className="text-sm text-gray-400 mt-1">
+                    <p className="text-sm text-text-secondary mt-1">
                         Anticipation des débordements par régression linéaire
                     </p>
                 </div>
@@ -92,7 +92,7 @@ function PredictionsPage() {
                     <button
                         onClick={() => { setGenerating(true); router.post('/predictions/generate', {}, { preserveState: true, onFinish: () => setGenerating(false) }); }}
                         disabled={generating}
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold transition-all disabled:opacity-50"
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-text-primary text-sm font-semibold transition-all disabled:opacity-50"
                     >
                         <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
                         {generating ? 'Génération...' : "Lancer l'IA"}
@@ -105,8 +105,8 @@ function PredictionsPage() {
                 <div className="flex items-start gap-3">
                     <div className="p-2 rounded-xl bg-purple-500/10 shrink-0"><Brain className="w-5 h-5 text-purple-400" /></div>
                     <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-white">Comment ça marche ?</p>
-                        <p className="text-xs text-gray-400 mt-1 leading-relaxed">
+                        <p className="text-sm font-semibold text-text-primary">Comment ça marche ?</p>
+                        <p className="text-xs text-text-secondary mt-1 leading-relaxed">
                             Le modèle analyse les <strong className="text-purple-400">24 derniers relevés</strong> de chaque benne (espacés de ~30 min)
                             et calcule une <strong className="text-purple-400">droite de tendance</strong> par régression linéaire.
                             En prolongeant cette droite, il estime le moment où la benne atteindra <strong className="text-purple-400">100% de remplissage</strong>.
@@ -114,15 +114,15 @@ function PredictionsPage() {
                                 <span className="text-red-400"> {stats.high} benne{stats.high > 1 ? 's' : ''} à risque élevé détectée{stats.high > 1 ? 's' : ''}.</span>
                             )}
                         </p>
-                        <button onClick={() => setShowInfo(!showInfo)} className="text-[10px] text-gray-500 hover:text-gray-400 mt-1 underline underline-offset-2">
+                        <button onClick={() => setShowInfo(!showInfo)} className="text-[10px] text-text-muted hover:text-text-secondary mt-1 underline underline-offset-2">
                             {showInfo ? 'Masquer les détails' : 'Voir les détails techniques'}
                         </button>
                         {showInfo && (
-                            <div className="mt-2 text-[10px] text-gray-500 space-y-0.5 pl-2 border-l border-purple-500/30">
-                                <p>📊 <strong className="text-gray-400">Algorithme :</strong> Régression linéaire (numpy.polyfit)</p>
-                                <p>📐 <strong className="text-gray-400">Équation :</strong> y = a·x + b (a = pente de remplissage en %/h)</p>
-                                <p>📈 <strong className="text-gray-400">Confiance :</strong> Coefficient R² (qualité de l'alignement des points)</p>
-                                <p>⏱️ <strong className="text-gray-400">Données :</strong> 24 relevés × {predictions.total} prédictions</p>
+                            <div className="mt-2 text-[10px] text-text-muted space-y-0.5 pl-2 border-l border-purple-500/30">
+                                <p>📊 <strong className="text-text-secondary">Algorithme :</strong> Régression linéaire (numpy.polyfit)</p>
+                                <p>📐 <strong className="text-text-secondary">Équation :</strong> y = a·x + b (a = pente de remplissage en %/h)</p>
+                                <p>📈 <strong className="text-text-secondary">Confiance :</strong> Coefficient R² (qualité de l'alignement des points)</p>
+                                <p>⏱️ <strong className="text-text-secondary">Données :</strong> 24 relevés × {predictions.total} prédictions</p>
                             </div>
                         )}
                     </div>
@@ -136,13 +136,13 @@ function PredictionsPage() {
                     <div className="flex items-center gap-3 mb-2">
                         <div className="p-2.5 rounded-xl bg-purple-500/10"><Brain className="w-5 h-5 text-purple-400" /></div>
                         <div>
-                            <p className="text-xs text-gray-500">Prédictions</p>
+                            <p className="text-xs text-text-muted">Prédictions</p>
                             <p className="text-lg font-bold text-purple-400">{stats.total}</p>
                         </div>
                     </div>
                     {/* Barre de distribution proportionnelle HIGH/MEDIUM/LOW */}
                     {stats.total > 0 && (
-                        <div className="flex h-1.5 rounded-full overflow-hidden bg-[#1E293B]">
+                        <div className="flex h-1.5 rounded-full overflow-hidden bg-bg-card">
                             {[
                                 { count: stats.high, color: 'bg-red-500', label: 'Urgent' },
                                 { count: stats.medium, color: 'bg-amber-400', label: 'Planifier' },
@@ -155,7 +155,7 @@ function PredictionsPage() {
                         </div>
                     )}
                     {/* Légende */}
-                    <div className="flex items-center gap-3 mt-2 text-[9px] text-gray-600">
+                    <div className="flex items-center gap-3 mt-2 text-[9px] text-text-muted">
                         {[
                             { count: stats.high, color: 'bg-red-500', label: 'Urgent' },
                             { count: stats.medium, color: 'bg-amber-400', label: 'Planifier' },
@@ -189,11 +189,11 @@ function PredictionsPage() {
                             <div className="flex items-center gap-3">
                                 <div className={`p-2.5 rounded-xl ${levelBg[key]}`}><Icon className={`w-5 h-5 ${color}`} /></div>
                                 <div>
-                                    <p className="text-xs text-gray-500">{label}</p>
+                                    <p className="text-xs text-text-muted">{label}</p>
                                     <p className={`text-lg font-bold ${color}`}>{value}</p>
                                 </div>
                             </div>
-                            <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#334155]/50 text-[10px] text-gray-600">
+                            <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50 text-[10px] text-text-muted">
                                 <span>{desc}</span>
                                 {isActive && <span className="text-purple-400 font-semibold text-[9px]">● Filtre actif</span>}
                             </div>
@@ -206,17 +206,17 @@ function PredictionsPage() {
                     <div className="flex items-center gap-3 mb-2">
                         <div className="p-2.5 rounded-xl bg-emerald-500/10"><ShieldCheck className="w-5 h-5 text-emerald-400" /></div>
                         <div>
-                            <p className="text-xs text-gray-500">Confiance R²</p>
+                            <p className="text-xs text-text-muted">Confiance R²</p>
                             <p className="text-lg font-bold text-emerald-400">{stats.avgConfidence}%</p>
                         </div>
                     </div>
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#334155]/50 text-[10px] text-gray-600">
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50 text-[10px] text-text-muted">
                         <span>Bennes suivies</span>
                         <span className="text-cyan-400 font-semibold">{bins.length} bennes</span>
                     </div>
-                    <div className="flex items-center justify-between text-[10px] text-gray-600">
+                    <div className="flex items-center justify-between text-[10px] text-text-muted">
                         <span>Dernière exécution</span>
-                        <span className="text-gray-500 font-semibold">À la demande</span>
+                        <span className="text-text-muted font-semibold">À la demande</span>
                     </div>
                 </div>
             </div>
@@ -225,11 +225,11 @@ function PredictionsPage() {
             {predictions.data.length > 0 && (
                 <div className="glass rounded-xl p-5">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                        <h2 className="text-sm font-bold text-text-primary flex items-center gap-2">
                             <Brain className="w-4 h-4 text-purple-400" />Temps avant débordement
                         </h2>
                         {/* Légende des seuils */}
-                        <div className="flex items-center gap-2 text-[10px] text-gray-500">
+                        <div className="flex items-center gap-2 text-[10px] text-text-muted">
                             <span className="w-2 h-2 rounded-full bg-red-500" />&lt;3h
                             <span className="w-2 h-2 rounded-full bg-amber-400" />3-12h
                             <span className="w-2 h-2 rounded-full bg-blue-400" />&gt;12h
@@ -246,16 +246,16 @@ function PredictionsPage() {
                                 <div key={p.id} className="flex items-center gap-3 group">
                                     {/* Nom + lieu */}
                                     <div className="w-20 shrink-0 text-right">
-                                        <p className="text-[10px] font-bold text-white truncate" title={p.binName}>{p.binName}</p>
-                                        <p className="text-[8px] text-gray-600 truncate">{p.binLocation}</p>
+                                        <p className="text-[10px] font-bold text-text-primary truncate" title={p.binName}>{p.binName}</p>
+                                        <p className="text-[8px] text-text-muted truncate">{p.binLocation}</p>
                                     </div>
                                     {/* Barre de progression */}
-                                    <div className="flex-1 h-6 bg-[#1E293B] rounded-md overflow-hidden relative">
+                                    <div className="flex-1 h-6 bg-bg-card rounded-md overflow-hidden relative">
                                         <div className={`h-full rounded-md ${barColor} transition-all duration-500`} style={{ width: `${widthPct}%` }} />
                                         <div className="absolute inset-0 flex items-center px-2 justify-between">
                                             {/* Point indicateur + animation pulse si HIGH */}
                                             <div className={`w-2 h-2 rounded-full ${dotColor} ${p.priority === 'high' ? 'animate-pulse' : ''}`} />
-                                            <span className="text-[9px] font-bold text-white drop-shadow-md">
+                                            <span className="text-[9px] font-bold text-text-primary drop-shadow-md">
                                                 {p.estimatedHours > 0 ? `~${Math.round(p.estimatedHours)}h` : '< 1h'}
                                             </span>
                                         </div>
@@ -276,21 +276,21 @@ function PredictionsPage() {
                 <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                     {/* Barre de recherche */}
                     <div className="relative flex-1 max-w-md">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                        <input value={search} onChange={(e) => { setSearch(e.target.value); router.get('/predictions', { search: e.target.value, priority: priorityFilter === 'Toutes' ? '' : priorityFilter }, { preserveState: true, replace: true }) }} placeholder="Rechercher par benne, lieu..." className="w-full pl-10 pr-4 py-2.5 bg-[#1E293B]/80 rounded-xl border border-[#334155] focus:border-purple-500 outline-none text-sm text-white placeholder:text-gray-600 transition-all" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+                        <input value={search} onChange={(e) => { setSearch(e.target.value); router.get('/predictions', { search: e.target.value, priority: priorityFilter === 'Toutes' ? '' : priorityFilter }, { preserveState: true, replace: true }) }} placeholder="Rechercher par benne, lieu..." className="w-full pl-10 pr-4 py-2.5 bg-input-bg rounded-xl border border-border focus:border-purple-500 outline-none text-sm text-text-primary placeholder:text-text-muted transition-all" />
                     </div>
                     {/* Filtre priorité actif + tri */}
                     <div className="flex items-center gap-3 flex-wrap">
                         {priorityFilter !== 'Toutes' && (
-                            <span className="text-[10px] text-gray-500 flex items-center gap-1">
+                            <span className="text-[10px] text-text-muted flex items-center gap-1">
                                 Filtre : <span className={`font-semibold ${priorityFilter === 'high' ? 'text-red-400' : priorityFilter === 'medium' ? 'text-amber-400' : 'text-blue-400'}`}>
                                     {priorityFilter === 'high' ? 'Urgent' : priorityFilter === 'medium' ? 'Planifier' : 'Routine'}
                                 </span>
-                                <button onClick={() => { setPriorityFilter('Toutes'); router.get('/predictions', { priority: '', search }, { preserveState: true, replace: true }) }} className="ml-1 text-gray-600 hover:text-white transition-colors">✕</button>
+                                <button onClick={() => { setPriorityFilter('Toutes'); router.get('/predictions', { priority: '', search }, { preserveState: true, replace: true }) }} className="ml-1 text-text-muted hover:text-text-primary transition-colors">✕</button>
                             </span>
                         )}
                         {/* Bouton tri urgent */}
-                        <button onClick={() => setSortAsc(!sortAsc)} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1E293B]/80 rounded-lg text-xs text-gray-500 hover:text-gray-300 transition-all">
+                        <button onClick={() => setSortAsc(!sortAsc)} className="flex items-center gap-1.5 px-3 py-1.5 bg-input-bg rounded-lg text-xs text-text-muted hover:text-text-primary transition-all">
                             <ArrowUpDown className="w-3.5 h-3.5" />{sortAsc ? 'Urgent ▲' : 'Urgent ▼'}
                         </button>
                     </div>
@@ -300,9 +300,9 @@ function PredictionsPage() {
             {/* ═══════════ État vide (aucune prédiction) ═══════════ */}
             {predictions.total === 0 ? (
                 <div className="glass rounded-xl p-10 text-center">
-                    <Brain className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                    <p className="text-lg font-bold text-white">Aucune prédiction</p>
-                    <p className="text-sm text-gray-400 mt-1 max-w-md mx-auto">
+                    <Brain className="w-12 h-12 text-text-muted mx-auto mb-4" />
+                    <p className="text-lg font-bold text-text-primary">Aucune prédiction</p>
+                    <p className="text-sm text-text-secondary mt-1 max-w-md mx-auto">
                         Cliquez sur <strong className="text-purple-400">"Lancer l'IA"</strong> pour générer les prédictions. 
                         Le modèle analysera les relevés de toutes les bennes et estimera les risques de débordement.
                     </p>
@@ -310,7 +310,7 @@ function PredictionsPage() {
                         <button
                             onClick={() => { setGenerating(true); router.post('/predictions/generate', {}, { preserveState: true, onFinish: () => setGenerating(false) }); }}
                             disabled={generating}
-                            className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold transition-all disabled:opacity-50"
+                            className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-text-primary text-sm font-semibold transition-all disabled:opacity-50"
                         >
                             <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
                             {generating ? 'Génération...' : "Lancer l'IA"}
@@ -327,11 +327,11 @@ function PredictionsPage() {
                                 {/* En-tête : nom + badge priorité + bouton supprimer */}
                                 <div className="flex items-start justify-between mb-3">
                                     <div>
-                                        <p className="text-xs font-bold text-white flex items-center gap-2">
+                                        <p className="text-xs font-bold text-text-primary flex items-center gap-2">
                                             {p.binName}
                                             <span className="text-[9px] font-normal text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded-full">IA</span>
                                         </p>
-                                        <p className="text-[10px] text-gray-500 mt-0.5 flex items-center gap-1">
+                                        <p className="text-[10px] text-text-muted mt-0.5 flex items-center gap-1">
                                             <MapPin className="w-3 h-3" />{p.binLocation}
                                         </p>
                                     </div>
@@ -342,7 +342,7 @@ function PredictionsPage() {
                                         </span>
                                         {/* Bouton supprimer — ADMIN et SUPERVISEUR uniquement */}
                                         {(userRole === 'ADMIN' || userRole === 'SUPERVISEUR') && (
-                                            <button onClick={() => { if (confirm('Supprimer cette prédiction ?')) router.delete(`/predictions/${p.id}`, { preserveState: true }) }} className="p-1 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-500/10 text-gray-500 hover:text-red-400 transition-all" title="Supprimer">
+                                            <button onClick={() => { if (confirm('Supprimer cette prédiction ?')) router.delete(`/predictions/${p.id}`, { preserveState: true }) }} className="p-1 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-500/10 text-text-muted hover:text-red-400 transition-all" title="Supprimer">
                                                 <Trash2 className="w-3 h-3" />
                                             </button>
                                         )}
@@ -350,44 +350,44 @@ function PredictionsPage() {
                                 </div>
 
                                 {/* Message de recommandation */}
-                                <p className="text-xs text-gray-300 mb-3 leading-relaxed">{p.message}</p>
+                                <p className="text-xs text-text-primary mb-3 leading-relaxed">{p.message}</p>
 
                                 {/* Barre de progression temps restant */}
                                 <div className="space-y-1.5 mb-3">
                                     <div className="flex justify-between text-xs">
-                                        <span className="text-gray-500">Temps avant débordement</span>
-                                        <span className="font-semibold text-white">
+                                        <span className="text-text-muted">Temps avant débordement</span>
+                                        <span className="font-semibold text-text-primary">
                                             {p.estimatedHours > 0 ? `~${Math.round(p.estimatedHours)}h` : '< 1h'}
                                         </span>
                                     </div>
-                                    <div className="w-full h-2 bg-[#1E293B] rounded-full overflow-hidden">
+                                    <div className="w-full h-2 bg-bg-card rounded-full overflow-hidden">
                                         {/* 100 - progress = la barre diminue quand le temps approche */}
                                         <div className={`h-full rounded-full transition-all duration-700 ${p.priority === 'high' ? 'bg-red-500' : p.priority === 'medium' ? 'bg-amber-400' : 'bg-blue-400'}`} style={{ width: `${100 - p.progress}%` }} />
                                     </div>
                                 </div>
 
                                 {/* Métriques : Confiance, Score de risque, Localisation */}
-                                <div className="grid grid-cols-3 gap-3 mt-3 pt-3 border-t border-[#334155]/50">
+                                <div className="grid grid-cols-3 gap-3 mt-3 pt-3 border-t border-border/50">
                                     <div className="text-center">
                                         <div className="flex items-center justify-center gap-1">
                                             <ShieldCheck className="w-3 h-3 text-emerald-400" />
                                             <span className="text-xs font-bold text-emerald-400">{p.confidence}%</span>
                                         </div>
-                                        <p className="text-[9px] text-gray-600 mt-0.5">Confiance R²</p>
+                                        <p className="text-[9px] text-text-muted mt-0.5">Confiance R²</p>
                                     </div>
                                     <div className="text-center">
                                         <div className="flex items-center justify-center gap-1">
                                             <AlertTriangle className={`w-3 h-3 ${p.priority === 'high' ? 'text-red-400' : p.priority === 'medium' ? 'text-amber-400' : 'text-blue-400'}`} />
                                             <span className={`text-xs font-bold ${p.priority === 'high' ? 'text-red-400' : p.priority === 'medium' ? 'text-amber-400' : 'text-blue-400'}`}>{p.riskScore}</span>
                                         </div>
-                                        <p className="text-[9px] text-gray-600 mt-0.5">Score de risque</p>
+                                        <p className="text-[9px] text-text-muted mt-0.5">Score de risque</p>
                                     </div>
                                     <div className="text-center">
                                         <div className="flex items-center justify-center gap-1">
                                             <MapPin className="w-3 h-3 text-cyan-400" />
-                                            <span className="text-xs font-bold text-white truncate max-w-[80px] block" title={p.binLocation}>{p.binLocation}</span>
+                                            <span className="text-xs font-bold text-text-primary truncate max-w-[80px] block" title={p.binLocation}>{p.binLocation}</span>
                                         </div>
-                                        <p className="text-[9px] text-gray-600 mt-0.5">Localisation</p>
+                                        <p className="text-[9px] text-text-muted mt-0.5">Localisation</p>
                                     </div>
                                 </div>
                             </div>
@@ -397,18 +397,18 @@ function PredictionsPage() {
                     {/* ═══════════ Pagination ═══════════ */}
                     {predictions.last_page > 1 && (
                         <div className="flex items-center justify-center gap-2 overflow-x-auto no-scrollbar">
-                            <button onClick={() => router.get('/predictions', { page: predictions.current_page - 1, search: filters?.search, priority: filters?.priority }, { preserveState: true })} disabled={predictions.current_page === 1} className="p-2 rounded-lg bg-[#1E293B]/80 text-gray-500 hover:text-white disabled:opacity-30 transition-all shrink-0"><ChevronLeft className="w-4 h-4" /></button>
+                            <button onClick={() => router.get('/predictions', { page: predictions.current_page - 1, search: filters?.search, priority: filters?.priority }, { preserveState: true })} disabled={predictions.current_page === 1} className="p-2 rounded-lg bg-input-bg text-text-muted hover:text-text-primary disabled:opacity-30 transition-all shrink-0"><ChevronLeft className="w-4 h-4" /></button>
                             {Array.from({ length: predictions.last_page }, (_, i) => (
-                                <button key={i} onClick={() => router.get('/predictions', { page: i + 1, search: filters?.search, priority: filters?.priority }, { preserveState: true })} className={`w-8 h-8 rounded-lg text-xs font-bold transition-all shrink-0 ${predictions.current_page === i + 1 ? 'bg-purple-600 text-white shadow-lg' : 'bg-[#1E293B]/80 text-gray-500 hover:text-white'}`}>{i + 1}</button>
+                                <button key={i} onClick={() => router.get('/predictions', { page: i + 1, search: filters?.search, priority: filters?.priority }, { preserveState: true })} className={`w-8 h-8 rounded-lg text-xs font-bold transition-all shrink-0 ${predictions.current_page === i + 1 ? 'bg-purple-600 text-text-primary shadow-lg' : 'bg-input-bg text-text-muted hover:text-text-primary'}`}>{i + 1}</button>
                             ))}
-                            <button onClick={() => router.get('/predictions', { page: predictions.current_page + 1, search: filters?.search, priority: filters?.priority }, { preserveState: true })} disabled={predictions.current_page === predictions.last_page} className="p-2 rounded-lg bg-[#1E293B]/80 text-gray-500 hover:text-white disabled:opacity-30 transition-all shrink-0"><ChevronRight className="w-4 h-4" /></button>
+                            <button onClick={() => router.get('/predictions', { page: predictions.current_page + 1, search: filters?.search, priority: filters?.priority }, { preserveState: true })} disabled={predictions.current_page === predictions.last_page} className="p-2 rounded-lg bg-input-bg text-text-muted hover:text-text-primary disabled:opacity-30 transition-all shrink-0"><ChevronRight className="w-4 h-4" /></button>
                         </div>
                     )}
                 </>
             )}
 
             {/* ═══════════ Info bas de page ═══════════ */}
-            <div className="glass rounded-xl p-4 flex items-center justify-between text-xs text-gray-500">
+            <div className="glass rounded-xl p-4 flex items-center justify-between text-xs text-text-muted">
                 <div className="flex items-center gap-4 flex-wrap">
                     <span className="flex items-center gap-1.5"><Brain className="w-3.5 h-3.5 text-purple-400" />Régression linéaire (numpy)</span>
                     <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />R² = confiance</span>

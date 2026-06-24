@@ -73,20 +73,20 @@ export default function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
             <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden" onClick={onClose} />
         )}
         <aside className={`
-            fixed left-0 top-0 h-screen w-64 bg-[#0F172A]/90 backdrop-blur-xl border-r border-[#334155] z-50 flex flex-col
+            fixed left-0 top-0 h-screen w-64 bg-bg-secondary/90 backdrop-blur-xl border-r border-border z-50 flex flex-col
             transition-transform duration-300 ease-in-out
             ${isOpen ? 'translate-x-0' : '-translate-x-full'}
             lg:translate-x-0
         `}>
-            <div className="px-6 py-6 flex items-center gap-3 border-b border-[#334155]">
-                <div className="w-10 h-10 rounded-lg bg-white overflow-hidden shrink-0">
+            <div className="px-6 py-6 flex items-center gap-3 border-b border-border">
+                <div className="w-10 h-10 rounded-lg bg-bg-card overflow-hidden shrink-0">
                     <img src="/images/logo.png" alt="SmartBin Logo" className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1">
                     <h1 className="text-[24px] leading-[32px] font-semibold text-[#10B981]">SmartBin</h1>
-                    <p className="text-[12px] leading-[16px] font-semibold text-[#94a3b8]">City Infrastructure</p>
+                    <p className="text-[12px] leading-[16px] font-semibold text-text-secondary">City Infrastructure</p>
                 </div>
-                <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/5 text-gray-500 hover:text-white transition-all lg:hidden">
+                <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/5 text-text-muted hover:text-text-primary transition-all lg:hidden">
                     <X className="w-5 h-5" />
                 </button>
             </div>
@@ -104,7 +104,7 @@ export default function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                                 className={`relative flex items-center gap-3 px-5 py-3.5 rounded-xl text-[14px] leading-[20px] font-semibold tracking-[0.01em] transition-all duration-200 overflow-hidden ${
                                     active
                                         ? 'text-emerald-400 bg-[#10B981]/10 shadow-[0_0_20px_-8px_rgba(16,185,129,0.3)]'
-                                        : 'text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/5'
+                                        : 'text-text-secondary hover:text-text-primary hover:bg-white/5'
                                 }`}
                             >
                                 {active && (
@@ -117,7 +117,7 @@ export default function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                     })}
                 </div>
                 <div className="mt-auto pt-6">
-                    <div className="mb-3 border-t border-[#334155]" />
+                    <div className="mb-3 border-t border-border" />
                     <div className="space-y-1.5">
                         <Link
                             href="/profile"
@@ -126,7 +126,7 @@ export default function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                             className={`relative flex items-center gap-3 px-5 py-3.5 rounded-xl text-[14px] leading-[20px] font-semibold tracking-[0.01em] transition-all duration-200 overflow-hidden ${
                                 isActive('/profile')
                                     ? 'text-emerald-400 bg-[#10B981]/10 shadow-[0_0_20px_-8px_rgba(16,185,129,0.3)]'
-                                    : 'text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/5'
+                                    : 'text-text-secondary hover:text-text-primary hover:bg-white/5'
                             }`}
                         >
                             {isActive('/profile') && (
@@ -139,7 +139,7 @@ export default function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                             onClick={() => router.post(route('logout'))}
                             onMouseMove={tilt.handleMouseMove}
                             onMouseLeave={tilt.handleMouseLeave}
-                            className="flex w-full items-center gap-3 px-5 py-3.5 rounded-xl text-[14px] leading-[20px] font-semibold tracking-[0.01em] text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/5 transition-colors"
+                            className="flex w-full items-center gap-3 px-5 py-3.5 rounded-xl text-[14px] leading-[20px] font-semibold tracking-[0.01em] text-text-secondary hover:text-text-primary hover:bg-white/5 transition-colors"
                         >
                             <LogOut className="w-5 h-5" />
                             Logout

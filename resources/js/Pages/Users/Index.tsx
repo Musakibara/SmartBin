@@ -36,10 +36,10 @@ const roleColors: Record<string, string> = {
     Superviseur: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
     'Opérateur': 'bg-purple-500/15 text-purple-400 border-purple-500/30',
     Technicien: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-    Agent: 'bg-gray-500/15 text-gray-400 border-gray-500/30',
+    Agent: 'bg-gray-500/15 text-text-secondary border-gray-500/30',
 }
 const statusIcons: Record<string, LucideIcon> = { online: CheckCircle, offline: XCircle, suspendu: Ban }
-const statusColors: Record<string, string> = { online: 'text-emerald-400', offline: 'text-gray-500', suspendu: 'text-red-400' }
+const statusColors: Record<string, string> = { online: 'text-emerald-400', offline: 'text-text-muted', suspendu: 'text-red-400' }
 const statusLabels: Record<string, string> = { online: 'En ligne', offline: 'Hors ligne', suspendu: 'Suspendu' }
 const roleOptions = ['Tous', 'Admin', 'Superviseur', 'Opérateur', 'Technicien', 'Agent']
 
@@ -212,30 +212,30 @@ function UsersPage() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Utilisateurs</h1>
-                    <p className="text-sm text-gray-400 mt-1">
+                    <h1 className="text-2xl font-bold text-text-primary">Utilisateurs</h1>
+                    <p className="text-sm text-text-secondary mt-1">
                         {total} membre{total !== 1 ? 's' : ''}
                         {onlineCount > 0 && <span className="text-emerald-400"> · {onlineCount} en ligne</span>}
                     </p>
                 </div>
-                <button onClick={openAdd} className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.97] text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-emerald-600/20">
+                <button onClick={openAdd} className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.97] text-text-primary text-sm font-semibold rounded-xl transition-all shadow-lg shadow-emerald-600/20">
                     <UserPlus className="w-4 h-4" />Ajouter
                 </button>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                 <div className="relative flex-1 max-w-md">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                     <input
                         value={search}
                         onChange={(e) => onSearchChange(e.target.value)}
                         placeholder="Rechercher par nom ou email..."
-                        className="w-full pl-10 pr-4 py-2.5 bg-[#1E293B]/80 rounded-xl border border-[#334155] focus:border-emerald-500 outline-none text-sm text-white placeholder:text-gray-600 transition-all"
+                        className="w-full pl-10 pr-4 py-2.5 bg-input-bg rounded-xl border border-border focus:border-emerald-500 outline-none text-sm text-text-primary placeholder:text-text-muted transition-all"
                     />
                 </div>
-                <div className="flex items-center gap-1 bg-[#1E293B]/80 rounded-lg p-0.5 overflow-x-auto no-scrollbar">
+                <div className="flex items-center gap-1 bg-input-bg rounded-lg p-0.5 overflow-x-auto no-scrollbar">
                     {roleOptions.map((r) => (
-                        <button key={r} onClick={() => onRoleChange(r)} className={`shrink-0 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${roleFilter === r ? 'bg-emerald-600 text-white shadow-lg' : 'text-gray-500 hover:text-gray-300'}`}>{r}</button>
+                        <button key={r} onClick={() => onRoleChange(r)} className={`shrink-0 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${roleFilter === r ? 'bg-emerald-600 text-text-primary shadow-lg' : 'text-text-muted hover:text-text-primary'}`}>{r}</button>
                     ))}
                 </div>
             </div>
@@ -243,9 +243,9 @@ function UsersPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {data.length === 0 ? (
                     <div className="col-span-full glass rounded-xl p-12 text-center">
-                        <User className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-                        <p className="text-base font-semibold text-white">Aucun utilisateur trouvé</p>
-                        <p className="text-sm text-gray-500 mt-1">
+                        <User className="w-12 h-12 text-text-muted mx-auto mb-3" />
+                        <p className="text-base font-semibold text-text-primary">Aucun utilisateur trouvé</p>
+                        <p className="text-sm text-text-muted mt-1">
                             {search ? 'Essayez d\'autres termes de recherche' : 'Aucun membre pour ce rôle'}
                         </p>
                     </div>
@@ -256,24 +256,24 @@ function UsersPage() {
                     const timeAgo = u.lastActive
                     const isRecent = timeAgo.includes('instant') || timeAgo.includes('min')
                     const isHours = timeAgo.includes('h')
-                    const timeColor = isRecent ? 'text-emerald-500' : isHours ? 'text-amber-500' : 'text-gray-600'
+                    const timeColor = isRecent ? 'text-emerald-500' : isHours ? 'text-amber-500' : 'text-text-muted'
                     return (
-                        <div key={u.id} className="group relative rounded-xl bg-[#1E293B]/60 border border-[#334155]/60 hover:border-emerald-500/30 hover:bg-[#1E293B]/80 hover:shadow-[0_0_30px_-5px_rgba(16,185,129,0.15)] hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-300 animate-fade-in" style={{ animationDelay: `${i * 60}ms` }}>
+                        <div key={u.id} className="group relative rounded-xl bg-bg-card/60 border border-border/60 hover:border-emerald-500/30 hover:bg-input-bg hover:shadow-[0_0_30px_-5px_rgba(16,185,129,0.15)] hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-300 animate-fade-in overflow-hidden" style={{ animationDelay: `${i * 60}ms` }}>
                             <div className="p-5">
-                                <div className="flex items-start justify-between mb-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${u.color} flex items-center justify-center text-white text-sm font-bold shadow-lg relative shrink-0`}>
+                                <div className="flex items-start gap-2 mb-3">
+                                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                                        <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${u.color} flex items-center justify-center text-text-primary text-sm font-bold shadow-lg relative shrink-0`}>
                                             {u.initials}
                                             {isOnline && (
                                                 <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[#1E293B] shadow-lg shadow-emerald-500/50 animate-pulse" />
                                             )}
                                         </div>
                                         <div className="min-w-0">
-                                            <p className="text-sm font-bold text-white truncate max-w-[160px] group-hover:text-emerald-300 transition-colors">{u.name}</p>
-                                            <p className="text-xs text-gray-500 truncate max-w-[160px]">{u.email}</p>
+                                            <p className="text-sm font-bold text-text-primary truncate group-hover:text-emerald-300 transition-colors">{u.name}</p>
+                                            <p className="text-xs text-text-muted truncate">{u.email}</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                                         <button onClick={() => openEdit(u)} disabled={processing} className="p-1.5 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all disabled:opacity-40" title="Modifier">
                                             <Edit3 className="w-3.5 h-3.5" />
                                         </button>
@@ -285,7 +285,7 @@ function UsersPage() {
                                         </button>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2.5 text-xs pt-3 border-t border-[#334155]/50">
+                                <div className="flex items-center gap-2.5 text-xs pt-3 border-t border-border/50">
                                     <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold tracking-wide ${roleColors[u.role] ?? roleColors.Agent}`}>{u.role}</span>
                                     <span className={`flex items-center gap-1 ${statusColors[displayStatus]}`}>
                                         <StatusIcon className={`w-3 h-3 ${isOnline ? 'animate-pulse' : ''}`} />
@@ -303,13 +303,13 @@ function UsersPage() {
 
             {last_page > 1 && (
                 <div className="flex flex-col items-center gap-3">
-                    <p className="text-xs text-gray-600">Page {current_page} / {last_page}</p>
+                    <p className="text-xs text-text-muted">Page {current_page} / {last_page}</p>
                     <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-                        <button onClick={() => goPage(current_page - 1)} disabled={current_page === 1} className="p-2 rounded-lg bg-[#1E293B]/80 text-gray-500 hover:text-white disabled:opacity-30 transition-all shrink-0"><ChevronLeft className="w-4 h-4" /></button>
+                        <button onClick={() => goPage(current_page - 1)} disabled={current_page === 1} className="p-2 rounded-lg bg-input-bg text-text-muted hover:text-text-primary disabled:opacity-30 transition-all shrink-0"><ChevronLeft className="w-4 h-4" /></button>
                         {Array.from({ length: last_page }, (_, i) => (
-                            <button key={i} onClick={() => goPage(i + 1)} className={`w-8 h-8 rounded-lg text-xs font-bold transition-all shrink-0 ${current_page === i + 1 ? 'bg-emerald-600 text-white shadow-lg' : 'bg-[#1E293B]/80 text-gray-500 hover:text-white'}`}>{i + 1}</button>
+                            <button key={i} onClick={() => goPage(i + 1)} className={`w-8 h-8 rounded-lg text-xs font-bold transition-all shrink-0 ${current_page === i + 1 ? 'bg-emerald-600 text-text-primary shadow-lg' : 'bg-input-bg text-text-muted hover:text-text-primary'}`}>{i + 1}</button>
                         ))}
-                        <button onClick={() => goPage(current_page + 1)} disabled={current_page === last_page} className="p-2 rounded-lg bg-[#1E293B]/80 text-gray-500 hover:text-white disabled:opacity-30 transition-all shrink-0"><ChevronRight className="w-4 h-4" /></button>
+                        <button onClick={() => goPage(current_page + 1)} disabled={current_page === last_page} className="p-2 rounded-lg bg-input-bg text-text-muted hover:text-text-primary disabled:opacity-30 transition-all shrink-0"><ChevronRight className="w-4 h-4" /></button>
                     </div>
                 </div>
             )}
@@ -318,8 +318,8 @@ function UsersPage() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => !processing && setShowModal(false)}>
                     <div ref={modalRef} className="glass rounded-xl p-6 w-full max-w-md mx-4 shadow-2xl scale-in" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between mb-5">
-                            <h2 className="text-lg font-bold text-white">{editingUser ? 'Modifier' : 'Nouvel utilisateur'}</h2>
-                            <button onClick={() => !processing && setShowModal(false)} className="p-1 rounded-lg text-gray-500 hover:text-white transition-all"><X className="w-5 h-5" /></button>
+                            <h2 className="text-lg font-bold text-text-primary">{editingUser ? 'Modifier' : 'Nouvel utilisateur'}</h2>
+                            <button onClick={() => !processing && setShowModal(false)} className="p-1 rounded-lg text-text-muted hover:text-text-primary transition-all"><X className="w-5 h-5" /></button>
                         </div>
                         <div className="space-y-4">
                             {[
@@ -328,17 +328,17 @@ function UsersPage() {
                                 { field: 'phone', label: 'Téléphone', type: 'text', placeholder: '+237 6XX XXX XXX' },
                             ].map(({ field, label, type, placeholder }) => (
                                 <div key={field}>
-                                    <label className="text-xs text-gray-500 font-semibold mb-1.5 block">{label}</label>
+                                    <label className="text-xs text-text-muted font-semibold mb-1.5 block">{label}</label>
                                     <input type={type} value={(form as any)[field]} onChange={(e) => setForm({ ...form, [field]: e.target.value })} disabled={processing}
-                                        className={`w-full px-4 py-2.5 bg-[#1E293B]/80 rounded-xl border ${getError(field) ? 'border-red-500/50' : 'border-[#334155]'} focus:border-emerald-500 outline-none text-sm text-white placeholder:text-gray-600 transition-all disabled:opacity-50`}
+                                        className={`w-full px-4 py-2.5 bg-input-bg rounded-xl border ${getError(field) ? 'border-red-500/50' : 'border-border'} focus:border-emerald-500 outline-none text-sm text-text-primary placeholder:text-text-muted transition-all disabled:opacity-50`}
                                         placeholder={placeholder} />
                                     {getError(field) && <p className="text-xs text-red-400 mt-1">{getError(field)}</p>}
                                 </div>
                             ))}
                             <div>
-                                <label className="text-xs text-gray-500 font-semibold mb-1.5 block">Rôle</label>
+                                <label className="text-xs text-text-muted font-semibold mb-1.5 block">Rôle</label>
                                 <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} disabled={processing}
-                                    className={`w-full px-4 py-2.5 bg-[#1E293B]/80 rounded-xl border ${getError('role') ? 'border-red-500/50' : 'border-[#334155]'} focus:border-emerald-500 outline-none text-sm text-white transition-all disabled:opacity-50`}>
+                                    className={`w-full px-4 py-2.5 bg-input-bg rounded-xl border ${getError('role') ? 'border-red-500/50' : 'border-border'} focus:border-emerald-500 outline-none text-sm text-text-primary transition-all disabled:opacity-50`}>
                                     {roleOptions.filter((r) => r !== 'Tous').map((r) => (
                                         <option key={r} value={roleToDb[r]}>{r}</option>
                                     ))}
@@ -346,13 +346,13 @@ function UsersPage() {
                                 {getError('role') && <p className="text-xs text-red-400 mt-1">{getError('role')}</p>}
                             </div>
                             <div>
-                                <label className="text-xs text-gray-500 font-semibold mb-1.5 block">{editingUser ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe'}</label>
+                                <label className="text-xs text-text-muted font-semibold mb-1.5 block">{editingUser ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe'}</label>
                                 <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} disabled={processing}
-                                    className={`w-full px-4 py-2.5 bg-[#1E293B]/80 rounded-xl border ${getError('password') ? 'border-red-500/50' : 'border-[#334155]'} focus:border-emerald-500 outline-none text-sm text-white placeholder:text-gray-600 transition-all disabled:opacity-50`} />
+                                    className={`w-full px-4 py-2.5 bg-input-bg rounded-xl border ${getError('password') ? 'border-red-500/50' : 'border-border'} focus:border-emerald-500 outline-none text-sm text-text-primary placeholder:text-text-muted transition-all disabled:opacity-50`} />
                                 {getError('password') && <p className="text-xs text-red-400 mt-1">{getError('password')}</p>}
                             </div>
                             <button onClick={submitForm} disabled={processing}
-                                className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white text-sm font-bold rounded-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                                className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-text-primary text-sm font-bold rounded-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
                                 {processing && <Loader2 className="w-4 h-4 animate-spin" />}
                                 {editingUser ? 'Enregistrer' : 'Créer'}
                             </button>
@@ -369,20 +369,20 @@ function UsersPage() {
                                 <AlertTriangle className="w-5 h-5 text-red-400" />
                             </div>
                             <div>
-                                <h2 className="text-base font-bold text-white">Confirmer la suppression</h2>
-                                <p className="text-sm text-gray-400">Cette action est irréversible.</p>
+                                <h2 className="text-base font-bold text-text-primary">Confirmer la suppression</h2>
+                                <p className="text-sm text-text-secondary">Cette action est irréversible.</p>
                             </div>
                         </div>
-                        <p className="text-sm text-gray-300 mb-6">
-                            Êtes-vous sûr de vouloir supprimer <span className="font-bold text-white">{deleteTarget.name}</span> ?
+                        <p className="text-sm text-text-primary mb-6">
+                            Êtes-vous sûr de vouloir supprimer <span className="font-bold text-text-primary">{deleteTarget.name}</span> ?
                         </p>
                         <div className="flex items-center gap-3">
                             <button onClick={() => setDeleteTarget(null)} disabled={processing}
-                                className="flex-1 py-2.5 bg-[#1E293B] hover:bg-[#1E293B]/80 text-gray-300 text-sm font-semibold rounded-xl transition-all disabled:opacity-50">
+                                className="flex-1 py-2.5 bg-bg-card hover:bg-input-bg text-text-primary text-sm font-semibold rounded-xl transition-all disabled:opacity-50">
                                 Annuler
                             </button>
                             <button onClick={executeDelete} disabled={processing}
-                                className="flex-1 py-2.5 bg-red-600 hover:bg-red-500 active:scale-[0.98] text-white text-sm font-bold rounded-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                                className="flex-1 py-2.5 bg-red-600 hover:bg-red-500 active:scale-[0.98] text-text-primary text-sm font-bold rounded-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
                                 {processing && <Loader2 className="w-4 h-4 animate-spin" />}
                                 Supprimer
                             </button>

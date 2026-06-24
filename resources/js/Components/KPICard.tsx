@@ -18,8 +18,8 @@ export default function KPICard({ title, value, icon: Icon, trend, trendUp }: KP
         <div className="glass kpi-card rounded-xl p-4 sm:p-5">
             <div className="flex items-start justify-between gap-3">
                 <div className="space-y-1 sm:space-y-2 min-w-0">
-                    <p className="text-xs sm:text-sm text-gray-400 font-medium truncate">{title}</p>
-                    <p className="text-xl sm:text-2xl font-bold text-white">{value}</p>
+                    <p className="text-xs sm:text-sm text-text-secondary font-medium truncate">{title}</p>
+                    <p className="text-xl sm:text-2xl font-bold text-text-primary">{value}</p>
                     {trend && (
                         <p className={`text-[10px] sm:text-xs flex items-center gap-1 ${trendUp ? 'text-emerald-400' : 'text-red-400'}`}>
                             <span>{trendUp ? '↑' : '↓'}</span>

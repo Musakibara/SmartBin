@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, router, usePage } from '@inertiajs/react'
-import { Search, Bell, HelpCircle, Moon, User, Menu, LogOut, Settings, CheckCheck, AlertTriangle, Info, Mail } from 'lucide-react'
+import { Search, Bell, HelpCircle, Moon, Sun, User, Menu, LogOut, Settings, CheckCheck, AlertTriangle, Info, Mail } from 'lucide-react'
+import { useTheme } from '@/Components/ThemeProvider'
 import axios from 'axios'
 
 interface RecentNotification {
@@ -38,6 +39,7 @@ const severityColors: Record<string, string> = {
 
 export default function AppNavbar({ onToggleSidebar, user }: AppNavbarProps) {
     const { notifications: notifData } = usePage<{ notifications: { unread_count: number } | null }>().props
+    const { theme, toggleTheme } = useTheme()
     const [dropdownOpen, setDropdownOpen] = useState(false)
     const [notifOpen, setNotifOpen] = useState(false)
     const [notifications, setNotifications] = useState<RecentNotification[]>([])
@@ -94,19 +96,19 @@ export default function AppNavbar({ onToggleSidebar, user }: AppNavbarProps) {
     }
 
     return (
-        <header className="sticky top-0 z-40 flex items-center justify-between h-16 w-full bg-[#0F172A]/80 backdrop-blur-xl border-b border-[#334155] px-3 sm:px-6">
+        <header className="sticky top-0 z-40 flex items-center justify-between h-16 w-full bg-bg-secondary/80 backdrop-blur-xl border-b border-border px-3 sm:px-6">
             <div className="flex items-center gap-3 sm:gap-6 flex-1 min-w-0">
-                <button onClick={onToggleSidebar} className="p-2 text-[#94a3b8] hover:text-[#10B981] hover:bg-white/5 rounded-xl transition-all active:scale-95 lg:hidden">
+                <button onClick={onToggleSidebar} className="p-2 text-text-secondary hover:text-[#10B981] hover:bg-white/5 rounded-xl transition-all active:scale-95 lg:hidden">
                     <Menu className="w-5 h-5" />
                 </button>
                 <div className="relative group flex-1 max-w-md hidden sm:block">
-                    <span className="absolute inset-y-0 left-3 flex items-center text-[#94a3b8]">
+                    <span className="absolute inset-y-0 left-3 flex items-center text-text-muted">
                         <Search className="w-[20px] h-[20px]" />
                     </span>
                     <input
                         type="text"
                         placeholder="Search systems..."
-                        className="w-full pl-10 pr-4 py-2 bg-[#1E293B]/80 rounded-xl border border-[#334155] focus:border-[#10B981] focus:ring-1 focus:ring-[#10B981] text-[14px] leading-[20px] font-medium transition-all text-[#f8fafc] placeholder:text-[#94a3b8] outline-none"
+                        className="w-full pl-10 pr-4 py-2 bg-input-bg rounded-xl border border-border focus:border-[#10B981] focus:ring-1 focus:ring-[#10B981] text-[14px] leading-[20px] font-medium transition-all text-text-primary placeholder:text-text-muted outline-none"
                     />
                 </div>
             </div>
@@ -115,7 +117,7 @@ export default function AppNavbar({ onToggleSidebar, user }: AppNavbarProps) {
                 <div className="relative" ref={notifRef}>
                     <button
                         onClick={toggleNotifPanel}
-                        className="relative p-2 text-[#94a3b8] hover:text-[#10B981] hover:bg-white/5 rounded-xl transition-all active:scale-95"
+                        className="relative p-2 text-text-secondary hover:text-[#10B981] hover:bg-white/5 rounded-xl transition-all active:scale-95"
                     >
                         <Bell className="w-5 h-5" />
                         {unreadCount > 0 && (
@@ -126,9 +128,9 @@ export default function AppNavbar({ onToggleSidebar, user }: AppNavbarProps) {
                     </button>
 
                     {notifOpen && (
-                        <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-xl border border-[#334155] bg-[#0F172A] shadow-xl backdrop-blur-xl overflow-hidden">
-                            <div className="flex items-center justify-between px-4 py-3 border-b border-[#334155]">
-                                <h3 className="text-[13px] font-bold text-[#f8fafc]">Notifications</h3>
+                        <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-xl border border-border bg-bg-secondary shadow-xl backdrop-blur-xl overflow-hidden">
+                            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                                <h3 className="text-[13px] font-bold text-text-primary">Notifications</h3>
                                 <div className="flex items-center gap-2">
                                     {unreadCount > 0 && (
                                         <button
@@ -145,8 +147,8 @@ export default function AppNavbar({ onToggleSidebar, user }: AppNavbarProps) {
                             <div className="max-h-80 overflow-y-auto">
                                 {notifications.length === 0 ? (
                                     <div className="px-4 py-8 text-center">
-                                        <Bell className="w-8 h-8 text-[#334155] mx-auto mb-2" />
-                                        <p className="text-[13px] text-[#64748b]">Aucune notification</p>
+                                        <Bell className="w-8 h-8 text-border mx-auto mb-2" />
+                                        <p className="text-[13px] text-text-muted">Aucune notification</p>
                                     </div>
                                 ) : (
                                     notifications.map((n) => {
@@ -163,13 +165,13 @@ export default function AppNavbar({ onToggleSidebar, user }: AppNavbarProps) {
                                                 <div className="flex items-start gap-3">
                                                     <SeverityIcon className={`w-4 h-4 mt-0.5 shrink-0 ${n.severity === 'CRITICAL' || n.severity === 'HIGH' ? 'text-red-400' : 'text-blue-400'}`} />
                                                     <div className="min-w-0 flex-1">
-                                                        <p className="text-[12px] text-[#f8fafc] truncate">{n.message}</p>
+                                                        <p className="text-[12px] text-text-primary truncate">{n.message}</p>
                                                         <div className="flex items-center gap-2 mt-1">
-                                                            <span className="flex items-center gap-1 text-[10px] text-[#64748b]">
+                                                            <span className="flex items-center gap-1 text-[10px] text-text-muted">
                                                                 <Mail className="w-3 h-3" />
                                                                 {n.channel}
                                                             </span>
-                                                            <span className="text-[10px] text-[#64748b]">{n.sent_at}</span>
+                                                            <span className="text-[10px] text-text-muted">{n.sent_at}</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -181,7 +183,7 @@ export default function AppNavbar({ onToggleSidebar, user }: AppNavbarProps) {
 
                             <Link
                                 href="/notifications"
-                                className="block px-4 py-3 text-center text-[12px] font-medium text-[#10B981] hover:text-emerald-400 border-t border-[#334155] transition-colors"
+                                className="block px-4 py-3 text-center text-[12px] font-medium text-[#10B981] hover:text-emerald-400 border-t border-border transition-colors"
                                 onClick={() => setNotifOpen(false)}
                             >
                                 Voir toutes les notifications →
@@ -190,14 +192,14 @@ export default function AppNavbar({ onToggleSidebar, user }: AppNavbarProps) {
                     )}
                 </div>
 
-                <button className="p-2 text-[#94a3b8] hover:text-[#10B981] hover:bg-white/5 rounded-xl transition-all active:scale-95 hidden sm:block">
+                <button className="p-2 text-text-secondary hover:text-[#10B981] hover:bg-white/5 rounded-xl transition-all active:scale-95 hidden sm:block">
                     <HelpCircle className="w-5 h-5" />
                 </button>
-                <button className="p-2 text-[#94a3b8] hover:text-[#10B981] hover:bg-white/5 rounded-xl transition-all active:scale-95 hidden sm:block">
-                    <Moon className="w-5 h-5" />
+                <button onClick={toggleTheme} className="p-2 text-text-secondary hover:text-[#10B981] hover:bg-white/5 rounded-xl transition-all active:scale-95 hidden sm:block">
+                    {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                 </button>
 
-                <div className="h-8 w-px bg-[#334155] mx-1 sm:mx-2 hidden sm:block"></div>
+                <div className="h-8 w-px bg-border mx-1 sm:mx-2 hidden sm:block"></div>
 
                 <div className="relative" ref={dropdownRef}>
                     <button
@@ -205,8 +207,8 @@ export default function AppNavbar({ onToggleSidebar, user }: AppNavbarProps) {
                         className="flex items-center gap-3 cursor-pointer"
                     >
                         <div className="text-right hidden sm:block">
-                            <p className="text-[14px] leading-[20px] font-bold text-[#f8fafc]">{user?.name || 'Admin User'}</p>
-                            <p className="text-[10px] text-[#94a3b8]">System Overseer</p>
+                            <p className="text-[14px] leading-[20px] font-bold text-text-primary">{user?.name || 'Admin User'}</p>
+                            <p className="text-[10px] text-text-secondary">System Overseer</p>
                         </div>
                         <div className="w-8 h-8 rounded-full border border-[#10B981]/50 overflow-hidden">
                             <img src="/images/Profile.png" alt="Profile" className="w-full h-full object-cover" />
@@ -214,15 +216,15 @@ export default function AppNavbar({ onToggleSidebar, user }: AppNavbarProps) {
                     </button>
 
                     {dropdownOpen && (
-                        <div className="absolute right-0 mt-2 w-48 rounded-xl border border-[#334155] bg-[#0F172A] shadow-xl backdrop-blur-xl">
-                            <div className="px-4 py-3 border-b border-[#334155]">
-                                <p className="text-[13px] font-medium text-[#f8fafc] truncate">{user?.name}</p>
-                                <p className="text-[11px] text-[#94a3b8] truncate">{user?.email}</p>
+                        <div className="absolute right-0 mt-2 w-48 rounded-xl border border-border bg-bg-secondary shadow-xl backdrop-blur-xl">
+                            <div className="px-4 py-3 border-b border-border">
+                                <p className="text-[13px] font-medium text-text-primary truncate">{user?.name}</p>
+                                <p className="text-[11px] text-text-secondary truncate">{user?.email}</p>
                             </div>
                             <div className="py-1">
                                 <Link
                                     href={route('profile.edit')}
-                                    className="flex items-center gap-2 px-4 py-2 text-[13px] text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/5 transition-colors"
+                                    className="flex items-center gap-2 px-4 py-2 text-[13px] text-text-secondary hover:text-text-primary hover:bg-white/5 transition-colors"
                                     onClick={() => setDropdownOpen(false)}
                                 >
                                     <Settings className="w-4 h-4" />
@@ -230,7 +232,7 @@ export default function AppNavbar({ onToggleSidebar, user }: AppNavbarProps) {
                                 </Link>
                                 <button
                                     onClick={handleLogout}
-                                    className="flex items-center gap-2 w-full px-4 py-2 text-[13px] text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/5 transition-colors"
+                                    className="flex items-center gap-2 w-full px-4 py-2 text-[13px] text-text-secondary hover:text-text-primary hover:bg-white/5 transition-colors"
                                 >
                                     <LogOut className="w-4 h-4" />
                                     Log Out

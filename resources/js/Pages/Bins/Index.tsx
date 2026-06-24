@@ -182,19 +182,19 @@ function MapClickPicker({ lat, lng, onLocationChange }: { lat: number; lng: numb
                         value={query}
                         onChange={(e) => onSearch(e.target.value)}
                         onFocus={() => setShowResults(true)}
-                        className="w-full pl-9 pr-3 py-2 bg-[#0F172A]/90 backdrop-blur-md rounded-lg border border-[#334155] focus:border-emerald-500 outline-none text-xs text-white placeholder:text-gray-500 transition-all"
+                        className="w-full pl-9 pr-3 py-2 bg-bg-secondary/90 backdrop-blur-md rounded-lg border border-border focus:border-emerald-500 outline-none text-xs text-text-primary placeholder:text-text-muted transition-all"
                     />
-                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                     {searching && <span className="absolute right-3 top-1/2 -translate-y-1/2"><span className="block w-3.5 h-3.5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" /></span>}
                 </div>
                 {/* Dropdown résultats */}
                 {showResults && results.length > 0 && (
-                    <div className="mt-1 bg-[#0F172A]/95 backdrop-blur-md rounded-lg border border-[#334155] overflow-hidden shadow-xl max-h-48 overflow-y-auto">
+                    <div className="mt-1 bg-bg-secondary/95 backdrop-blur-md rounded-lg border border-border overflow-hidden shadow-xl max-h-48 overflow-y-auto">
                         {results.map((r, i) => (
                             <button
                                 key={i}
                                 onClick={() => selectResult(r)}
-                                className="w-full text-left px-3 py-2 text-xs text-gray-300 hover:bg-white/5 hover:text-white transition-all border-b border-[#334155]/50 last:border-0"
+                                className="w-full text-left px-3 py-2 text-xs text-text-primary hover:bg-white/5 hover:text-text-primary transition-all border-b border-border/50 last:border-0"
                             >
                                 <span>{r.display_name}</span>
                             </button>
@@ -202,14 +202,14 @@ function MapClickPicker({ lat, lng, onLocationChange }: { lat: number; lng: numb
                     </div>
                 )}
                 {showResults && !searching && query && results.length === 0 && (
-                    <div className="mt-1 bg-[#0F172A]/95 backdrop-blur-md rounded-lg border border-[#334155] px-3 py-2 text-xs text-gray-500">
+                    <div className="mt-1 bg-bg-secondary/95 backdrop-blur-md rounded-lg border border-border px-3 py-2 text-xs text-text-muted">
                         {searchError || 'Aucun résultat'}
                     </div>
                 )}
                 {/* Coordonnées manuelles */}
                 <div className="mt-2 flex gap-2">
                     <div className="flex-1">
-                        <label className="block text-[10px] font-medium uppercase tracking-wider text-gray-500 mb-0.5">Latitude</label>
+                        <label className="block text-[10px] font-medium uppercase tracking-wider text-text-muted mb-0.5">Latitude</label>
                         <input
                             type="text"
                             value={coordLat}
@@ -217,11 +217,11 @@ function MapClickPicker({ lat, lng, onLocationChange }: { lat: number; lng: numb
                             onChange={(e) => setCoordLat(e.target.value)}
                             onBlur={applyCoordInput}
                             onKeyDown={(e) => { if (e.key === 'Enter') { (e.target as HTMLInputElement).blur() } }}
-                            className="w-full px-2 py-1.5 bg-[#0F172A]/80 backdrop-blur-md rounded border border-[#334155] focus:border-emerald-500 outline-none text-[11px] text-white font-mono transition-all"
+                            className="w-full px-2 py-1.5 bg-bg-secondary/80 backdrop-blur-md rounded border border-border focus:border-emerald-500 outline-none text-[11px] text-text-primary font-mono transition-all"
                         />
                     </div>
                     <div className="flex-1">
-                        <label className="block text-[10px] font-medium uppercase tracking-wider text-gray-500 mb-0.5">Longitude</label>
+                        <label className="block text-[10px] font-medium uppercase tracking-wider text-text-muted mb-0.5">Longitude</label>
                         <input
                             type="text"
                             value={coordLng}
@@ -229,11 +229,11 @@ function MapClickPicker({ lat, lng, onLocationChange }: { lat: number; lng: numb
                             onChange={(e) => setCoordLng(e.target.value)}
                             onBlur={applyCoordInput}
                             onKeyDown={(e) => { if (e.key === 'Enter') { (e.target as HTMLInputElement).blur() } }}
-                            className="w-full px-2 py-1.5 bg-[#0F172A]/80 backdrop-blur-md rounded border border-[#334155] focus:border-emerald-500 outline-none text-[11px] text-white font-mono transition-all"
+                            className="w-full px-2 py-1.5 bg-bg-secondary/80 backdrop-blur-md rounded border border-border focus:border-emerald-500 outline-none text-[11px] text-text-primary font-mono transition-all"
                         />
                     </div>
                 </div>
-                <p className="mt-1 text-[10px] text-gray-600 text-center">
+                <p className="mt-1 text-[10px] text-text-muted text-center">
                     Cliquez sur la carte ou saisissez les coordonnées
                 </p>
             </div>
@@ -374,16 +374,16 @@ function BinsPage() {
                     <div className="flex items-center gap-4 py-2.5 px-5 justify-between">
                         <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center">
-                                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                <svg className="w-4 h-4 text-text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                             </div>
                             <div>
-                                <p className="text-sm font-semibold text-white">Supprimer la benne</p>
+                                <p className="text-sm font-semibold text-text-primary">Supprimer la benne</p>
                                 <p className="text-xs text-red-200/80">{deleteTarget.name} — {deleteTarget.location}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
                             <button onClick={confirmDelete} className="px-4 py-1.5 bg-white text-red-700 text-xs font-bold rounded-lg hover:bg-red-50 transition-all shadow-lg">Confirmer</button>
-                            <button onClick={() => setDeleteTarget(null)} className="px-4 py-1.5 bg-white/10 text-white text-xs font-semibold rounded-lg hover:bg-white/20 transition-all">Annuler</button>
+                            <button onClick={() => setDeleteTarget(null)} className="px-4 py-1.5 bg-white/10 text-text-primary text-xs font-semibold rounded-lg hover:bg-white/20 transition-all">Annuler</button>
                         </div>
                     </div>
                 </div>
@@ -393,13 +393,13 @@ function BinsPage() {
             <div className="flex items-center justify-between">
                 <div>
                     <div className="flex items-center gap-3">
-                        <h1 className="text-2xl font-bold text-white">Smart Bins</h1>
+                        <h1 className="text-2xl font-bold text-text-primary">Smart Bins</h1>
                         <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{localBins.length} total</span>
                     </div>
-                    <p className="text-sm text-gray-400 mt-1">Gestion du réseau de bennes connectées</p>
+                    <p className="text-sm text-text-secondary mt-1">Gestion du réseau de bennes connectées</p>
                 </div>
                 {(userRole === 'ADMIN' || userRole === 'SUPERVISEUR' || userRole === 'OPERATEUR') && (
-                    <button onClick={openAdd} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition-colors">
+                    <button onClick={openAdd} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-text-primary text-sm font-semibold rounded-xl transition-colors">
                         <Trash2 className="w-4 h-4" />
                         Ajouter une benne
                     </button>
@@ -410,17 +410,17 @@ function BinsPage() {
             <div className="flex flex-col gap-4">
                 <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                     <div className="relative flex-1 max-w-md">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                         <input
                             type="text"
                             placeholder="Rechercher par ID, nom ou emplacement..."
                             value={search}
                             onChange={(e) => { setSearch(e.target.value); setPage(1) }}
-                            className="w-full pl-10 pr-4 py-2.5 bg-[#1E293B]/80 rounded-xl border border-[#334155] focus:border-[#10B981] focus:ring-1 focus:ring-[#10B981] text-sm text-[#f8fafc] placeholder:text-[#94a3b8] outline-none transition-all"
+                            className="w-full pl-10 pr-4 py-2.5 bg-input-bg rounded-xl border border-border focus:border-[#10B981] focus:ring-1 focus:ring-[#10B981] text-sm text-text-primary placeholder:text-text-secondary outline-none transition-all"
                         />
                     </div>
                     <div className="flex items-center gap-2 flex-wrap">
-                        <SlidersHorizontal className="w-4 h-4 text-gray-500 shrink-0" />
+                        <SlidersHorizontal className="w-4 h-4 text-text-muted shrink-0" />
                         {statusFilters.map((filter) => (
                             <button
                                 key={filter}
@@ -428,7 +428,7 @@ function BinsPage() {
                                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                                     statusFilter === filter
                                         ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                                        : 'text-gray-400 border border-transparent hover:text-gray-200 hover:bg-white/5'
+                                        : 'text-text-secondary border border-transparent hover:text-text-primary hover:bg-white/5'
                                 }`}
                             >
                                 {filter}
@@ -436,7 +436,7 @@ function BinsPage() {
                         ))}
                     </div>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-gray-400 flex-wrap">
+                <div className="flex items-center gap-2 text-xs text-text-secondary flex-wrap">
                     <ArrowUpDown className="w-3.5 h-3.5" />
                     <span>Trier par :</span>
                     {sortOptions.map((opt) => (
@@ -449,18 +449,18 @@ function BinsPage() {
                             }}
                             className={`px-2.5 py-1 rounded-md transition-all ${
                                 sortBy === opt.value
-                                    ? 'bg-white/10 text-white'
-                                    : 'hover:text-gray-200 hover:bg-white/5'
+                                    ? 'bg-white/10 text-text-primary'
+                                    : 'hover:text-text-primary hover:bg-white/5'
                             }`}
                         >
                             {opt.label} {sortBy === opt.value && (sortAsc ? '↑' : '↓')}
                         </button>
                     ))}
-                    <div className="sm:ml-auto flex items-center gap-1 bg-[#1E293B]/60 rounded-lg p-0.5 border border-[#334155]">
+                    <div className="sm:ml-auto flex items-center gap-1 bg-bg-card/60 rounded-lg p-0.5 border border-border">
                         <button
                             onClick={() => setViewMode('grid')}
                             className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
-                                viewMode === 'grid' ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-500 hover:text-gray-200'
+                                viewMode === 'grid' ? 'bg-emerald-500/20 text-emerald-400' : 'text-text-muted hover:text-text-primary'
                             }`}
                         >
                             <Grid3X3 className="w-3 h-3" /> Grille
@@ -468,7 +468,7 @@ function BinsPage() {
                         <button
                             onClick={() => setViewMode('map')}
                             className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
-                                viewMode === 'map' ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-500 hover:text-gray-200'
+                                viewMode === 'map' ? 'bg-emerald-500/20 text-emerald-400' : 'text-text-muted hover:text-text-primary'
                             }`}
                         >
                             <MapIcon className="w-3 h-3" /> Carte
@@ -492,8 +492,8 @@ function BinsPage() {
                             {/* En-tête carte */}
                             <div className="flex items-start justify-between mb-4">
                                 <div>
-                                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{bin.id}</p>
-                                    <h3 className="text-base font-bold text-white mt-0.5">{bin.name}</h3>
+                                    <p className="text-[10px] text-text-muted font-bold uppercase tracking-wider">{bin.id}</p>
+                                    <h3 className="text-base font-bold text-text-primary mt-0.5">{bin.name}</h3>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     {alertCount > 0 && (
@@ -507,7 +507,7 @@ function BinsPage() {
                             </div>
 
                             {/* Emplacement */}
-                            <div className="flex items-center gap-2 text-xs text-gray-400 mb-4">
+                            <div className="flex items-center gap-2 text-xs text-text-secondary mb-4">
                                 <MapPin className="w-3.5 h-3.5" />
                                 <span>{bin.location}</span>
                             </div>
@@ -515,10 +515,10 @@ function BinsPage() {
                             {/* Barre de remplissage */}
                             <div className="space-y-1.5 mb-4">
                                 <div className="flex justify-between text-xs">
-                                    <span className="text-gray-500">Remplissage</span>
+                                    <span className="text-text-muted">Remplissage</span>
                                     <span className={`font-semibold ${styles.text}`}>{bin.fillLevel}%</span>
                                 </div>
-                                <div className="w-full h-2 bg-[#1E293B] rounded-full overflow-hidden">
+                                <div className="w-full h-2 bg-bg-card rounded-full overflow-hidden">
                                     <div
                                         className={`h-full rounded-full transition-all duration-500 ${styles.bg}`}
                                         style={{ width: `${bin.fillLevel}%` }}
@@ -527,7 +527,7 @@ function BinsPage() {
                             </div>
 
                             {/* Métriques supplémentaires + actions */}
-                            <div className="flex items-center gap-4 text-xs text-gray-500 pt-3 border-t border-[#334155]/50">
+                            <div className="flex items-center gap-4 text-xs text-text-muted pt-3 border-t border-border/50">
                                 <span className="flex items-center gap-1.5">
                                     <BatteryCharging className="w-3.5 h-3.5" />
                                     {bin.battery}%
@@ -536,7 +536,7 @@ function BinsPage() {
                                     <Thermometer className="w-3.5 h-3.5" />
                                     {bin.temperature}°C
                                 </span>
-                                <span className="text-gray-600">{bin.lastUpdate}</span>
+                                <span className="text-text-muted">{bin.lastUpdate}</span>
 
                                 <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
                                     {(userRole === 'ADMIN' || userRole === 'SUPERVISEUR' || userRole === 'OPERATEUR') && (
@@ -570,10 +570,10 @@ function BinsPage() {
                 <div className="glass rounded-xl overflow-hidden h-[600px] relative">
                     {/* Légende */}
                     <div className="absolute top-4 left-4 z-[9999] flex flex-col gap-2">
-                        <div className="bg-[#1E293B] p-2 rounded-lg flex gap-3 shadow-lg border border-white/10">
-                            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500"></div><span className="text-[10px] text-gray-200">Normal</span></div>
-                            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-orange-400"></div><span className="text-[10px] text-gray-200">Attention</span></div>
-                            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500"></div><span className="text-[10px] text-gray-200">Pleine</span></div>
+                        <div className="bg-bg-card p-2 rounded-lg flex gap-3 shadow-lg border border-white/10">
+                            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500"></div><span className="text-[10px] text-text-primary">Normal</span></div>
+                            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-orange-400"></div><span className="text-[10px] text-text-primary">Attention</span></div>
+                            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500"></div><span className="text-[10px] text-text-primary">Pleine</span></div>
                         </div>
                     </div>
                     {mapReady && (
@@ -596,11 +596,11 @@ function BinsPage() {
                                     <Popup>
                                         <div className="text-sm">
                                             <p className="font-semibold">{bin.id} - {bin.name}</p>
-                                            <p className="text-gray-600 text-xs mt-1">{bin.location}</p>
+                                            <p className="text-text-muted text-xs mt-1">{bin.location}</p>
                                             <p className="mt-1">
                                                 Remplissage : <span className={`font-medium ${bin.fillLevel > 80 ? 'text-red-500' : bin.fillLevel > 50 ? 'text-amber-500' : 'text-emerald-500'}`}>{bin.fillLevel}%</span>
                                             </p>
-                                            <p className="text-xs text-gray-500 mt-1">Dernière mise à jour : {bin.lastUpdate}</p>
+                                            <p className="text-xs text-text-muted mt-1">Dernière mise à jour : {bin.lastUpdate}</p>
                                         </div>
                                     </Popup>
                                 </Marker>
@@ -616,7 +616,7 @@ function BinsPage() {
                     <button
                         onClick={() => setPage(Math.max(1, page - 1))}
                         disabled={page <= 1}
-                        className="flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all shrink-0"
+                        className="flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg text-text-secondary hover:text-text-primary hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all shrink-0"
                     >
                         <ChevronLeft className="w-4 h-4" /> <span className="hidden sm:inline">Prev</span>
                     </button>
@@ -627,7 +627,7 @@ function BinsPage() {
                             className={`w-8 h-8 rounded-lg text-xs font-semibold transition-all shrink-0 ${
                                 p === page
                                     ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                                    : 'text-gray-500 hover:text-gray-200 hover:bg-white/5'
+                                    : 'text-text-muted hover:text-text-primary hover:bg-white/5'
                             }`}
                         >
                             {p}
@@ -636,7 +636,7 @@ function BinsPage() {
                     <button
                         onClick={() => setPage(Math.min(totalPages, page + 1))}
                         disabled={page >= totalPages}
-                        className="flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all shrink-0"
+                        className="flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg text-text-secondary hover:text-text-primary hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all shrink-0"
                     >
                         <span className="hidden sm:inline">Next</span> <ChevronRight className="w-4 h-4" />
                     </button>
@@ -648,19 +648,19 @@ function BinsPage() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setSelectedBin(null)}>
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
                     <div
-                        className="relative w-full max-w-2xl max-h-[85vh] overflow-y-auto glass rounded-2xl p-6 sm:p-8 border border-[#334155] shadow-2xl"
+                        className="relative w-full max-w-2xl max-h-[85vh] overflow-y-auto glass rounded-2xl p-6 sm:p-8 border border-border shadow-2xl"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Header modal */}
                         <div className="flex items-start justify-between mb-6">
                             <div>
                                 <div className="flex items-center gap-3 mb-1">
-                                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{selectedBin.id}</p>
+                                    <p className="text-[10px] text-text-muted font-bold uppercase tracking-wider">{selectedBin.id}</p>
                                     <StatusBadge status={selectedBin.status} />
                                 </div>
-                                <h2 className="text-xl font-bold text-white">{selectedBin.name}</h2>
+                                <h2 className="text-xl font-bold text-text-primary">{selectedBin.name}</h2>
                             </div>
-                            <button onClick={() => setSelectedBin(null)} className="p-1.5 rounded-lg hover:bg-white/5 text-gray-500 hover:text-white transition-all">
+                            <button onClick={() => setSelectedBin(null)} className="p-1.5 rounded-lg hover:bg-white/5 text-text-muted hover:text-text-primary transition-all">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
@@ -673,8 +673,8 @@ function BinsPage() {
                                 { label: 'Température', value: `${selectedBin.temperature}°C`, icon: Thermometer, color: 'text-orange-400' },
                                 { label: 'Localisation', value: selectedBin.location, icon: MapPin, color: 'text-blue-400' },
                             ].map((m) => (
-                                <div key={m.label} className="bg-[#1E293B]/60 rounded-xl p-3">
-                                    <div className="flex items-center gap-1.5 text-[10px] text-gray-500 mb-1">
+                                <div key={m.label} className="bg-bg-card/60 rounded-xl p-3">
+                                    <div className="flex items-center gap-1.5 text-[10px] text-text-muted mb-1">
                                         {m.icon && <m.icon className="w-3 h-3" />}
                                         {m.label}
                                     </div>
@@ -685,18 +685,18 @@ function BinsPage() {
 
                         {/* Graphique d'évolution */}
                         <div className="mb-6">
-                            <h3 className="flex items-center gap-1.5 text-xs font-semibold text-gray-400 mb-3">
+                            <h3 className="flex items-center gap-1.5 text-xs font-semibold text-text-secondary mb-3">
                                 <Activity className="w-3.5 h-3.5" />
                                 Évolution du remplissage (24h)
                             </h3>
-                            <div className="bg-[#1E293B]/40 rounded-xl p-4">
+                            <div className="bg-bg-card/40 rounded-xl p-4">
                                 <ResponsiveContainer width="100%" height={180}>
                                     <LineChart data={binHistoryData}>
-                                        <XAxis dataKey="time" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
-                                        <YAxis domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
+                                        <XAxis dataKey="time" tick={{ fill: 'var(--text-muted)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                                        <YAxis domain={[0, 100]} tick={{ fill: 'var(--text-muted)', fontSize: 10 }} axisLine={false} tickLine={false} />
                                         <Tooltip
-                                            contentStyle={{ background: '#1E293B', border: '1px solid #334155', borderRadius: 8, fontSize: 12 }}
-                                            labelStyle={{ color: '#94a3b8' }}
+                                            contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }}
+                                            labelStyle={{ color: 'var(--text-secondary)' }}
                                             formatter={(value) => [`${Math.round(Number(value))}%`, 'Remplissage']}
                                         />
                                         <Line type="monotone" dataKey="value" stroke="#10B981" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: '#10B981' }} />
@@ -708,39 +708,39 @@ function BinsPage() {
                         {/* Alertes & Prédictions */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <h3 className="flex items-center gap-1.5 text-xs font-semibold text-gray-400 mb-2">
+                                <h3 className="flex items-center gap-1.5 text-xs font-semibold text-text-secondary mb-2">
                                     <AlertTriangle className="w-3.5 h-3.5" />
                                     Alertes ({binDetailAlerts.length})
                                 </h3>
                                 <div className="space-y-1.5">
                                     {binDetailAlerts.length === 0 ? (
-                                        <p className="text-xs text-gray-600 italic">Aucune alerte</p>
+                                        <p className="text-xs text-text-muted italic">Aucune alerte</p>
                                     ) : binDetailAlerts.map((a) => (
-                                        <div key={a.id} className="flex items-start gap-2 bg-[#1E293B]/40 rounded-lg p-2.5">
+                                        <div key={a.id} className="flex items-start gap-2 bg-bg-card/40 rounded-lg p-2.5">
                                             <div className={`mt-0.5 w-1.5 h-1.5 rounded-full shrink-0 ${
                                                 a.severity === 'critical' ? 'bg-red-500' :
                                                 a.severity === 'high' ? 'bg-orange-500' :
                                                 a.severity === 'medium' ? 'bg-amber-500' : 'bg-yellow-500'
                                             }`} />
                                             <div className="min-w-0">
-                                                <p className="text-xs text-gray-300">{a.message}</p>
-                                                <p className="text-[10px] text-gray-600 mt-0.5">{a.time}</p>
+                                                <p className="text-xs text-text-primary">{a.message}</p>
+                                                <p className="text-[10px] text-text-muted mt-0.5">{a.time}</p>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             </div>
                             <div>
-                                <h3 className="flex items-center gap-1.5 text-xs font-semibold text-gray-400 mb-2">
+                                <h3 className="flex items-center gap-1.5 text-xs font-semibold text-text-secondary mb-2">
                                     <Brain className="w-3.5 h-3.5" />
                                     Prédictions ({binPredictions.length})
                                 </h3>
                                 <div className="space-y-1.5">
                                     {binPredictions.length === 0 ? (
-                                        <p className="text-xs text-gray-600 italic">Aucune prédiction</p>
+                                        <p className="text-xs text-text-muted italic">Aucune prédiction</p>
                                     ) : binPredictions.map((p) => (
-                                        <div key={p.id} className="bg-[#1E293B]/40 rounded-lg p-2.5">
-                                            <div className="flex items-center gap-1.5 text-xs text-gray-300">
+                                        <div key={p.id} className="bg-bg-card/40 rounded-lg p-2.5">
+                                            <div className="flex items-center gap-1.5 text-xs text-text-primary">
                                                 <Clock className="w-3 h-3 text-blue-400" />
                                                 <span>{p.message}</span>
                                             </div>
@@ -750,7 +750,7 @@ function BinsPage() {
                                                     p.priority === 'medium' ? 'bg-amber-500/20 text-amber-400' :
                                                     'bg-yellow-500/20 text-yellow-400'
                                                 }`}>{p.priority}</span>
-                                                <span className="text-[10px] text-gray-600">Estimé dans {p.estimatedHours}h</span>
+                                                <span className="text-[10px] text-text-muted">Estimé dans {p.estimatedHours}h</span>
                                             </div>
                                         </div>
                                     ))}
@@ -759,7 +759,7 @@ function BinsPage() {
                         </div>
 
                         {/* Dernière mise à jour */}
-                        <p className="text-[10px] text-gray-700 text-center mt-6">Dernière mise à jour : {selectedBin.lastUpdate}</p>
+                        <p className="text-[10px] text-text-muted text-center mt-6">Dernière mise à jour : {selectedBin.lastUpdate}</p>
                     </div>
                 </div>
             )}
@@ -768,11 +768,11 @@ function BinsPage() {
             {showAddModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => { setShowAddModal(false); setEditingBin(null) }}>
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-                    <div className="relative w-full max-w-3xl glass rounded-2xl border border-[#334155] shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                    <div className="relative w-full max-w-3xl glass rounded-2xl border border-border shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
                         {/* Header */}
                         <div className="flex items-center justify-between px-6 pt-6 pb-3">
-                            <h2 className="text-lg font-bold text-white">{editingBin ? 'Modifier' : 'Nouvelle'} benne</h2>
-                            <button onClick={() => { setShowAddModal(false); setEditingBin(null) }} className="p-1 rounded-lg hover:bg-white/5 text-gray-500 hover:text-white transition-all">
+                            <h2 className="text-lg font-bold text-text-primary">{editingBin ? 'Modifier' : 'Nouvelle'} benne</h2>
+                            <button onClick={() => { setShowAddModal(false); setEditingBin(null) }} className="p-1 rounded-lg hover:bg-white/5 text-text-muted hover:text-text-primary transition-all">
                                 <X className="w-4 h-4" />
                             </button>
                         </div>
@@ -781,29 +781,29 @@ function BinsPage() {
                             {/* Colonne gauche : formulaire */}
                             <div className="sm:w-72 space-y-4 shrink-0">
                                 <div>
-                                    <label className="text-[12px] font-medium text-gray-400 mb-1.5 block">Quartier</label>
+                                    <label className="text-[12px] font-medium text-text-secondary mb-1.5 block">Quartier</label>
                                     <input type="text" placeholder="Ex: Mfoundi, Bastos, Mokolo..." value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                                        className="w-full px-3 py-2.5 bg-[#1E293B]/80 rounded-lg border border-[#334155] focus:border-emerald-500 outline-none text-sm text-white placeholder:text-gray-600 transition-all" />
+                                        className="w-full px-3 py-2.5 bg-input-bg rounded-lg border border-border focus:border-emerald-500 outline-none text-sm text-text-primary placeholder:text-text-muted transition-all" />
                                 </div>
                                 <div>
-                                    <label className="text-[12px] font-medium text-gray-400 mb-1.5 block">Adresse</label>
+                                    <label className="text-[12px] font-medium text-text-secondary mb-1.5 block">Adresse</label>
                                     <input type="text" placeholder="Ex: Avenue Kennedy, Rue de la Paix..." value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })}
-                                        className="w-full px-3 py-2.5 bg-[#1E293B]/80 rounded-lg border border-[#334155] focus:border-emerald-500 outline-none text-sm text-white placeholder:text-gray-600 transition-all" />
+                                        className="w-full px-3 py-2.5 bg-input-bg rounded-lg border border-border focus:border-emerald-500 outline-none text-sm text-text-primary placeholder:text-text-muted transition-all" />
                                 </div>
                                 <div className="flex items-center gap-2 py-2 px-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
                                     <Crosshair className="w-4 h-4 text-emerald-400 shrink-0" />
-                                    <div className="text-xs text-gray-400">
-                                        <span className="text-gray-300 font-medium">{form.lat.toFixed(4)}</span>, <span className="text-gray-300 font-medium">{form.lng.toFixed(4)}</span>
+                                    <div className="text-xs text-text-secondary">
+                                        <span className="text-text-primary font-medium">{form.lat.toFixed(4)}</span>, <span className="text-text-primary font-medium">{form.lng.toFixed(4)}</span>
                                     </div>
                                 </div>
                                 <button onClick={saveBin}
-                                    className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition-colors">
+                                    className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-text-primary text-sm font-semibold rounded-xl transition-colors">
                                     {editingBin ? 'Enregistrer' : 'Ajouter'}
                                 </button>
                             </div>
 
                             {/* Colonne droite : carte de sélection */}
-                            <div className="flex-1 min-h-[300px] sm:min-h-[350px] rounded-xl overflow-hidden border border-[#334155] relative">
+                            <div className="flex-1 min-h-[300px] sm:min-h-[350px] rounded-xl overflow-hidden border border-border relative">
                                 <MapClickPicker lat={form.lat} lng={form.lng} onLocationChange={(lat, lng) => setForm({ ...form, lat, lng })} />
                             </div>
                         </div>
@@ -814,9 +814,9 @@ function BinsPage() {
             {/* Message si aucun résultat (grille uniquement) */}
             {viewMode === 'grid' && paginated.length === 0 && (
                 <div className="text-center py-16">
-                    <Trash2 className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                    <p className="text-gray-400 text-sm">Aucune benne trouvée</p>
-                    <p className="text-gray-600 text-xs mt-1">Essayez de modifier vos filtres</p>
+                    <Trash2 className="w-12 h-12 text-text-muted mx-auto mb-4" />
+                    <p className="text-text-secondary text-sm">Aucune benne trouvée</p>
+                    <p className="text-text-muted text-xs mt-1">Essayez de modifier vos filtres</p>
                 </div>
             )}
         </div>

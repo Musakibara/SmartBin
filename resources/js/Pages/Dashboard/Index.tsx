@@ -160,22 +160,22 @@ function DashboardPage() {
             {/* En-tête du dashboard */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                    <h1 className="text-xl sm:text-2xl font-bold text-white">Dashboard</h1>
-                    <p className="text-xs sm:text-sm text-gray-400 mt-0.5 sm:mt-1">Vue d'ensemble du réseau SmartBin</p>
+                    <h1 className="text-xl sm:text-2xl font-bold text-text-primary">Dashboard</h1>
+                    <p className="text-xs sm:text-sm text-text-secondary mt-0.5 sm:mt-1">Vue d'ensemble du réseau SmartBin</p>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                    <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-[#1E293B]/80 border border-[#334155] text-[10px] sm:text-xs">
-                        <span className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${live ? 'bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'bg-gray-500'}`} />
-                        <span className={`font-semibold ${live ? 'text-emerald-400' : 'text-gray-400'}`}>Live</span>
-                        {live && <span className="text-gray-500 hidden xs:inline">{30 - (secondsSinceRefresh % 30)}s</span>}
+                    <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-bg-card/80 border border-border text-[10px] sm:text-xs">
+                        <span className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${live ? 'bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'bg-text-muted'}`} />
+                        <span className={`font-semibold ${live ? 'text-emerald-400' : 'text-text-secondary'}`}>Live</span>
+                        {live && <span className="text-text-muted hidden xs:inline">{30 - (secondsSinceRefresh % 30)}s</span>}
                     </div>
-                    <span className="text-[10px] sm:text-xs text-gray-500 hidden sm:inline">
+                    <span className="text-[10px] sm:text-xs text-text-muted hidden sm:inline">
                         Mis à jour il y a {secondsSinceRefresh < 60 ? `${secondsSinceRefresh}s` : `${Math.floor(secondsSinceRefresh / 60)}min`}
                     </span>
-                    <button onClick={() => setLive((p) => !p)} className="p-1.5 sm:p-2 rounded-lg bg-[#1E293B]/80 border border-[#334155] text-gray-400 hover:text-white hover:border-emerald-500/40 transition-all" title={live ? 'Pause' : 'Reprendre'}>
+                    <button onClick={() => setLive((p) => !p)} className="p-1.5 sm:p-2 rounded-lg bg-bg-card/80 border border-border text-text-secondary hover:text-text-primary hover:border-emerald-500/40 transition-all" title={live ? 'Pause' : 'Reprendre'}>
                         {live ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
                     </button>
-                    <button onClick={manualRefresh} className="p-1.5 sm:p-2 rounded-lg bg-[#1E293B]/80 border border-[#334155] text-gray-400 hover:text-white hover:border-emerald-500/40 transition-all" title="Rafraîchir maintenant">
+                    <button onClick={manualRefresh} className="p-1.5 sm:p-2 rounded-lg bg-bg-card/80 border border-border text-text-secondary hover:text-text-primary hover:border-emerald-500/40 transition-all" title="Rafraîchir maintenant">
                         <RefreshCw className="w-3.5 h-3.5" />
                     </button>
                 </div>
@@ -200,7 +200,7 @@ function DashboardPage() {
                 {/* Graphique d'évolution du remplissage */}
                 <div className="lg:col-span-2 glass rounded-xl p-4 sm:p-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-                        <h2 className="text-base sm:text-lg font-semibold text-white">Évolution du remplissage</h2>
+                        <h2 className="text-base sm:text-lg font-semibold text-text-primary">Évolution du remplissage</h2>
                         <div className="flex gap-1 bg-white/5 rounded-lg p-1 overflow-x-auto no-scrollbar">
                             {periods.map((p) => (
                                 <button
@@ -209,7 +209,7 @@ function DashboardPage() {
                                     className={`px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium rounded-md transition-all whitespace-nowrap ${
                                         period === p.key
                                             ? 'bg-emerald-500 text-white shadow'
-                                            : 'text-gray-400 hover:text-white hover:bg-white/10'
+                                            : 'text-text-secondary hover:text-text-primary hover:bg-white/10'
                                     }`}
                                 >
                                     {p.label}
@@ -245,7 +245,7 @@ function DashboardPage() {
                 {/* Liste des alertes récentes */}
                 <div className="glass rounded-xl p-4 sm:p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-base sm:text-lg font-semibold text-white">Alertes récentes</h2>
+                        <h2 className="text-base sm:text-lg font-semibold text-text-primary">Alertes récentes</h2>
                         <Link href="/alerts" className="text-[10px] sm:text-xs text-emerald-400 cursor-pointer hover:text-emerald-300">Voir tout</Link>
                     </div>
                     <div className="space-y-3">
@@ -261,11 +261,11 @@ function DashboardPage() {
                                 </div>
                                 {/* Contenu de l'alerte */}
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm text-white truncate">{alert.message}</p>
+                                    <p className="text-sm text-text-primary truncate">{alert.message}</p>
                                     <div className="flex items-center gap-2 mt-1">
-                                        <span className="text-xs text-gray-500">{alert.bin}</span>
-                                        <span className="text-xs text-gray-600">•</span>
-                                        <span className="text-xs text-gray-500">{alert.time}</span>
+                                        <span className="text-xs text-text-muted">{alert.bin}</span>
+                                        <span className="text-xs text-text-muted">•</span>
+                                        <span className="text-xs text-text-muted">{alert.time}</span>
                                     </div>
                                 </div>
                                 <StatusBadge status={alert.status === 'pending' ? 'pending' : 'resolved'} />
@@ -280,13 +280,13 @@ function DashboardPage() {
                 {/* Liste horizontale des bennes en direct */}
                 <div className="col-span-12 space-y-3 sm:space-y-4 animate-fade-in" style={{ animationDelay: '650ms' }}>
                     <div className="flex items-center justify-between">
-                        <h4 className="text-base sm:text-lg md:text-[24px] md:leading-[32px] font-semibold text-[#f8fafc]">Live Bin Status</h4>
+                        <h4 className="text-base sm:text-lg md:text-[24px] md:leading-[32px] font-semibold text-text-primary">Live Bin Status</h4>
                         <div className="flex gap-2">
                             <button onClick={scrollLeft} className="p-1.5 glass rounded hover:bg-white/10 transition-colors">
-                                <span className="material-symbols-outlined text-[20px] text-[#94a3b8]">chevron_left</span>
+                                <span className="material-symbols-outlined text-[20px] text-text-secondary">chevron_left</span>
                             </button>
                             <button onClick={scrollRight} className="p-1.5 glass rounded hover:bg-white/10 transition-colors">
-                                <span className="material-symbols-outlined text-[20px] text-[#94a3b8]">chevron_right</span>
+                                <span className="material-symbols-outlined text-[20px] text-text-secondary">chevron_right</span>
                             </button>
                         </div>
                     </div>
@@ -308,8 +308,8 @@ function DashboardPage() {
                                     {/* En-tête: ID et icône de statut */}
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <p className="text-[10px] text-[#94a3b8] font-bold uppercase">{bin.id}</p>
-                                            <h6 className="font-bold text-[14px] leading-[20px] text-[#f8fafc]">{bin.name}</h6>
+                                            <p className="text-[10px] text-text-secondary font-bold uppercase">{bin.id}</p>
+                                            <h6 className="font-bold text-[14px] leading-[20px] text-text-primary">{bin.name}</h6>
                                         </div>
                                         <span className={`material-symbols-outlined ${fillColor}`} style={{ fontVariationSettings: "'FILL' 1" }}>
                                             {statusIcon}
@@ -318,13 +318,13 @@ function DashboardPage() {
                                     {/* Barre de remplissage + batterie + température */}
                                     <div className="space-y-2">
                                         <div className="flex justify-between text-[12px] leading-[16px] font-semibold">
-                                            <span className="text-[#94a3b8]">Fill Level</span>
+                                            <span className="text-text-secondary">Fill Level</span>
                                             <span className={`font-bold ${fillColor}`}>{bin.fillLevel}%</span>
                                         </div>
-                                        <div className="w-full h-1.5 bg-[#1E293B] rounded-full overflow-hidden">
+                                        <div className="w-full h-1.5 bg-bg-card rounded-full overflow-hidden">
                                             <div className={`h-full rounded-full ${fillBg}`} style={{ width: `${bin.fillLevel}%` }} />
                                         </div>
-                                        <div className="flex justify-between text-[11px] text-[#94a3b8] pt-2">
+                                        <div className="flex justify-between text-[11px] text-text-secondary pt-2">
                                             <span className="flex items-center gap-1">
                                                 <BatteryCharging className="w-3.5 h-3.5" />
                                                 {bin.battery}%
@@ -345,15 +345,15 @@ function DashboardPage() {
                 <div className="col-span-12 glass p-0 rounded-xl overflow-hidden h-[280px] sm:h-[350px] md:h-[400px] relative">
                     {/* Overlay d'information en haut à gauche */}
                     <div className="absolute top-2 sm:top-4 left-2 sm:left-4 z-[9999] flex flex-col gap-1.5 sm:gap-2">
-                        <div className="bg-[#1E293B] p-2 sm:p-3 rounded-lg flex flex-col gap-0.5 sm:gap-1 shadow-lg border border-white/10 hover:scale-105 transition-transform duration-200 cursor-default">
-                            <h5 className="text-[11px] sm:text-sm font-bold text-white">City-Wide Deployment</h5>
-                            <p className="text-[9px] sm:text-[10px] text-gray-400 hidden sm:block">Central Hub: Yaoundé, CM</p>
+                        <div className="bg-bg-card p-2 sm:p-3 rounded-lg flex flex-col gap-0.5 sm:gap-1 shadow-lg border border-white/10 hover:scale-105 transition-transform duration-200 cursor-default">
+                            <h5 className="text-[11px] sm:text-sm font-bold text-text-primary">City-Wide Deployment</h5>
+                            <p className="text-[9px] sm:text-[10px] text-text-secondary hidden sm:block">Central Hub: Yaoundé, CM</p>
                         </div>
                         {/* Légende des couleurs */}
-                        <div className="bg-[#1E293B] p-1.5 sm:p-2 rounded-lg flex gap-2 sm:gap-4 shadow-lg border border-white/10">
-                            <div className="flex items-center gap-1 sm:gap-1.5 hover:scale-110 transition-transform duration-200 cursor-pointer"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500"></div><span className="text-[9px] sm:text-[10px] text-gray-200">Optimal</span></div>
-                            <div className="flex items-center gap-1 sm:gap-1.5 hover:scale-110 transition-transform duration-200 cursor-pointer"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-orange-400"></div><span className="text-[9px] sm:text-[10px] text-gray-200">Warning</span></div>
-                            <div className="flex items-center gap-1 sm:gap-1.5 hover:scale-110 transition-transform duration-200 cursor-pointer"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-500"></div><span className="text-[9px] sm:text-[10px] text-gray-200">Critical</span></div>
+                        <div className="bg-bg-card p-1.5 sm:p-2 rounded-lg flex gap-2 sm:gap-4 shadow-lg border border-white/10">
+                            <div className="flex items-center gap-1 sm:gap-1.5 hover:scale-110 transition-transform duration-200 cursor-pointer"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500"></div><span className="text-[9px] sm:text-[10px] text-text-primary">Optimal</span></div>
+                            <div className="flex items-center gap-1 sm:gap-1.5 hover:scale-110 transition-transform duration-200 cursor-pointer"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-orange-400"></div><span className="text-[9px] sm:text-[10px] text-text-primary">Warning</span></div>
+                            <div className="flex items-center gap-1 sm:gap-1.5 hover:scale-110 transition-transform duration-200 cursor-pointer"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-500"></div><span className="text-[9px] sm:text-[10px] text-text-primary">Critical</span></div>
                         </div>
                     </div>
                 {/* Carte Leaflet rendue côté client uniquement */}

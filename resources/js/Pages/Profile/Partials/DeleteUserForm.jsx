@@ -53,10 +53,10 @@ export default function DeleteUserForm({ className = '' }) {
                     <Trash2 className="w-4 h-4 text-red-400" />
                 </div>
                 <div>
-                    <h2 className="text-lg font-bold text-white">
+                    <h2 className="text-lg font-bold text-text-primary">
                         Supprimer le compte
                     </h2>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-text-secondary">
                         Une fois supprimé, toutes vos données seront définitivement effacées.
                     </p>
                 </div>
@@ -68,11 +68,11 @@ export default function DeleteUserForm({ className = '' }) {
 
             <Modal show={confirmingUserDeletion} onClose={closeModal}>
                 <form onSubmit={deleteUser} className="p-6">
-                    <h2 className="text-lg font-medium text-white">
+                    <h2 className="text-lg font-medium text-text-primary">
                         Êtes-vous sûr de vouloir supprimer votre compte ?
                     </h2>
 
-                    <p className="mt-1 text-sm text-gray-400">
+                    <p className="mt-1 text-sm text-text-secondary">
                         Cette action est irréversible. Entrez votre mot de passe pour confirmer.
                     </p>
 
@@ -92,7 +92,7 @@ export default function DeleteUserForm({ className = '' }) {
                             onChange={(e) =>
                                 setData('password', e.target.value)
                             }
-                            className="mt-1 block w-3/4 border-[#334155] bg-[#1E293B] text-white placeholder:text-gray-500 focus:border-emerald-500 focus:ring-emerald-500"
+                            className="mt-1 block w-3/4 border-border bg-input-bg text-text-primary placeholder:text-text-muted focus:border-emerald-500 focus:ring-emerald-500"
                             isFocused
                             placeholder="Mot de passe"
                         />
@@ -104,7 +104,7 @@ export default function DeleteUserForm({ className = '' }) {
                     </div>
 
                     <div className="mt-6 flex justify-end">
-                        <SecondaryButton onClick={closeModal} className="bg-[#1E293B] text-gray-300 border-[#334155] hover:bg-[#334155]">
+                        <SecondaryButton onClick={closeModal} className="bg-input-bg text-text-primary border-border hover:bg-[#334155]">
                             Annuler
                         </SecondaryButton>
 

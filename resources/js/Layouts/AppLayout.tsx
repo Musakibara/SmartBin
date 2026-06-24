@@ -29,7 +29,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
     return (
         <ToastProvider>
-            <div className="min-h-screen bg-[#020617]">
+            <div className="min-h-screen bg-bg-primary">
                 <AppSidebar
                     isOpen={sidebarOpen}
                     onClose={() => setSidebarOpen(false)}
@@ -42,11 +42,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     <main className="min-h-0 flex-1 p-4 pb-4 sm:p-6">
                         {children}
                     </main>
-                    <footer className="border-t border-[#334155] bg-[#0F172A]/50 px-6 py-4 backdrop-blur-md">
-                        <div className="flex flex-col items-center justify-between gap-4 text-[11px] font-bold uppercase tracking-widest text-[#94a3b8] md:flex-row">
+                    <footer className="border-t border-border bg-bg-secondary/50 px-6 py-4 backdrop-blur-md">
+                        <div className="flex flex-col items-center justify-between gap-4 text-[11px] font-bold uppercase tracking-widest text-text-secondary md:flex-row">
                             <div className="flex items-center gap-4">
                                 <span>© 2024 SmartBin Command</span>
-                                <span className="h-1 w-1 rounded-full bg-[#475569]" />
+                                <span className="h-1 w-1 rounded-full bg-text-muted" />
                                 <span>v2.4.8-Enterprise</span>
                             </div>
                             <div className="flex items-center gap-6">

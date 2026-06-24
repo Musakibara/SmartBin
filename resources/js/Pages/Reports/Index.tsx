@@ -129,14 +129,14 @@ function ReportsPage() {
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
-                        <h1 className="text-2xl font-bold text-white">Rapports</h1>
-                        <p className="text-[#94a3b8] text-sm mt-1">
+                        <h1 className="text-2xl font-bold text-text-primary">Rapports</h1>
+                        <p className="text-text-secondary text-sm mt-1">
                             {reports.total} rapport{reports.total !== 1 ? 's' : ''} généré{reports.total !== 1 ? 's' : ''}
                         </p>
                     </div>
                     <button
                         onClick={() => setShowGenerate(true)}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40"
+                        className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-text-primary rounded-xl font-semibold text-sm transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40"
                     >
                         <Plus className="w-4 h-4" />
                         Nouveau Rapport
@@ -166,20 +166,20 @@ function ReportsPage() {
                 {/* Filters */}
                 <div className="flex flex-col sm:flex-row gap-3">
                     <div className="relative flex-1">
-                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748b]" />
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                         <input
                             type="text"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             onKeyDown={handleSearchKeyDown}
                             placeholder="Rechercher par nom, type ou description..."
-                            className="w-full pl-10 pr-4 py-2.5 bg-[#1E293B] border border-[#334155] rounded-xl text-[#f8fafc] placeholder-[#64748b] text-sm focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all"
+                            className="w-full pl-10 pr-4 py-2.5 bg-input-bg border border-border rounded-xl text-text-primary placeholder-text-muted text-sm focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all"
                         />
                     </div>
                     <select
                         value={typeFilter}
                         onChange={(e) => { setTypeFilter(e.target.value); router.get('/reports', { search, type: e.target.value }, { preserveState: true, replace: true }) }}
-                        className="px-4 py-2.5 bg-[#1E293B] border border-[#334155] rounded-xl text-[#f8fafc] text-sm focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all"
+                        className="px-4 py-2.5 bg-input-bg border border-border rounded-xl text-text-primary text-sm focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all"
                     >
                         <option value="Tous">Tous les types</option>
                         {typeList.map((t) => <option key={t} value={t}>{typeConfig[t].label}</option>)}
@@ -189,14 +189,14 @@ function ReportsPage() {
                 {/* List */}
                 {reports.data.length === 0 ? (
                     <div className="text-center py-20">
-                        <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-[#1E293B] border border-[#334155] flex items-center justify-center">
-                            <FileText className="w-7 h-7 text-[#475569]" />
+                        <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-bg-card border border-border flex items-center justify-center">
+                            <FileText className="w-7 h-7 text-text-muted" />
                         </div>
-                        <p className="text-[#94a3b8] text-sm mb-1">Aucun rapport trouvé</p>
-                        <p className="text-[#64748b] text-xs mb-5">Générez votre premier rapport pour commencer</p>
+                        <p className="text-text-secondary text-sm mb-1">Aucun rapport trouvé</p>
+                        <p className="text-text-muted text-xs mb-5">Générez votre premier rapport pour commencer</p>
                         <button
                             onClick={() => setShowGenerate(true)}
-                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-emerald-500/20"
+                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-text-primary rounded-xl font-semibold text-sm transition-all shadow-lg shadow-emerald-500/20"
                         >
                             <Plus className="w-4 h-4" />
                             Générer un rapport
@@ -210,7 +210,7 @@ function ReportsPage() {
                             return (
                                 <div
                                     key={report.id}
-                                    className="group bg-[#1E293B]/70 backdrop-blur-sm border border-[#334155] rounded-xl p-6 hover:border-emerald-500/30 hover:shadow-[0_0_20px_-8px_rgba(16,185,129,0.15)] transition-all duration-300"
+                                    className="group bg-bg-card/70 backdrop-blur-sm border border-border rounded-xl p-6 hover:border-emerald-500/30 hover:shadow-[0_0_20px_-8px_rgba(16,185,129,0.15)] transition-all duration-300"
                                 >
                                     <div className="flex items-start gap-4">
                                         <div className={`w-12 h-12 rounded-xl ${iconBg[cfg.color]} flex items-center justify-center shrink-0`}>
@@ -222,16 +222,16 @@ function ReportsPage() {
                                                     {cfg.label}
                                                 </span>
                                                 {report.fileSize && (
-                                                    <span className="text-[#64748b] text-xs">{report.fileSize}</span>
+                                                    <span className="text-text-muted text-xs">{report.fileSize}</span>
                                                 )}
                                             </div>
-                                            <h3 className="text-[#f8fafc] text-base font-semibold truncate leading-snug">
+                                            <h3 className="text-text-primary text-base font-semibold truncate leading-snug">
                                                 {report.name}
                                             </h3>
-                                            <p className="text-[#64748b] text-xs mt-1.5 line-clamp-2 leading-relaxed">
+                                            <p className="text-text-muted text-xs mt-1.5 line-clamp-2 leading-relaxed">
                                                 {report.summary}
                                             </p>
-                                            <div className="flex items-center gap-3 mt-3 text-[11px] text-[#475569]">
+                                            <div className="flex items-center gap-3 mt-3 text-[11px] text-text-muted">
                                                 <span className="flex items-center gap-1">
                                                     <User className="w-3.5 h-3.5" />
                                                     {report.generatedBy}
@@ -244,7 +244,7 @@ function ReportsPage() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-1.5 mt-4 pt-3.5 border-t border-[#334155]">
+                                    <div className="flex items-center gap-1.5 mt-4 pt-3.5 border-t border-border">
                                         {report.viewUrl && (
                                             <button
                                                 onClick={() => handleView(report.viewUrl!)}
@@ -262,7 +262,7 @@ function ReportsPage() {
                                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                                                 report.file_path
                                                     ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
-                                                    : 'bg-[#1E293B] text-[#475569] cursor-not-allowed'
+                                                    : 'bg-bg-card text-text-muted cursor-not-allowed'
                                             }`}
                                         >
                                             <Download className="w-3.5 h-3.5" />
@@ -272,7 +272,7 @@ function ReportsPage() {
                                         <button
                                             onClick={() => confirmDelete(report.id, report.name)}
                                             title="Supprimer"
-                                            className="p-1.5 rounded-lg text-[#475569] group-hover:text-red-400 hover:bg-red-500/20 transition-all opacity-0 group-hover:opacity-100"
+                                            className="p-1.5 rounded-lg text-text-muted group-hover:text-red-400 hover:bg-red-500/20 transition-all opacity-0 group-hover:opacity-100"
                                         >
                                             <Trash2 className="w-3.5 h-3.5" />
                                         </button>
@@ -289,7 +289,7 @@ function ReportsPage() {
                         <button
                             onClick={() => goToPage(reports.current_page - 1)}
                             disabled={reports.current_page <= 1}
-                            className="p-2 rounded-lg bg-[#1E293B] border border-[#334155] text-[#94a3b8] hover:text-white hover:border-[#475569] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                            className="p-2 rounded-lg bg-bg-card border border-border text-text-secondary hover:text-text-primary hover:border-[#475569] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                         >
                             <ChevronLeft className="w-4 h-4" />
                         </button>
@@ -300,7 +300,7 @@ function ReportsPage() {
                                 className={`w-9 h-9 rounded-lg text-sm font-medium transition-all ${
                                     p === reports.current_page
                                         ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                                        : 'bg-[#1E293B] border border-[#334155] text-[#94a3b8] hover:text-white hover:border-[#475569]'
+                                        : 'bg-bg-card border border-border text-text-secondary hover:text-text-primary hover:border-[#475569]'
                                 }`}
                             >
                                 {p}
@@ -309,7 +309,7 @@ function ReportsPage() {
                         <button
                             onClick={() => goToPage(reports.current_page + 1)}
                             disabled={reports.current_page >= reports.last_page}
-                            className="p-2 rounded-lg bg-[#1E293B] border border-[#334155] text-[#94a3b8] hover:text-white hover:border-[#475569] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                            className="p-2 rounded-lg bg-bg-card border border-border text-text-secondary hover:text-text-primary hover:border-[#475569] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                         >
                             <ChevronRight className="w-4 h-4" />
                         </button>
@@ -320,19 +320,19 @@ function ReportsPage() {
             {/* Generate Modal */}
             {showGenerate && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => !generating && setShowGenerate(false)}>
-                    <div className="w-full max-w-md bg-[#0F172A] border border-[#334155] rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+                    <div className="w-full max-w-md bg-bg-secondary border border-border rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between mb-6">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center">
                                     <FileDown className="w-5 h-5 text-emerald-400" />
                                 </div>
                                 <div>
-                                    <h2 className="text-lg font-bold text-white">Nouveau Rapport</h2>
-                                    <p className="text-[#94a3b8] text-sm">Choisissez le type à générer</p>
+                                    <h2 className="text-lg font-bold text-text-primary">Nouveau Rapport</h2>
+                                    <p className="text-text-secondary text-sm">Choisissez le type à générer</p>
                                 </div>
                             </div>
                             {!generating && (
-                                <button onClick={() => setShowGenerate(false)} className="p-1.5 rounded-lg hover:bg-white/5 text-[#475569] hover:text-white transition-all">
+                                <button onClick={() => setShowGenerate(false)} className="p-1.5 rounded-lg hover:bg-white/5 text-text-muted hover:text-text-primary transition-all">
                                     <X className="w-5 h-5" />
                                 </button>
                             )}
@@ -349,10 +349,10 @@ function ReportsPage() {
                                         className={`w-full flex items-center gap-4 p-3.5 rounded-xl border transition-all ${
                                             selected
                                                 ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400 shadow-[0_0_12px_-4px_rgba(16,185,129,0.2)]'
-                                                : 'bg-[#1E293B] border-[#334155] text-[#94a3b8] hover:border-[#475569] hover:text-white'
+                                                : 'bg-bg-card border-border text-text-secondary hover:border-[#475569] hover:text-text-primary'
                                         }`}
                                     >
-                                        <span className={`w-9 h-9 rounded-lg flex items-center justify-center text-base ${selected ? iconBg[cfg.color] : 'bg-[#0F172A]'}`}>
+                                        <span className={`w-9 h-9 rounded-lg flex items-center justify-center text-base ${selected ? iconBg[cfg.color] : 'bg-bg-secondary'}`}>
                                             {cfg.icon}
                                         </span>
                                         <div className="text-left">
@@ -373,14 +373,14 @@ function ReportsPage() {
                             <button
                                 onClick={() => setShowGenerate(false)}
                                 disabled={generating}
-                                className="flex-1 px-4 py-2.5 rounded-xl border border-[#334155] text-[#94a3b8] hover:text-white hover:border-[#475569] font-medium text-sm transition-all disabled:opacity-50"
+                                className="flex-1 px-4 py-2.5 rounded-xl border border-border text-text-secondary hover:text-text-primary hover:border-[#475569] font-medium text-sm transition-all disabled:opacity-50"
                             >
                                 Annuler
                             </button>
                             <button
                                 onClick={handleGenerate}
                                 disabled={generating}
-                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-semibold text-sm transition-all disabled:opacity-50 shadow-lg shadow-emerald-500/20"
+                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-text-primary rounded-xl font-semibold text-sm transition-all disabled:opacity-50 shadow-lg shadow-emerald-500/20"
                             >
                                 {generating ? (
                                     <><Loader2 className="w-4 h-4 animate-spin" /> Génération en cours...</>
@@ -396,10 +396,10 @@ function ReportsPage() {
             {/* Preview Modal */}
             {previewUrl && (
                 <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setPreviewUrl(null)}>
-                    <div className="w-full max-w-4xl h-[85vh] bg-[#0F172A] border border-[#334155] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-between px-5 py-3 border-b border-[#334155]">
-                            <h3 className="text-sm font-semibold text-white">Aperçu du rapport</h3>
-                            <button onClick={() => setPreviewUrl(null)} className="p-1.5 rounded-lg hover:bg-white/5 text-[#475569] hover:text-white transition-all">
+                    <div className="w-full max-w-4xl h-[85vh] bg-bg-secondary border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-between px-5 py-3 border-b border-border">
+                            <h3 className="text-sm font-semibold text-text-primary">Aperçu du rapport</h3>
+                            <button onClick={() => setPreviewUrl(null)} className="p-1.5 rounded-lg hover:bg-white/5 text-text-muted hover:text-text-primary transition-all">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
@@ -411,31 +411,31 @@ function ReportsPage() {
             {/* Delete Confirmation Modal */}
             {deleteTarget && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => !deleting && setDeleteTarget(null)}>
-                    <div className="w-full max-w-sm bg-[#0F172A] border border-[#334155] rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+                    <div className="w-full max-w-sm bg-bg-secondary border border-border rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center gap-3 mb-4">
                             <div className="w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center">
                                 <AlertCircle className="w-5 h-5 text-red-400" />
                             </div>
                             <div>
-                                <h2 className="text-lg font-bold text-white">Supprimer le rapport</h2>
-                                <p className="text-[#94a3b8] text-sm">Cette action est irréversible</p>
+                                <h2 className="text-lg font-bold text-text-primary">Supprimer le rapport</h2>
+                                <p className="text-text-secondary text-sm">Cette action est irréversible</p>
                             </div>
                         </div>
-                        <p className="text-[#94a3b8] text-sm mb-6">
-                            Êtes-vous sûr de vouloir supprimer <span className="text-white font-semibold">{deleteTarget.name}</span> ?
+                        <p className="text-text-secondary text-sm mb-6">
+                            Êtes-vous sûr de vouloir supprimer <span className="text-text-primary font-semibold">{deleteTarget.name}</span> ?
                         </p>
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setDeleteTarget(null)}
                                 disabled={deleting}
-                                className="flex-1 px-4 py-2.5 rounded-xl border border-[#334155] text-[#94a3b8] hover:text-white hover:border-[#475569] font-medium text-sm transition-all disabled:opacity-50"
+                                className="flex-1 px-4 py-2.5 rounded-xl border border-border text-text-secondary hover:text-text-primary hover:border-[#475569] font-medium text-sm transition-all disabled:opacity-50"
                             >
                                 Annuler
                             </button>
                             <button
                                 onClick={handleDelete}
                                 disabled={deleting}
-                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl font-semibold text-sm transition-all disabled:opacity-50"
+                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-500 text-text-primary rounded-xl font-semibold text-sm transition-all disabled:opacity-50"
                             >
                                 {deleting ? (
                                     <><Loader2 className="w-4 h-4 animate-spin" /> Suppression...</>

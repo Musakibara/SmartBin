@@ -59,8 +59,8 @@ function NotificationsPage() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Notifications</h1>
-                    <p className="text-sm text-gray-400 mt-1">
+                    <h1 className="text-2xl font-bold text-text-primary">Notifications</h1>
+                    <p className="text-sm text-text-secondary mt-1">
                         {total} notification{total !== 1 ? 's' : ''}
                         {unread > 0 && <span className="text-emerald-400"> · {unread} non lue{unread !== 1 ? 's' : ''}</span>}
                     </p>
@@ -79,9 +79,9 @@ function NotificationsPage() {
             <div className="space-y-2">
                 {data.length === 0 ? (
                     <div className="glass rounded-xl p-12 text-center">
-                        <Bell className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-                        <p className="text-base font-semibold text-white">Aucune notification</p>
-                        <p className="text-sm text-gray-500 mt-1">Les notifications apparaîtront ici quand des alertes seront générées.</p>
+                        <Bell className="w-12 h-12 text-text-muted mx-auto mb-3" />
+                        <p className="text-base font-semibold text-text-primary">Aucune notification</p>
+                        <p className="text-sm text-text-muted mt-1">Les notifications apparaîtront ici quand des alertes seront générées.</p>
                     </div>
                 ) : (
                     data.map((n) => {
@@ -93,8 +93,8 @@ function NotificationsPage() {
                                 key={n.id}
                                 className={`group relative rounded-xl border transition-all duration-200 ${
                                     n.read_at
-                                        ? 'bg-[#1E293B]/40 border-[#334155]/30 opacity-60'
-                                        : 'bg-[#1E293B]/60 border-[#334155]/60 hover:border-emerald-500/30 hover:shadow-[0_0_20px_-5px_rgba(16,185,129,0.1)]'
+                                        ? 'bg-bg-card/40 border-border/30 opacity-60'
+                                        : 'bg-bg-card/60 border-border/60 hover:border-emerald-500/30 hover:shadow-[0_0_20px_-5px_rgba(16,185,129,0.1)]'
                                 }`}
                             >
                                 <div className="flex items-start gap-4 p-4">
@@ -102,10 +102,10 @@ function NotificationsPage() {
                                         <SeverityIcon className="w-4 h-4" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <p className={`text-sm ${n.read_at ? 'text-gray-400' : 'text-white font-medium'}`}>
+                                        <p className={`text-sm ${n.read_at ? 'text-text-secondary' : 'text-text-primary font-medium'}`}>
                                             {n.message}
                                         </p>
-                                        <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-500">
+                                        <div className="flex items-center gap-3 mt-1.5 text-xs text-text-muted">
                                             <span className="flex items-center gap-1">
                                                 <Mail className="w-3 h-3" />
                                                 {n.channel}
@@ -122,7 +122,7 @@ function NotificationsPage() {
                                     {!n.read_at && (
                                         <button
                                             onClick={() => handleMarkRead(n.id)}
-                                            className="p-1.5 rounded-lg text-gray-500 hover:text-emerald-400 hover:bg-white/5 opacity-0 group-hover:opacity-100 transition-all"
+                                                className="p-1.5 rounded-lg text-text-muted hover:text-emerald-400 hover:bg-white/5 opacity-0 group-hover:opacity-100 transition-all"
                                             title="Marquer comme lu"
                                         >
                                             <CheckCheck className="w-4 h-4" />
@@ -137,20 +137,20 @@ function NotificationsPage() {
 
             {last_page > 1 && (
                 <div className="flex flex-col items-center gap-3">
-                    <p className="text-xs text-gray-600">Page {current_page} / {last_page}</p>
+                    <p className="text-xs text-text-muted">Page {current_page} / {last_page}</p>
                     <div className="flex items-center gap-2">
                         <button onClick={() => goPage(current_page - 1)} disabled={current_page === 1}
-                            className="p-2 rounded-lg bg-[#1E293B]/80 text-gray-500 hover:text-white disabled:opacity-30 transition-all shrink-0">
+                            className="p-2 rounded-lg bg-input-bg text-text-muted hover:text-text-primary disabled:opacity-30 transition-all shrink-0">
                             <ChevronLeft className="w-4 h-4" />
                         </button>
                         {Array.from({ length: last_page }, (_, i) => (
                             <button key={i} onClick={() => goPage(i + 1)}
-                                className={`w-8 h-8 rounded-lg text-xs font-bold transition-all shrink-0 ${current_page === i + 1 ? 'bg-emerald-600 text-white shadow-lg' : 'bg-[#1E293B]/80 text-gray-500 hover:text-white'}`}>
+                                className={`w-8 h-8 rounded-lg text-xs font-bold transition-all shrink-0 ${current_page === i + 1 ? 'bg-emerald-600 text-white shadow-lg' : 'bg-input-bg text-text-muted hover:text-text-primary'}`}>
                                 {i + 1}
                             </button>
                         ))}
                         <button onClick={() => goPage(current_page + 1)} disabled={current_page === last_page}
-                            className="p-2 rounded-lg bg-[#1E293B]/80 text-gray-500 hover:text-white disabled:opacity-30 transition-all shrink-0">
+                            className="p-2 rounded-lg bg-input-bg text-text-muted hover:text-text-primary disabled:opacity-30 transition-all shrink-0">
                             <ChevronRight className="w-4 h-4" />
                         </button>
                     </div>

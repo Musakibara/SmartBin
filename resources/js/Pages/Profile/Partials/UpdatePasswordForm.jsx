@@ -55,10 +55,10 @@ export default function UpdatePasswordForm({ className = '' }) {
                     <Lock className="w-4 h-4 text-blue-400" />
                 </div>
                 <div>
-                    <h2 className="text-lg font-bold text-white">
+                    <h2 className="text-lg font-bold text-text-primary">
                         Sécurité
                     </h2>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-text-secondary">
                         Utilisez un mot de passe long et aléatoire pour sécuriser votre compte.
                     </p>
                 </div>
@@ -69,7 +69,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                     <InputLabel
                         htmlFor="current_password"
                         value="Mot de passe actuel"
-                        className="text-gray-300 text-xs font-semibold"
+                        className="text-text-primary text-xs font-semibold"
                     />
 
                     <TextInput
@@ -80,7 +80,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                             setData('current_password', e.target.value)
                         }
                         type="password"
-                        className="mt-1 block w-full border-[#334155] bg-[#1E293B] text-white placeholder:text-gray-500 focus:border-emerald-500 focus:ring-emerald-500"
+                        className="mt-1 block w-full border-border bg-input-bg text-text-primary placeholder:text-text-muted focus:border-emerald-500 focus:ring-emerald-500"
                         autoComplete="current-password"
                     />
 
@@ -91,7 +91,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="password" value="Nouveau mot de passe" className="text-gray-300 text-xs font-semibold" />
+                    <InputLabel htmlFor="password" value="Nouveau mot de passe" className="text-text-primary text-xs font-semibold" />
 
                     <TextInput
                         id="password"
@@ -99,7 +99,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                         value={data.password}
                         onChange={(e) => setData('password', e.target.value)}
                         type="password"
-                        className="mt-1 block w-full border-[#334155] bg-[#1E293B] text-white placeholder:text-gray-500 focus:border-emerald-500 focus:ring-emerald-500"
+                        className="mt-1 block w-full border-border bg-input-bg text-text-primary placeholder:text-text-muted focus:border-emerald-500 focus:ring-emerald-500"
                         autoComplete="new-password"
                     />
 
@@ -110,7 +110,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                     <InputLabel
                         htmlFor="password_confirmation"
                         value="Confirmer le mot de passe"
-                        className="text-gray-300 text-xs font-semibold"
+                        className="text-text-primary text-xs font-semibold"
                     />
 
                     <TextInput
@@ -120,7 +120,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                             setData('password_confirmation', e.target.value)
                         }
                         type="password"
-                        className="mt-1 block w-full border-[#334155] bg-[#1E293B] text-white placeholder:text-gray-500 focus:border-emerald-500 focus:ring-emerald-500"
+                        className="mt-1 block w-full border-border bg-input-bg text-text-primary placeholder:text-text-muted focus:border-emerald-500 focus:ring-emerald-500"
                         autoComplete="new-password"
                     />
 

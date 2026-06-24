@@ -99,7 +99,7 @@ function MonitoringPage() {
     const panelContent = () => {
         if (panel === 'alerts') return (
             <div className="space-y-2">
-                <h3 className="text-xs font-bold text-white flex items-center gap-1.5"><AlertTriangle className="w-3.5 h-3.5 text-amber-400" />Alertes en direct</h3>
+                <h3 className="text-xs font-bold text-text-primary flex items-center gap-1.5"><AlertTriangle className="w-3.5 h-3.5 text-amber-400" />Alertes en direct</h3>
                 {alerts.filter((a) => a.status === 'pending').map((a) => {
                     const bin = bins.find((b) => b.id === a.bin)
                     return (
@@ -117,7 +117,7 @@ function MonitoringPage() {
         )
         if (panel === 'predictions') return (
             <div className="space-y-2">
-                <h3 className="text-xs font-bold text-white flex items-center gap-1.5"><Brain className="w-3.5 h-3.5 text-purple-400" />Prédictions IA</h3>
+                <h3 className="text-xs font-bold text-text-primary flex items-center gap-1.5"><Brain className="w-3.5 h-3.5 text-purple-400" />Prédictions IA</h3>
                 {predictions.map((p) => {
                     const bin = bins.find((b) => b.id === p.bin)
                     return (
@@ -126,8 +126,8 @@ function MonitoringPage() {
                                 <span className="text-purple-300 font-bold">{p.priority}</span>
                                 <span className="text-[10px] text-purple-300/60">T-{p.estimatedHours}h</span>
                             </div>
-                            <p className="text-gray-300">{p.message}</p>
-                            {bin && <p className="text-[10px] text-gray-500">{bin.name}</p>}
+                            <p className="text-text-primary">{p.message}</p>
+                            {bin && <p className="text-[10px] text-text-muted">{bin.name}</p>}
                         </div>
                     )
                 })}
@@ -135,16 +135,16 @@ function MonitoringPage() {
         )
         return (
             <div className="space-y-2">
-                <h3 className="text-xs font-bold text-white flex items-center gap-1.5"><Activity className="w-3.5 h-3.5 text-cyan-400" />Activité récente</h3>
+                <h3 className="text-xs font-bold text-text-primary flex items-center gap-1.5"><Activity className="w-3.5 h-3.5 text-cyan-400" />Activité récente</h3>
                 {activity.length === 0 ? (
-                    <p className="text-xs text-gray-600 italic">Aucune activité récente</p>
+                    <p className="text-xs text-text-muted italic">Aucune activité récente</p>
                 ) : activity.map((item, i) => (
                     <div key={i} className="flex items-start gap-2.5 text-xs">
                         <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 mt-1.5 shrink-0" />
                         <div>
-                            <p className="text-white font-semibold">{item.action}</p>
-                            <p className="text-gray-500">{item.detail}</p>
-                            <p className="text-[10px] text-gray-600">{item.time}</p>
+                            <p className="text-text-primary font-semibold">{item.action}</p>
+                            <p className="text-text-muted">{item.detail}</p>
+                            <p className="text-[10px] text-text-muted">{item.time}</p>
                         </div>
                     </div>
                 ))}
@@ -159,35 +159,35 @@ function MonitoringPage() {
     return (
         <div className="flex flex-col h-full min-h-0">
         {/* Barre supérieure KPIs + contrôles */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3 sm:px-6 py-3 bg-[#0F172A]/80 backdrop-blur-md border-b border-[#334155] shrink-0 gap-3 rounded-t-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3 sm:px-6 py-3 bg-bg-secondary/80 backdrop-blur-md border-b border-border shrink-0 gap-3 rounded-t-xl">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
-                <h1 className="text-sm sm:text-base font-bold text-white">Monitoring</h1>
+                <h1 className="text-sm sm:text-base font-bold text-text-primary">Monitoring</h1>
                 <div className="flex items-center gap-2 flex-wrap">
                     {[
-                        { label: `${bins.length}`, sub: 'Total', color: 'text-white' },
+                        { label: `${bins.length}`, sub: 'Total', color: 'text-text-primary' },
                         { label: String(nbNormal), sub: 'Normal', color: 'text-emerald-400' },
                         { label: String(nbWarning), sub: 'Attention', color: 'text-amber-400' },
                         { label: String(nbFull), sub: 'Pleine', color: 'text-red-400' },
                     ].map(({ label, sub, color }) => (
-                        <div key={sub} className="flex items-center gap-1 text-[10px] sm:text-xs bg-[#1E293B]/80 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg">
+                        <div key={sub} className="flex items-center gap-1 text-[10px] sm:text-xs bg-input-bg px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg">
                             <span className={`font-bold ${color}`}>{label}</span>
-                            <span className="text-gray-500">{sub}</span>
+                            <span className="text-text-muted">{sub}</span>
                         </div>
                     ))}
                 </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
-                <div className="flex items-center gap-1 bg-[#1E293B]/80 rounded-lg p-0.5">
+                <div className="flex items-center gap-1 bg-input-bg rounded-lg p-0.5">
                     {(['all', 'normal', 'warning', 'full'] as const).map((f) => (
                         <button key={f} onClick={() => setFilter(f)}
-                            className={`px-2 sm:px-2.5 py-1 rounded-md text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider transition-all ${filter === f ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'text-gray-500 hover:text-gray-300'}`}
+                            className={`px-2 sm:px-2.5 py-1 rounded-md text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider transition-all ${filter === f ? 'bg-emerald-600 text-text-primary shadow-lg shadow-emerald-600/20' : 'text-text-muted hover:text-text-primary'}`}
                         >{f === 'all' ? 'Tous' : f}</button>
                     ))}
                 </div>
-                <button onClick={() => setShowPanel(!showPanel)} className={`p-2 rounded-lg transition-all ${showPanel ? 'bg-emerald-500/10 text-emerald-400' : 'bg-[#1E293B]/80 text-gray-500 hover:text-gray-300'}`} title="Panneau">
+                <button onClick={() => setShowPanel(!showPanel)} className={`p-2 rounded-lg transition-all ${showPanel ? 'bg-emerald-500/10 text-emerald-400' : 'bg-input-bg text-text-muted hover:text-text-primary'}`} title="Panneau">
                     <ChevronRight className={`w-4 h-4 transition-transform ${showPanel ? 'rotate-180' : ''}`} />
                 </button>
-                <button onClick={simulateRefresh} disabled={refreshing} className="p-2 rounded-lg bg-[#1E293B]/80 text-gray-500 hover:text-gray-300 transition-all" title="Rafraîchir">
+                <button onClick={simulateRefresh} disabled={refreshing} className="p-2 rounded-lg bg-input-bg text-text-muted hover:text-text-primary transition-all" title="Rafraîchir">
                     <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin text-emerald-400' : ''}`} />
                 </button>
             </div>
@@ -210,24 +210,24 @@ function MonitoringPage() {
                                     <div className="min-w-[180px]">
                                         <div className="flex items-center justify-between mb-2">
                                             <div>
-                                                <p className="text-[10px] font-bold text-white/60">{bin.id}</p>
-                                                <p className="text-sm font-bold text-white">{bin.name}</p>
+                                                <p className="text-[10px] font-bold text-text-primary/60">{bin.id}</p>
+                                                <p className="text-sm font-bold text-text-primary">{bin.name}</p>
                                             </div>
                                             <StatusBadge status={bin.status} />
                                         </div>
-                                        <div className="space-y-1 text-xs text-gray-400">
+                                        <div className="space-y-1 text-xs text-text-secondary">
                                             <p className="flex items-center gap-1.5"><MapPin className="w-3 h-3" />{bin.location}</p>
                                             <p className="flex items-center gap-1.5"><Thermometer className="w-3 h-3" />{bin.temperature}°C</p>
                                             <p className="flex items-center gap-1.5"><BatteryCharging className="w-3 h-3" />{bin.battery}%</p>
                                             <div className="mt-2">
                                                 <div className="flex justify-between text-[10px] mb-1">
-                                                    <span className="text-gray-500">Remplissage</span><span className="font-bold text-white">{bin.fillLevel}%</span>
+                                                    <span className="text-text-muted">Remplissage</span><span className="font-bold text-text-primary">{bin.fillLevel}%</span>
                                                 </div>
                                                 <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
                                                     <div className={`h-full rounded-full ${bin.fillLevel > 80 ? 'bg-red-500' : bin.fillLevel > 50 ? 'bg-orange-400' : 'bg-emerald-500'}`} style={{ width: `${bin.fillLevel}%` }} />
                                                 </div>
                                             </div>
-                                            <p className="text-[10px] text-gray-600 mt-1">{bin.lastUpdate}</p>
+                                            <p className="text-[10px] text-text-muted mt-1">{bin.lastUpdate}</p>
                                         </div>
                                     </div>
                                 </Popup>
@@ -237,7 +237,7 @@ function MonitoringPage() {
                 )}
 
                 {/* Légende superposée */}
-                <div className="absolute top-4 left-4 z-[999] bg-[#0F172A]/90 backdrop-blur-md border border-[#334155] rounded-xl p-2 sm:p-3 text-[10px] sm:text-xs space-y-1 sm:space-y-1.5 shadow-xl">
+                <div className="absolute top-4 left-4 z-[999] bg-bg-secondary/90 backdrop-blur-md border border-border rounded-xl p-2 sm:p-3 text-[10px] sm:text-xs space-y-1 sm:space-y-1.5 shadow-xl">
                     {[
                         { color: 'bg-emerald-500', label: 'Normal', shadow: 'shadow-emerald-500/30' },
                         { color: 'bg-amber-400', label: 'Attention', shadow: 'shadow-amber-400/30' },
@@ -245,33 +245,33 @@ function MonitoringPage() {
                     ].map(({ color, label, shadow }) => (
                         <div key={label} className="flex items-center gap-2">
                             <div className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full ${color} shadow-lg ${shadow}`} />
-                            <span className="text-gray-400">{label}</span>
+                            <span className="text-text-secondary">{label}</span>
                         </div>
                     ))}
                 </div>
 
                 {/* Info benne sélectionnée */}
                 {selectedBin && (
-                    <div className="absolute bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 z-[999] bg-[#0F172A]/95 backdrop-blur-md border border-[#334155] rounded-xl p-4 shadow-2xl">
+                    <div className="absolute bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 z-[999] bg-bg-secondary/95 backdrop-blur-md border border-border rounded-xl p-4 shadow-2xl">
                         <div className="flex items-start justify-between mb-3">
                             <div>
-                                <p className="text-[10px] text-gray-500 font-bold">{selectedBin.id}</p>
-                                <p className="text-sm font-bold text-white">{selectedBin.name}</p>
+                                <p className="text-[10px] text-text-muted font-bold">{selectedBin.id}</p>
+                                <p className="text-sm font-bold text-text-primary">{selectedBin.name}</p>
                             </div>
-                            <button onClick={() => setSelectedBin(null)} className="p-1 rounded-lg hover:bg-white/5 text-gray-500"><X className="w-3.5 h-3.5" /></button>
+                            <button onClick={() => setSelectedBin(null)} className="p-1 rounded-lg hover:bg-white/5 text-text-muted"><X className="w-3.5 h-3.5" /></button>
                         </div>
                         <div className="grid grid-cols-3 gap-3 text-xs">
-                            <div className="bg-[#1E293B]/80 rounded-lg p-2 text-center">
+                            <div className="bg-input-bg rounded-lg p-2 text-center">
                                 <p className="text-emerald-400 font-bold">{selectedBin.fillLevel}%</p>
-                                <p className="text-gray-500">Remplissage</p>
+                                <p className="text-text-muted">Remplissage</p>
                             </div>
-                            <div className="bg-[#1E293B]/80 rounded-lg p-2 text-center">
+                            <div className="bg-input-bg rounded-lg p-2 text-center">
                                 <p className="text-blue-400 font-bold">{selectedBin.battery}%</p>
-                                <p className="text-gray-500">Batterie</p>
+                                <p className="text-text-muted">Batterie</p>
                             </div>
-                            <div className="bg-[#1E293B]/80 rounded-lg p-2 text-center">
+                            <div className="bg-input-bg rounded-lg p-2 text-center">
                                 <p className="text-orange-400 font-bold">{selectedBin.temperature}°C</p>
-                                <p className="text-gray-500">Temp.</p>
+                                <p className="text-text-muted">Temp.</p>
                             </div>
                         </div>
                     </div>
@@ -281,26 +281,26 @@ function MonitoringPage() {
             {/* Panneau latéral — mobile: fixed overlay, desktop: slide transition */}
             <div className={`
                 fixed sm:relative inset-0 sm:inset-auto z-50 sm:z-auto
-                w-full bg-[#0F172A] sm:bg-[#0F172A]/90 backdrop-blur-md
-                sm:border-l border-[#334155] flex flex-col shrink-0 overflow-hidden
+                w-full bg-bg-secondary sm:bg-bg-secondary/90 backdrop-blur-md
+                sm:border-l border-border flex flex-col shrink-0 overflow-hidden
                 transition-all duration-300 ease-in-out
                 ${showPanel ? 'sm:w-80 sm:opacity-100' : 'sm:w-0 sm:opacity-0 sm:border-l-0'}
             `}>
-                    <div className="flex border-b border-[#334155]">
+                    <div className="flex border-b border-border">
                         {[
                             { key: 'alerts' as const, icon: AlertTriangle, label: 'Alertes', count: alerts.filter((a) => a.status === 'pending').length },
                             { key: 'predictions' as const, icon: Brain, label: 'IA', count: predictions.length },
                             { key: 'activity' as const, icon: Activity, label: 'Activité' },
                         ].map(({ key, icon: Icon, label, count }) => (
                             <button key={key} onClick={() => setPanel(key)}
-                                className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-[11px] font-semibold uppercase tracking-wider transition-all ${panel === key ? 'text-emerald-400 border-b-2 border-emerald-400 bg-emerald-500/5' : 'text-gray-500 hover:text-gray-300'}`}
+                                className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-[11px] font-semibold uppercase tracking-wider transition-all ${panel === key ? 'text-emerald-400 border-b-2 border-emerald-400 bg-emerald-500/5' : 'text-text-muted hover:text-text-primary'}`}
                             >
                                 <Icon className="w-3.5 h-3.5" />
                                 {label}
                                 {count !== undefined && <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded-full">{count}</span>}
                             </button>
                         ))}
-                        <button onClick={() => setShowPanel(false)} className="flex items-center justify-center px-3 text-gray-500 hover:text-white transition-all sm:hidden">
+                        <button onClick={() => setShowPanel(false)} className="flex items-center justify-center px-3 text-text-muted hover:text-text-primary transition-all sm:hidden">
                             <X className="w-5 h-5" />
                         </button>
                     </div>
@@ -308,8 +308,8 @@ function MonitoringPage() {
                     <div className="flex-1 overflow-y-auto p-4 space-y-3">
                         {panelContent()}
 
-                        <div className="pt-3 border-t border-[#334155]">
-                            <h3 className="text-xs font-bold text-white flex items-center gap-1.5 mb-2"><Activity className="w-3.5 h-3.5 text-cyan-400" />Évolution 24h</h3>
+                        <div className="pt-3 border-t border-border">
+                            <h3 className="text-xs font-bold text-text-primary flex items-center gap-1.5 mb-2"><Activity className="w-3.5 h-3.5 text-cyan-400" />Évolution 24h</h3>
                             <div className="h-24">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <LineChart data={fillLevelHistory}>
@@ -323,7 +323,7 @@ function MonitoringPage() {
                         </div>
                     </div>
 
-                    <div className="px-4 py-3 border-t border-[#334155] flex items-center gap-2 text-xs text-gray-500">
+                    <div className="px-4 py-3 border-t border-border flex items-center gap-2 text-xs text-text-muted">
                         <Wifi className="w-3 h-3 text-emerald-400" />
                         <span>Connecté — <span className="text-emerald-400">24 capteurs actifs</span></span>
                     </div>
